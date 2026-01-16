@@ -1,0 +1,117 @@
+import './bootstrap';
+import gsap from 'gsap';
+
+// Initialize animations when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    // Hero Animation
+    const heroTitle = document.querySelector('.hero-title');
+    const heroSubtitle = document.querySelector('.hero-subtitle');
+    const heroSlides = document.querySelectorAll('.hero-slide');
+
+    // Initial Text Animation
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+    if (heroTitle) {
+        tl.from(heroTitle, {
+            duration: 1,
+            y: 50,
+            opacity: 0,
+            stagger: 0.2
+        });
+    }
+
+    if (heroSubtitle) {
+        tl.from(heroSubtitle, {
+            duration: 1,
+            y: 30,
+            opacity: 0
+        }, "-=0.8");
+    }
+
+    // Carousel Animation
+    if (heroSlides.length > 0) {
+        let currentSlide = 0;
+        const totalSlides = heroSlides.length;
+        const slideDuration = 5; // Seconds per slide
+
+        const nextSlide = () => {
+            const next = (currentSlide + 1) % totalSlides;
+
+            // Fade out current
+            gsap.to(heroSlides[currentSlide], {
+                duration: 1.5,
+                opacity: 0,
+                ease: 'power2.inOut'
+            });
+
+            // Fade in next
+            gsap.to(heroSlides[next], {
+                duration: 1.5,
+                opacity: 1,
+                ease: 'power2.inOut'
+            });
+
+            currentSlide = next;
+        };
+
+        // Start the loop
+        setInterval(nextSlide, slideDuration * 1000);
+
+        // Initial zoom effect for the first slide
+        gsap.fromTo(heroSlides[0],
+            { scale: 1.1 },
+            { scale: 1, duration: 10, ease: 'none', repeat: -1, yoyo: true } // Subtle continuous zoom
+        );
+    }
+
+    // Navbar Scroll Effect
+    const navbar = document.getElementById('main-navbar');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            navbar.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+            navbar.classList.remove('bg-transparent', 'text-white');
+        } else {
+            navbar.classList.add('bg-transparent', 'text-white');
+            navbar.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+        }
+    });
+
+    // Slider Logic
+    const sliders = document.querySelectorAll('.slider-container');
+    sliders.forEach(slider => {
+        const container = slider.querySelector('.slider-scroll');
+        const prevBtn = slider.querySelector('.prev-btn');
+        const nextBtn = slider.querySelector('.next-btn');
+        // Optional: Pagination dots if we want to implement them dynamically
+        // const dotsContainer = slider.querySelector('.pagination-dots'); 
+
+        if (container && prevBtn && nextBtn) {
+
+            // Scroll Amount (width of one item approx + gap)
+            // We can calculate this dynamically or just scroll by container width / 2
+            const scrollAmount = 300;
+
+            prevBtn.addEventListener('click', () => {
+                container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            });
+
+            nextBtn.addEventListener('click', () => {
+                container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            });
+
+            // Update button states (opacity) based on scroll position
+            const updateButtons = () => {
+                prevBtn.style.opacity = container.scrollLeft <= 0 ? '0.5' : '1';
+                prevBtn.style.pointerEvents = container.scrollLeft <= 0 ? 'none' : 'auto';
+
+                const maxScroll = container.scrollWidth - container.clientWidth;
+                nextBtn.style.opacity = container.scrollLeft >= maxScroll - 10 ? '0.5' : '1';
+                nextBtn.style.pointerEvents = container.scrollLeft >= maxScroll - 10 ? 'none' : 'auto';
+            };
+
+            container.addEventListener('scroll', updateButtons);
+            // Initial check
+            updateButtons();
+        }
+    });
+});
