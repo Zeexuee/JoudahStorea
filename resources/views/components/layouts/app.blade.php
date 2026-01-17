@@ -7,6 +7,7 @@
 
     <title>{{ $title ?? config('app.name') }}</title>
     <meta name="description" content="{{ $description ?? 'Welcome to ' . config('app.name') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">

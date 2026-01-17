@@ -4,10 +4,9 @@
             <!-- Left: Logo -->
             <div class="absolute left-0 flex-shrink-0 flex items-center">
                 <a href="/" class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-full bg-amber-200 flex items-center justify-center relative overflow-hidden">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center relative overflow-hidden">
                          <!-- Placeholder Abstract Logo -->
-                         <div class="w-5 h-5 bg-amber-100 rounded-full absolute -left-1"></div>
-                         <div class="w-5 h-5 bg-amber-300 rounded-full absolute -right-1 mix-blend-multiply"></div>
+                          <img src="{{ asset('images/logos/logo.png') }}" alt="">
                     </div>
                 </a>
             </div>

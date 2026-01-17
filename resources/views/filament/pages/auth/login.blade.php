@@ -114,23 +114,12 @@
         <!-- Floating Card (Bottom Right) -->
         <div class="absolute bottom-12 right-12 left-24 bg-[#1E1E1E]/90 backdrop-blur-xl p-8 rounded-3xl border border-white/5 shadow-2xl">
             <div class="flex justify-between items-start">
-                <div>
-                    <h3 class="text-2xl font-serif text-white mb-2">Exclusive Member Access</h3>
-                    <p class="text-gray-400 text-sm font-light mb-6">Be among the first to experience our new "Royal Series" collection.</p>
-                </div>
                 <div class="flex -space-x-3">
                      <img class="w-10 h-10 rounded-full border-2 border-[#1E1E1E]" src="https://ui-avatars.com/api/?name=Ali&background=random" alt="">
                      <img class="w-10 h-10 rounded-full border-2 border-[#1E1E1E]" src="https://ui-avatars.com/api/?name=Siti&background=random" alt="">
                      <div class="w-10 h-10 rounded-full border-2 border-[#1E1E1E] bg-amber-600 flex items-center justify-center text-xs font-bold text-white">+2k</div>
                 </div>
             </div>
-            
-             <a href="/" class="inline-flex items-center gap-2 text-white text-sm font-bold group">
-                Apply for Membership 
-                <span class="w-6 h-6 rounded-full bg-white text-black flex items-center justify-center group-hover:bg-amber-500 transition">
-                    <i class="fas fa-arrow-right text-xs"></i>
-                </span>
-            </a>
         </div>
     </div>
 </div>

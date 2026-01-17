@@ -13,30 +13,18 @@
                 
                 <!-- Typography: Matching "Marble Statue Collection's" -->
                 <div class="mb-8">
-                    <h2 class="text-4xl text-gray-900 font-light mb-0 tracking-wide">{{ $product->name }}</h2>
                     <h1 class="text-7xl md:text-8xl font-serif font-thin text-gray-900 -ml-1 leading-none tracking-tight">
                         {{ $product->category->name }}'s
                     </h1>
+                    <h2 class="text-4xl text-gray-900 font-light mb-0 tracking-wide">{{ $product->name }}</h2>
                 </div>
 
-                <p class="text-slate-500 text-lg leading-relaxed font-light mb-12 max-w-lg">
+                <p class="text-slate-500 text-lg leading-relaxed font-light mb-5 max-w-lg">
                     {!! $product->description !!}
                 </p>
 
                 <!-- THE GOLD CARD -->
-                <div class="mt-auto bg-[#F3EAD8] p-8 rounded-none shadow-none relative overflow-hidden">
-                    <!-- Creator Profile -->
-                    <div class="flex justify-between items-start mb-10">
-                        <div class="flex items-center gap-4">
-                            <!-- Avatar Placeholder -->
-                            <div class="w-12 h-12 rounded-full bg-gray-300 overflow-hidden">
-                                <img src="https://ui-avatars.com/api/?name=Joudah&background=0D8ABC&color=fff" class="w-full h-full object-cover">
-                            </div>
-                            <div>
-                                <h4 class="text-gray-900 font-bold text-lg leading-none">Joudah Store</h4>
-                            </div>
-                        </div>
-                    </div>
+                <div class="mt-10 bg-[#F3EAD8] p-8 rounded-none shadow-none relative overflow-hidden">
 
                     <!-- Price Info Grid -->
                     <div class="grid grid-cols-2 gap-8 mb-8">
@@ -67,7 +55,7 @@
 
                     <!-- Buttons (Likely redundant now, or maybe keep for WhatsApp?) -->
                     <div class="grid grid-cols-1">
-                        <a href="https://wa.me/6281234567890" target="_blank" class="bg-[#1A1A1A] text-white py-4 px-6 text-sm font-bold tracking-wide hover:bg-black transition text-center flex items-center justify-center gap-2">
+                        <a href="https://wa.me/+6287796715916?text={{ urlencode('Halo, saya tertarik dengan produk ' . $product->name . ' ini. Apakah masih ada stok?') }}" target="_blank" class="bg-[#1A1A1A] text-white py-4 px-6 text-sm font-bold tracking-wide hover:bg-black transition text-center flex items-center justify-center gap-2">
                             <span>Contact via WhatsApp</span>
                         </a>
                     </div>
@@ -82,7 +70,7 @@
                     
                     <!-- Item 1: Front View -->
                     <div class="min-w-[85%] md:min-w-[45%] snap-center flex flex-col h-full">
-                        <span class="block text-xs font-bold uppercase tracking-widest text-gray-900 mb-4">Front View</span>
+                        <span class="block text-xs font-bold uppercase tracking-widest text-gray-900 mb-4"></span>
                         <div class="flex-grow bg-gray-100 overflow-hidden relative">
                              <img src="{{ !empty($product->images[0]) ? asset('storage/' . $product->images[0]) : asset('images/placeholder.png') }}" class="w-full h-full object-cover grayscale-[0.1] cursor-pointer gallery-image hover:grayscale-0 transition duration-300">
                         </div>
@@ -91,7 +79,7 @@
                     <!-- Item 2: Packaging Detail -->
                     @if(isset($product->images[1]))
                     <div class="min-w-[85%] md:min-w-[45%] snap-center flex flex-col h-full">
-                        <span class="block text-xs font-bold uppercase tracking-widest text-gray-900 mb-4">Packaging Detail</span>
+                        <span class="block text-xs font-bold uppercase tracking-widest text-gray-900 mb-4"></span>
                         <div class="flex-grow bg-gray-100 overflow-hidden relative">
                              <img src="{{ asset('storage/' . $product->images[1]) }}" class="w-full h-full object-cover grayscale-[0.1] cursor-pointer gallery-image hover:grayscale-0 transition duration-300">
                         </div>
@@ -101,7 +89,7 @@
                      <!-- Item 3: Texture -->
                     @if(isset($product->images[2]))
                     <div class="min-w-[85%] md:min-w-[45%] snap-center flex flex-col h-full">
-                        <span class="block text-xs font-bold uppercase tracking-widest text-gray-900 mb-4">Texture</span>
+                        <span class="block text-xs font-bold uppercase tracking-widest text-gray-900 mb-4"></span>
                         <div class="flex-grow bg-gray-100 overflow-hidden relative">
                              <img src="{{ asset('storage/' . $product->images[2]) }}" class="w-full h-full object-cover grayscale-[0.1] cursor-pointer gallery-image hover:grayscale-0 transition duration-300">
                         </div>
@@ -111,7 +99,7 @@
                     <!-- Item 4: In Context -->
                     @if(isset($product->images[3]))
                     <div class="min-w-[85%] md:min-w-[45%] snap-center flex flex-col h-full">
-                        <span class="block text-xs font-bold uppercase tracking-widest text-gray-900 mb-4">In Context</span>
+                        <span class="block text-xs font-bold uppercase tracking-widest text-gray-900 mb-4"></span>
                         <div class="flex-grow bg-gray-100 overflow-hidden relative">
                              <img src="{{ asset('storage/' . $product->images[3]) }}" class="w-full h-full object-cover grayscale-[0.1] cursor-pointer gallery-image hover:grayscale-0 transition duration-300">
                         </div>
@@ -141,7 +129,7 @@
             
             <!-- 1. Customer Reviews -->
             <div class="mb-32 max-w-4xl">
-                <h3 class="text-3xl font-serif text-gray-900 mb-12">Customer Reviews</h3>
+                <h3 class="text-3xl font-serif text-gray-900 mb-12">Ulasan Pelanggan</h3>
                 
                 <div class="space-y-12">
                     @forelse($product->reviews->where('is_approved', true) as $review)
@@ -156,58 +144,32 @@
                                     <i class="far fa-star text-gray-300">★</i>
                                 @endfor
                             </div>
-                            <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Verified Buyer</span>
+                            <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Pembeli Terpercaya</span>
                         </div>
                         <h4 class="text-lg font-bold text-gray-900 mb-2">{{ $review->name }}</h4>
                         <p class="text-gray-500 font-light leading-relaxed">"{{ $review->comment }}"</p>
                         <span class="block mt-4 text-xs font-serif italic text-gray-400">— {{ $review->created_at->format('F d, Y') }}</span>
                     </div>
                     @empty
-                    <div class="text-gray-500 italic">No reviews yet. Be the first to review!</div>
+                    <div class="text-gray-500 italic">Belum ada ulasan, nantikan ulasan dari pembeli lainnya</div>
                     @endforelse
                 </div>
             </div>
 
             <!-- 2. Recommendations (You May Also Like) -->
             <div>
-                <h3 class="text-3xl font-serif text-gray-900 mb-12">You May Also Like</h3>
+                <h3 class="text-3xl font-serif text-gray-900 mb-12">Kamu Mungkin Suka</h3>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                     <!-- Item 1 -->
-                     <a href="#" class="group block cursor-pointer">
+                    @foreach($relatedProducts as $related)
+                    <a href="{{ route('product.detail', $related->slug) }}" class="group block cursor-pointer">
                         <div class="relative bg-gray-50 aspect-[4/5] overflow-hidden mb-4">
-                            <img src="{{ asset('images/catalog/parfum.png') }}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-700 ease-out grayscale-[0.1] group-hover:grayscale-0">
+                            <img src="{{ asset('storage/' . ($related->images[0] ?? 'images/placeholder.png')) }}" alt="{{ $related->name }}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-700 ease-out grayscale-[0.1] group-hover:grayscale-0">
                         </div>
-                        <h4 class="font-serif text-lg text-gray-900 mb-1 group-hover:text-amber-700 transition">Midnight Oud</h4>
-                        <p class="text-sm text-gray-500">Rp 210.000</p>
+                        <h4 class="font-serif text-lg text-gray-900 mb-1 group-hover:text-amber-700 transition">{{ $related->name }}</h4>
+                        <p class="text-sm text-gray-500">{{ Number::currency($related->price, 'IDR') }}</p>
                     </a>
-
-                    <!-- Item 2 -->
-                    <a href="#" class="group block cursor-pointer">
-                        <div class="relative bg-gray-50 aspect-[4/5] overflow-hidden mb-4">
-                            <img src="{{ asset('images/catalog/bukhur-box.png') }}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-700 ease-out grayscale-[0.1] group-hover:grayscale-0">
-                        </div>
-                        <h4 class="font-serif text-lg text-gray-900 mb-1 group-hover:text-amber-700 transition">Bukhur Royal</h4>
-                        <p class="text-sm text-gray-500">Rp 150.000</p>
-                    </a>
-
-                    <!-- Item 3 -->
-                    <a href="#" class="group block cursor-pointer">
-                        <div class="relative bg-gray-50 aspect-[4/5] overflow-hidden mb-4">
-                            <img src="{{ asset('images/catalog/linen-spray.png') }}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-700 ease-out grayscale-[0.1] group-hover:grayscale-0">
-                        </div>
-                        <h4 class="font-serif text-lg text-gray-900 mb-1 group-hover:text-amber-700 transition">Kiswah Spray</h4>
-                        <p class="text-sm text-gray-500">Rp 85.000</p>
-                    </a>
-
-                    <!-- Item 4 -->
-                    <a href="#" class="group block cursor-pointer">
-                        <div class="relative bg-gray-50 aspect-[4/5] overflow-hidden mb-4">
-                            <img src="{{ asset('images/catalog/hampers.png') }}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-700 ease-out grayscale-[0.1] group-hover:grayscale-0">
-                        </div>
-                        <h4 class="font-serif text-lg text-gray-900 mb-1 group-hover:text-amber-700 transition">Exclusive Set</h4>
-                        <p class="text-sm text-gray-500">Rp 350.000</p>
-                    </a>
+                    @endforeach
                 </div>
             </div>
 
