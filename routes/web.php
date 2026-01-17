@@ -12,12 +12,22 @@ Route::get('/', function () {
 
 Route::get('/product/{slug}', function ($slug) {
     $product = \App\Models\Product::where('slug', $slug)->firstOrFail();
-    return view('product.detail', ['product' => $product]);
+    $relatedProducts = \App\Models\Product::where('category_id', $product->category_id)
+        ->where('id', '!=', $product->id)
+        ->inRandomOrder()
+        ->take(4)
+        ->get();
+
+    return view('product.detail', ['product' => $product, 'relatedProducts' => $relatedProducts]);
 })->name('product.detail');
 
 Route::get('/category/{slug}', function ($slug) {
     $category = \App\Models\Category::where('slug', $slug)->with('products')->firstOrFail();
     return view('category.show', ['category' => $category]);
 })->name('category.show');
+
+Route::view('/privacy-policy', 'privacy-policy')->name('privacy-policy');
+Route::view('/shipping-policy', 'shipping-policy')->name('shipping-policy');
+Route::view('/returns-exchanges', 'returns-exchanges')->name('returns-exchanges');
 
 

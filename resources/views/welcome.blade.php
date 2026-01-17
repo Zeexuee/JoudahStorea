@@ -3,7 +3,5 @@
 
     <x-catalog-section :categories="$categories" />
     <x-about-section />
-    <x-features-section />
-    <x-newsletter-section />
     <x-footer />
 </x-layouts.app>

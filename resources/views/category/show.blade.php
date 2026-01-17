@@ -36,7 +36,7 @@
                 <!-- Product Card (Minimalist) -->
                 <a href="{{ route('product.detail', $product->slug) }}" class="group block cursor-pointer">
                     <div class="relative bg-gray-50 aspect-[4/5] overflow-hidden mb-6">
-                        <img src="{{ asset($product->images[0] ?? 'images/placeholder.png') }}" alt="{{ $product->name }}" class="w-full h-full object-cover object-center transform group-hover:scale-105 transition duration-700 ease-out grayscale-[0.1] group-hover:grayscale-0">
+                        <img src="{{ asset('storage/' . ($product->images[0] ?? 'images/placeholder.png')) }}" alt="{{ $product->name }}" class="w-full h-full object-cover object-center transform group-hover:scale-105 transition duration-700 ease-out grayscale-[0.1] group-hover:grayscale-0">
                         
                         <!-- Quick Add Overlay (Optional) -->
                         <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500 flex items-center justify-center opacity-0 group-hover:opacity-100">

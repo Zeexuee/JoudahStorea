@@ -33,7 +33,7 @@
                     <h3 class="text-3xl font-serif text-gray-900 mb-4">{{ $category->name }}</h3>
                     <p class="text-gray-500 font-light leading-relaxed">{{ $category->description }}</p>
                 </div>
-                <a href="{{ route('category.show', 'perfume') }}" class="hidden md:inline-block text-sm uppercase tracking-widest border-b border-gray-900 pb-1 hover:text-amber-600 hover:border-amber-600 transition">View All Perfumes</a>
+                <a href="{{ route('category.show', 'perfume') }}" class="hidden md:inline-block text-sm uppercase tracking-widest border-b border-gray-900 pb-1 hover:text-amber-600 hover:border-amber-600 transition">Lihat Semua Parfum</a>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-y-16 gap-x-8">
@@ -128,7 +128,7 @@
                                     <span class="font-medium text-gray-900">{{ Number::currency($product->price, 'IDR') }}</span>
                                 </div>
                                 <p class="text-gray-500 text-sm leading-relaxed mb-3 font-light">{{ Str::limit($product->description, 100) }}</p>
-                                <span class="text-xs uppercase tracking-wider font-bold text-amber-600 opacity-0 group-hover:opacity-100 transition transform translate-x-[-10px] group-hover:translate-x-0 inline-block">View Details</span>
+                                <span class="text-xs uppercase tracking-wider font-bold text-amber-600 opacity-0 group-hover:opacity-100 transition transform translate-x-[-10px] group-hover:translate-x-0 inline-block">Lihat Detail</span>
                             </a>
                         </div>
                         @endforeach

@@ -4,34 +4,33 @@
             <!-- Brand -->
             <div class="col-span-1 md:col-span-1">
                 <a href="/" class="flex items-center gap-2 mb-6">
-                    <div class="w-8 h-8 rounded-full bg-amber-200 flex items-center justify-center relative overflow-hidden">
-                         <div class="w-5 h-5 bg-amber-100 rounded-full absolute -left-1"></div>
-                         <div class="w-5 h-5 bg-amber-300 rounded-full absolute -right-1 mix-blend-multiply"></div>
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center relative overflow-hidden">
+                         <img src="{{ asset('images/logos/logo.png') }}" alt="">
                     </div>
                 </a>
                 <p class="text-gray-500 text-sm leading-relaxed">
-                    Joudah Store offers an exclusive collection of premium perfumes, curated for the sophisticated individual.
+                    Joudah Store menawarkan koleksi eksklusif parfum premium, yang dirancang khusus untuk individu yang elegan dan berkelas.
                 </p>
             </div>
 
             <!-- Links Column 1 -->
             <div>
-                <h4 class="font-serif text-gray-900 mb-6">Shop</h4>
+                <h4 class="font-serif text-gray-900 mb-6">Toko</h4>
                 <ul class="space-y-4 text-sm text-gray-500">
-                    <li><a href="#" class="hover:text-amber-600 transition">All Perfumes</a></li>
-                    <li><a href="#" class="hover:text-amber-600 transition">Best Sellers</a></li>
-                    <li><a href="#" class="hover:text-amber-600 transition">New Arrivals</a></li>
-                    <li><a href="#" class="hover:text-amber-600 transition">Exclusive Sets</a></li>
+                    <li><a href="#" class="hover:text-amber-600 transition">Semua Parfum</a></li>
+                    <li><a href="#" class="hover:text-amber-600 transition">Bukhur Terbaik</a></li>
+                    <li><a href="#" class="hover:text-amber-600 transition">Baru Datang</a></li>
+                    <li><a href="#" class="hover:text-amber-600 transition">Set Eksklusif</a></li>
                 </ul>
             </div>
 
             <!-- Links Column 2 -->
             <div>
-                <h4 class="font-serif text-gray-900 mb-6">Support</h4>
+                <h4 class="font-serif text-gray-900 mb-6">Dukungan</h4>
                 <ul class="space-y-4 text-sm text-gray-500">
-                    <li><a href="#" class="hover:text-amber-600 transition">Contact Us</a></li>
-                    <li><a href="#" class="hover:text-amber-600 transition">Shipping Policy</a></li>
-                    <li><a href="#" class="hover:text-amber-600 transition">Returns & Exchanges</a></li>
+                    <li><a href="https://wa.me/6281212021961?text=Halo kak, " class="hover:text-amber-600 transition">Hubungi Kami</a></li>
+                    <li><a href="{{ route('shipping-policy') }}" class="hover:text-amber-600 transition">Kebijakan Pengiriman</a></li>
+                    <li><a href="{{ route('returns-exchanges') }}" class="hover:text-amber-600 transition">Pengembalian & Tukar</a></li>
                     <li><a href="#" class="hover:text-amber-600 transition">FAQ</a></li>
                 </ul>
             </div>
@@ -53,14 +52,6 @@
                         </svg>
                     </a>
                 </div>
-            </div>
-        </div>
-        
-        <div class="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
-            <p>&copy; 2024 Joudah Store. All rights reserved.</p>
-            <div class="flex space-x-6 mt-4 md:mt-0">
-                <a href="#" class="hover:text-gray-900 transition">Privacy Policy</a>
-                <a href="#" class="hover:text-gray-900 transition">Terms of Service</a>
             </div>
         </div>
     </div>
