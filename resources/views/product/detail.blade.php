@@ -19,9 +19,51 @@
                     <h2 class="text-4xl text-gray-900 font-light mb-0 tracking-wide">{{ $product->name }}</h2>
                 </div>
 
-                <div class="text-slate-500 text-lg leading-relaxed mb-5 max-w-lg [&_p]:!mb-6 [&_p]:leading-loose [&_strong]:font-bold [&_strong]:text-gray-900 [&_b]:font-bold [&_b]:text-gray-900 [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:!mb-6 [&_li]:mb-2 [&_br]:block [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:!mb-4 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:!mb-4 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:!mb-4">
-                    {!! $product->description !!}
+                <div id="product-description-container" class="relative">
+                    <div id="product-description" class="text-slate-500 text-lg leading-relaxed text-justify mb-5 max-w-lg transition-all duration-500 ease-in-out max-h-[200px] overflow-hidden [&_p]:!mb-6 [&_p]:leading-loose [&_strong]:font-bold [&_strong]:text-gray-900 [&_b]:font-bold [&_b]:text-gray-900 [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:!mb-6 [&_li]:mb-2 [&_br]:block [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:!mb-4 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:!mb-4 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:!mb-4">
+                        {!! $product->description !!}
+                    </div>
+                    <div id="description-overlay" class="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
                 </div>
+                <button id="toggle-description" class="text-amber-600 font-bold text-sm tracking-widest uppercase hover:text-amber-800 transition mb-8 focus:outline-none">
+                    Read More
+                </button>
+
+                @push('scripts')
+                <script>
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const container = document.getElementById('product-description');
+                        const toggleBtn = document.getElementById('toggle-description');
+                        const overlay = document.getElementById('description-overlay');
+                        const fullHeight = container.scrollHeight;
+                        
+                        // If content is short, hide button and overlay
+                        if (fullHeight <= 200) {
+                            toggleBtn.style.display = 'none';
+                            overlay.style.display = 'none';
+                            container.classList.remove('max-h-[200px]', 'overflow-hidden');
+                        }
+
+                        let isExpanded = false;
+
+                        toggleBtn.addEventListener('click', () => {
+                            isExpanded = !isExpanded;
+                            
+                            if (isExpanded) {
+                                container.style.maxHeight = fullHeight + 'px';
+                                container.classList.remove('overflow-hidden'); // Optional: keep for transition
+                                overlay.classList.add('opacity-0');
+                                toggleBtn.textContent = 'Read Less';
+                            } else {
+                                container.style.maxHeight = '200px';
+                                // container.classList.add('overflow-hidden');
+                                overlay.classList.remove('opacity-0');
+                                toggleBtn.textContent = 'Read More';
+                            }
+                        });
+                    });
+                </script>
+                @endpush
 
                 <!-- THE GOLD CARD -->
                 <div class="mt-10 bg-[#F3EAD8] p-8 rounded-none shadow-none relative overflow-hidden">
