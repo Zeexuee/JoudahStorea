@@ -72,7 +72,13 @@
                     <div class="min-w-[85%] md:min-w-[45%] snap-center flex flex-col h-full">
                         <span class="block text-xs font-bold uppercase tracking-widest text-gray-900 mb-4"></span>
                         <div class="flex-grow bg-gray-100 overflow-hidden relative">
-                             <img src="{{ !empty($product->images[0]) ? asset('storage/' . $product->images[0]) : asset('images/placeholder.png') }}" class="w-full h-full object-cover grayscale-[0.1] cursor-pointer gallery-image hover:grayscale-0 transition duration-300">
+                             @php
+                                $imagePath = $product->images[0] ?? null;
+                                $src = $imagePath 
+                                    ? (Str::startsWith($imagePath, 'images/') ? asset($imagePath) : asset('storage/' . $imagePath))
+                                    : asset('images/placeholder.png');
+                             @endphp
+                             <img src="{{ $src }}" class="w-full h-full object-cover grayscale-[0.1] cursor-pointer gallery-image hover:grayscale-0 transition duration-300">
                         </div>
                     </div>
 
@@ -81,7 +87,11 @@
                     <div class="min-w-[85%] md:min-w-[45%] snap-center flex flex-col h-full">
                         <span class="block text-xs font-bold uppercase tracking-widest text-gray-900 mb-4"></span>
                         <div class="flex-grow bg-gray-100 overflow-hidden relative">
-                             <img src="{{ asset('storage/' . $product->images[1]) }}" class="w-full h-full object-cover grayscale-[0.1] cursor-pointer gallery-image hover:grayscale-0 transition duration-300">
+                             @php
+                                $img1 = $product->images[1];
+                                $src1 = Str::startsWith($img1, 'images/') ? asset($img1) : asset('storage/' . $img1);
+                             @endphp
+                             <img src="{{ $src1 }}" class="w-full h-full object-cover grayscale-[0.1] cursor-pointer gallery-image hover:grayscale-0 transition duration-300">
                         </div>
                     </div>
                     @endif
@@ -91,7 +101,11 @@
                     <div class="min-w-[85%] md:min-w-[45%] snap-center flex flex-col h-full">
                         <span class="block text-xs font-bold uppercase tracking-widest text-gray-900 mb-4"></span>
                         <div class="flex-grow bg-gray-100 overflow-hidden relative">
-                             <img src="{{ asset('storage/' . $product->images[2]) }}" class="w-full h-full object-cover grayscale-[0.1] cursor-pointer gallery-image hover:grayscale-0 transition duration-300">
+                             @php
+                                $img2 = $product->images[2];
+                                $src2 = Str::startsWith($img2, 'images/') ? asset($img2) : asset('storage/' . $img2);
+                             @endphp
+                             <img src="{{ $src2 }}" class="w-full h-full object-cover grayscale-[0.1] cursor-pointer gallery-image hover:grayscale-0 transition duration-300">
                         </div>
                     </div>
                     @endif
@@ -101,7 +115,11 @@
                     <div class="min-w-[85%] md:min-w-[45%] snap-center flex flex-col h-full">
                         <span class="block text-xs font-bold uppercase tracking-widest text-gray-900 mb-4"></span>
                         <div class="flex-grow bg-gray-100 overflow-hidden relative">
-                             <img src="{{ asset('storage/' . $product->images[3]) }}" class="w-full h-full object-cover grayscale-[0.1] cursor-pointer gallery-image hover:grayscale-0 transition duration-300">
+                             @php
+                                $img3 = $product->images[3];
+                                $src3 = Str::startsWith($img3, 'images/') ? asset($img3) : asset('storage/' . $img3);
+                             @endphp
+                             <img src="{{ $src3 }}" class="w-full h-full object-cover grayscale-[0.1] cursor-pointer gallery-image hover:grayscale-0 transition duration-300">
                         </div>
                     </div>
                     @endif
@@ -164,7 +182,13 @@
                     @foreach($relatedProducts as $related)
                     <a href="{{ route('product.detail', $related->slug) }}" class="group block cursor-pointer">
                         <div class="relative bg-gray-50 aspect-[4/5] overflow-hidden mb-4">
-                            <img src="{{ asset('storage/' . ($related->images[0] ?? 'images/placeholder.png')) }}" alt="{{ $related->name }}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-700 ease-out grayscale-[0.1] group-hover:grayscale-0">
+                            @php
+                                $relImg = $related->images[0] ?? null;
+                                $relSrc = $relImg 
+                                    ? (Str::startsWith($relImg, 'images/') ? asset($relImg) : asset('storage/' . $relImg))
+                                    : asset('images/placeholder.png');
+                            @endphp
+                            <img src="{{ $relSrc }}" alt="{{ $related->name }}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-700 ease-out grayscale-[0.1] group-hover:grayscale-0">
                         </div>
                         <h4 class="font-serif text-lg text-gray-900 mb-1 group-hover:text-amber-700 transition">{{ $related->name }}</h4>
                         <p class="text-sm text-gray-500">{{ Number::currency($related->price, 'IDR') }}</p>
