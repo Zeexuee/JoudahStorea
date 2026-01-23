@@ -51,12 +51,12 @@
                             
                             if (isExpanded) {
                                 container.style.maxHeight = fullHeight + 'px';
-                                container.classList.remove('overflow-hidden'); // Optional: keep for transition
+                                container.classList.remove('overflow-hidden');
                                 overlay.classList.add('opacity-0');
                                 toggleBtn.textContent = 'Read Less';
                             } else {
                                 container.style.maxHeight = '200px';
-                                // container.classList.add('overflow-hidden');
+                                container.classList.add('overflow-hidden');
                                 overlay.classList.remove('opacity-0');
                                 toggleBtn.textContent = 'Read More';
                             }
