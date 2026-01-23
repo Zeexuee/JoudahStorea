@@ -19,7 +19,7 @@
                     <h2 class="text-4xl text-gray-900 font-light mb-0 tracking-wide">{{ $product->name }}</h2>
                 </div>
 
-                <div class="text-slate-500 text-lg leading-relaxed mb-5 max-w-lg [&_p]:mb-4 [&_strong]:font-bold [&_strong]:text-gray-900 [&_b]:font-bold [&_b]:text-gray-900 [&_ul]:list-disc [&_ul]:ml-5 [&_li]:mb-1 [&_br]:block [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-2 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mb-2">
+                <div class="text-slate-500 text-lg leading-relaxed mb-5 max-w-lg [&_p]:!mb-6 [&_p]:leading-loose [&_strong]:font-bold [&_strong]:text-gray-900 [&_b]:font-bold [&_b]:text-gray-900 [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:!mb-6 [&_li]:mb-2 [&_br]:block [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:!mb-4 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:!mb-4 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:!mb-4">
                     {!! $product->description !!}
                 </div>
 
