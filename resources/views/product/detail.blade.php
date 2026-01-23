@@ -19,9 +19,9 @@
                     <h2 class="text-4xl text-gray-900 font-light mb-0 tracking-wide">{{ $product->name }}</h2>
                 </div>
 
-                <p class="text-slate-500 text-lg leading-relaxed font-light mb-5 max-w-lg">
+                <div class="text-slate-500 text-lg leading-relaxed font-light mb-5 max-w-lg [&_p]:mb-4 [&_strong]:font-bold [&_strong]:text-gray-900 [&_ul]:list-disc [&_ul]:ml-5 [&_li]:mb-1">
                     {!! $product->description !!}
-                </p>
+                </div>
 
                 <!-- THE GOLD CARD -->
                 <div class="mt-10 bg-[#F3EAD8] p-8 rounded-none shadow-none relative overflow-hidden">
