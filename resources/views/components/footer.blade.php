@@ -28,7 +28,7 @@
             <div>
                 <h4 class="font-serif text-gray-900 mb-6">Dukungan</h4>
                 <ul class="space-y-4 text-sm text-gray-500">
-                    <li><a href="https://wa.me/6281212021961?text=Halo kak, " class="hover:text-amber-600 transition">Hubungi Kami</a></li>
+                    <li><a href="https://wa.me/087796715916?text=Halo kak, " class="hover:text-amber-600 transition">Hubungi Kami</a></li>
                     <li><a href="{{ route('shipping-policy') }}" class="hover:text-amber-600 transition">Kebijakan Pengiriman</a></li>
                     <li><a href="{{ route('returns-exchanges') }}" class="hover:text-amber-600 transition">Pengembalian & Tukar</a></li>
                     <li><a href="#" class="hover:text-amber-600 transition">FAQ</a></li>
@@ -39,11 +39,11 @@
             <div>
                 <h4 class="font-serif text-gray-900 mb-6">Follow Us</h4>
                 <div class="flex space-x-4">
-                    <a href="#" class="text-gray-400 hover:text-amber-600 transition">
+                    <a href="https://www.instagram.com/joudah_official/" class="text-gray-400 hover:text-amber-600 transition">
                         <span class="sr-only">Instagram</span>
                         <i data-feather="instagram"></i>
                     </a>
-                    <a href="#" class="text-gray-400 hover:text-amber-600 transition">
+                    <a href="https://www.linkedin.com/company/joudah-group/" class="text-gray-400 hover:text-amber-600 transition">
                         <span class="sr-only">Linkedin</span>
                         <i data-feather="linkedin"></i>
                     </a>
