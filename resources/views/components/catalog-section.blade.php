@@ -40,7 +40,13 @@
                 @foreach($category->products->take(3) as $product)
                 <a href="{{ route('product.detail', $product->slug) }}" class="group cursor-pointer block">
                     <div class="relative bg-gray-50 aspect-[4/5] overflow-hidden mb-6">
-                         <img src="{{ !empty($product->images[0]) ? asset('storage/' . $product->images[0]) : asset('images/placeholder.png') }}" alt="{{ $product->name }}" class="w-full h-full object-cover object-center transform group-hover:scale-105 transition duration-700 ease-out">
+                         @php
+                             $imagePath = $product->images[0] ?? null;
+                             $src = $imagePath 
+                                 ? (Str::startsWith($imagePath, 'images/') ? asset($imagePath) : asset('storage/' . $imagePath))
+                                 : asset('images/placeholder.png');
+                         @endphp
+                         <img src="{{ $src }}" alt="{{ $product->name }}" class="w-full h-full object-cover object-center transform group-hover:scale-105 transition duration-700 ease-out">
                          @if($product->is_featured)
                          <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 text-[10px] uppercase tracking-widest font-bold text-gray-900">Featured</div>
                          @endif
@@ -70,7 +76,13 @@
                 <div class="snap-start shrink-0 w-72 group/card cursor-pointer">
                     <a href="{{ route('product.detail', $product->slug) }}" class="block">
                     <div class="relative aspect-square bg-gray-50 mb-6 overflow-hidden">
-                            <img src="{{ !empty($product->images[0]) ? asset('storage/' . $product->images[0]) : asset('images/placeholder.png') }}" alt="{{ $product->name }}" class="w-full h-full object-cover object-center transform group-hover/card:scale-105 transition duration-500">
+                            @php
+                                $imagePath = $product->images[0] ?? null;
+                                $src = $imagePath 
+                                    ? (Str::startsWith($imagePath, 'images/') ? asset($imagePath) : asset('storage/' . $imagePath))
+                                    : asset('images/placeholder.png');
+                            @endphp
+                            <img src="{{ $src }}" alt="{{ $product->name }}" class="w-full h-full object-cover object-center transform group-hover/card:scale-105 transition duration-500">
                         </div>
                         <h4 class="font-serif text-lg text-gray-900 mb-1 group-hover/card:text-amber-700 transition">{{ $product->name }}</h4>
                         <p class="text-gray-500 text-sm">{{ Number::currency($product->price, 'IDR') }}</p>
@@ -97,7 +109,13 @@
                 <div class="snap-center shrink-0 w-56 group/card cursor-pointer text-center">
                     <a href="{{ route('product.detail', $product->slug) }}" class="block">
                         <div class="relative aspect-[3/4] bg-gray-50 mb-4 overflow-hidden rounded-lg">
-                            <img src="{{ !empty($product->images[0]) ? asset('storage/' . $product->images[0]) : asset('images/placeholder.png') }}" alt="{{ $product->name }}" class="w-full h-full object-cover object-center transform group-hover/card:scale-105 transition duration-500">
+                            @php
+                                $imagePath = $product->images[0] ?? null;
+                                $src = $imagePath 
+                                    ? (Str::startsWith($imagePath, 'images/') ? asset($imagePath) : asset('storage/' . $imagePath))
+                                    : asset('images/placeholder.png');
+                            @endphp
+                            <img src="{{ $src }}" alt="{{ $product->name }}" class="w-full h-full object-cover object-center transform group-hover/card:scale-105 transition duration-500">
                         </div>
                         <h4 class="font-serif text-gray-900 text-lg group-hover/card:text-amber-600 transition">{{ $product->name }}</h4>
                         <p class="text-xs text-gray-500 uppercase tracking-wide mt-1">{{ Number::currency($product->price, 'IDR') }}</p>
@@ -113,7 +131,13 @@
         <div class="mb-40 bg-warm-gray-50 rounded-2xl overflow-hidden shadow-sm border border-gray-100">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 <div class="relative bg-gray-100 flex items-center justify-center p-8 lg:p-0 min-h-[400px]">
-                    <img src="{{ !empty($category->hero_image) ? asset('storage/' . $category->hero_image) : asset('images/placeholder.png') }}" alt="Exclusive Gift Sets" class="w-full h-full object-cover">
+                    @php
+                        $heroImage = $category->hero_image;
+                        $heroSrc = $heroImage
+                            ? (Str::startsWith($heroImage, 'images/') ? asset($heroImage) : asset('storage/' . $heroImage))
+                            : asset('images/placeholder.png');
+                    @endphp
+                    <img src="{{ $heroSrc }}" alt="Exclusive Gift Sets" class="w-full h-full object-cover">
                 </div>
                 <div class="p-12 lg:p-20 flex flex-col justify-center bg-white">
                     <span class="text-amber-600 font-bold tracking-widest uppercase text-xs mb-4">The Art of Gifting</span>

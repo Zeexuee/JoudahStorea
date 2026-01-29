@@ -1,4 +1,4 @@
-<x-layouts.app tittle="{{ $category['title'] }} - Joudah Store" description="{{ $category['description'] }}">
+<x-layouts.app title="{{ $category['title'] }} - Joudah Store" description="{{ $category['description'] }}">
     <div class="bg-white min-h-screen">
         <!-- Navbar spacer -->
         <div class="h-24"></div>
@@ -6,7 +6,7 @@
         <!-- HERO SECTION -->
         <div class="relative w-full h-[40vh] min-h-[400px] flex items-center justify-center overflow-hidden bg-gray-100">
             <!-- Background Image -->
-            <img src="{{ asset($category['banner']) }}" alt="{{ $category['title'] }}" class="absolute inset-0 w-full h-full object-cover">
+            <img src="{{ asset('storage/' . $category['hero_image']) }}" alt="{{ $category['title'] }}" class="absolute inset-0 w-full h-full object-cover">
             <div class="absolute inset-0 bg-black/30"></div>
 
             <!-- Content -->

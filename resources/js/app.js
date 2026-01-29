@@ -1,8 +1,10 @@
 import './bootstrap';
 import gsap from 'gsap';
+import feather from 'feather-icons';
 
 // Initialize animations when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    feather.replace();
     // Hero Animation
     const heroTitle = document.querySelector('.hero-title');
     const heroSubtitle = document.querySelector('.hero-subtitle');
