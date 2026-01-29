@@ -1,4 +1,4 @@
-<x-layouts.app tittle="{{ $category['title'] }} - Joudah Store" description="{{ $category['description'] }}">
+<x-layouts.app title="{{ $category['title'] }} - Joudah Store" description="{{ $category['description'] }}">
     <div class="bg-white min-h-screen">
         <!-- Navbar spacer -->
         <div class="h-24"></div>
