@@ -1,4 +1,4 @@
-<x-layouts.app>
+<x-layouts.app tittle="{{ $product->name }} - {{ $product->category->name }}'s" description="{{ $product->description }}">
     <div class="bg-white min-h-screen flex flex-col pt-24">
         
         <style>
