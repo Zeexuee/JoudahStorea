@@ -7,32 +7,32 @@
                 <div class="prose prose-lg prose-amber text-gray-600">
                     <p class="lead">Last updated: {{ date('F d, Y') }}</p>
 
-                    <p>At Joudah Store, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website.</p>
+                    <p>Di Joudah Store, kami mengutamakan privasi Anda. Kebijakan Privasi ini menjelaskan cara kami mengumpulkan, menggunakan, mengungkapkan, dan melindungi informasi Anda saat Anda mengunjungi situs web kami.</p>
 
-                    <h3>1. Information We Collect</h3>
-                    <p>We may collect information about you in a variety of ways. The information we may collect on the Site includes:</p>
+                    <h3>1. Informasi yang Dikumpulkan</h3>
+                    <p>Kami mungkin mengumpulkan informasi tentang Anda dalam berbagai cara. Informasi yang mungkin dikumpulkan di situs web termasuk:</p>
                     <ul>
-                        <li><strong>Personal Data:</strong> Personally identifiable information, such as your name, shipping address, email address, and telephone number, that you voluntarily give to us when you register with the Site or when you choose to participate in various activities related to the Site.</li>
-                        <li><strong>Derivative Data:</strong> Information our servers automatically collect when you access the Site, such as your IP address, your browser type, your operating system, your access times, and the pages you have viewed directly before and after accessing the Site.</li>
+                        <li><strong>Data Pribadi:</strong> Informasi yang dapat dikenali secara pribadi, seperti nama, alamat pengiriman, alamat email, dan nomor telepon, yang Anda berikan secara自愿 kepada kami saat mendaftar di situs web atau saat Anda memilih untuk berpartisipasi dalam berbagai aktivitas yang berkaitan dengan situs web.</li>
+                        <li><strong>Data Turunan:</strong> Informasi yang dikumpulkan otomatis oleh server kami saat Anda mengakses situs web, seperti alamat IP Anda, jenis browser Anda, sistem operasi Anda, waktu akses Anda, dan halaman yang Anda lihat sebelum dan setelah mengakses situs web.</li>
                     </ul>
 
-                    <h3>2. Use of Your Information</h3>
-                    <p>Having accurate information about you permits us to provide you with a smooth, efficient, and customized experience. Specifically, we may use information collected about you via the Site to:</p>
+                    <h3>2. Penggunaan Informasi Anda</h3>
+                    <p>Mempunyai informasi yang akurat tentang Anda memungkinkan kami untuk memberikan pengalaman yang lancar, efisien, dan disesuaikan. Khususnya, kami mungkin menggunakan informasi yang dikumpulkan tentang Anda melalui situs web untuk:</p>
                     <ul>
-                        <li>Create and manage your account.</li>
-                        <li>Process your orders and deliver products.</li>
-                        <li>Email you regarding your account or order.</li>
-                        <li>Fulfill and manage purchases, orders, payments, and other transactions related to the Site.</li>
+                        <li>Membuat dan mengelola akun Anda.</li>
+                        <li>Mengelola pesanan Anda dan mengirimkan produk.</li>
+                        <li>Email Anda tentang akun atau pesanan Anda.</li>
+                        <li>Mengisi dan mengelola pembelian, pesanan, pembayaran, dan transaksi lainnya yang berkaitan dengan situs web.</li>
                     </ul>
 
-                    <h3>3. Disclosure of Your Information</h3>
-                    <p>We may share information we have collected about you in certain situations. Your information may be disclosed as follows:</p>
+                    <h3>3. Pengungkapan Informasi Anda</h3>
+                    <p>Kami mungkin berbagi informasi yang dikumpulkan tentang Anda dalam beberapa situasi tertentu. Informasi Anda mungkin diberitahukan sebagai berikut:</p>
                     <ul>
-                        <li><strong>By Law or to Protect Rights:</strong> If we believe the release of information about you is necessary to respond to legal process, to investigate or remedy potential violations of our policies, or to protect the rights, property, and safety of others, we may share your information as permitted or required by any applicable law, rule, or regulation.</li>
+                        <li><strong>By Law or to Protect Rights:</strong> Jika kami percaya pengungkapan informasi tentang Anda diperlukan untuk membalas proses hukum, untuk meneliti atau memperbaiki potensi pelanggaran kebijakan kami, atau untuk melindungi hak, properti, dan keamanan orang lain, kami mungkin berbagi informasi Anda sesuai dengan peraturan atau hukum yang berlaku.</li>
                     </ul>
 
-                    <h3>4. Contact Us</h3>
-                    <p>If you have questions or comments about this Privacy Policy, please contact us at:</p>
+                    <h3>4. Hubungi Kami</h3>
+                    <p>Jika Anda memiliki pertanyaan atau komentar tentang Kebijakan Privasi ini, silakan hubungi kami di:</p>
                     <p>
                         <strong>Joudah Store</strong><br>
                         Email: support@joudahstore.com<br>

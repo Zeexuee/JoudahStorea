@@ -15,7 +15,7 @@
         <!-- Logo Top Left -->
         <div class="absolute top-8 left-8 lg:left-12">
              <a href="/" class="flex items-center gap-3 group">
-                <div class="w-10 h-10 bg-black text-white flex items-center justify-center rounded-lg font-serif italic text-xl font-bold">J</div>
+                <img src="{{ asset('images/logos/logo.png') }}" alt="" class="w-10 h-10">
                 <span class="font-serif text-xl font-bold tracking-tight text-gray-900 group-hover:text-amber-700 transition">Joudah</span>
             </a>
         </div>
@@ -72,22 +72,6 @@
                  </div>
                  @endif
             </div>
-
-            <!-- Social Login Mockup -->
-            <div class="mt-10">
-                <p class="text-center text-xs text-gray-400 mb-6">Or continue with</p>
-                <div class="flex gap-4 justify-center">
-                    <button type="button" class="w-14 h-14 bg-white border border-gray-100 rounded-full flex items-center justify-center hover:shadow-md transition text-lg">
-                        <i class="fab fa-google text-gray-900"></i>
-                    </button>
-                    <button type="button" class="w-14 h-14 bg-white border border-gray-100 rounded-full flex items-center justify-center hover:shadow-md transition text-lg">
-                        <i class="fab fa-apple text-gray-900"></i>
-                    </button>
-                    <button type="button" class="w-14 h-14 bg-white border border-gray-100 rounded-full flex items-center justify-center hover:shadow-md transition text-lg">
-                        <i class="fab fa-facebook-f text-[#1877F2]"></i>
-                    </button>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -103,23 +87,8 @@
 
         <!-- Content Center -->
         <div class="absolute top-1/2 left-12 right-12 -translate-y-[60%] text-white max-w-lg">
-            <span class="text-amber-500 font-bold tracking-widest uppercase text-xs mb-4 block">The collection</span>
-            <h2 class="text-6xl font-serif font-medium leading-tight mb-6">Welcome to <br/> <span class="text-amber-100 italic">Joudah Store</span></h2>
-            <p class="text-gray-400 text-lg font-light leading-relaxed mb-8">
-                Experience the essence of luxury through our curated collection of Oud, Bukhur, and premium fragrances.
-            </p>
-            <div class="h-1 w-20 bg-amber-600"></div>
-        </div>
-
-        <!-- Floating Card (Bottom Right) -->
-        <div class="absolute bottom-12 right-12 left-24 bg-[#1E1E1E]/90 backdrop-blur-xl p-8 rounded-3xl border border-white/5 shadow-2xl">
-            <div class="flex justify-between items-start">
-                <div class="flex -space-x-3">
-                     <img class="w-10 h-10 rounded-full border-2 border-[#1E1E1E]" src="https://ui-avatars.com/api/?name=Ali&background=random" alt="">
-                     <img class="w-10 h-10 rounded-full border-2 border-[#1E1E1E]" src="https://ui-avatars.com/api/?name=Siti&background=random" alt="">
-                     <div class="w-10 h-10 rounded-full border-2 border-[#1E1E1E] bg-amber-600 flex items-center justify-center text-xs font-bold text-white">+2k</div>
-                </div>
-            </div>
+            <span class="text-amber-500 font-bold tracking-widest uppercase text-xs mb-4 block"></span>
+            <h2 class="text-6xl font-serif font-medium leading-tight mb-6">Selamat Datang<br/> <span class="text-amber-100 italic">Admin Joudah Store</span></h2>
         </div>
     </div>
 </div>

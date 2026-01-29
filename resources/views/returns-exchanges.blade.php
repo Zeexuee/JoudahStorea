@@ -37,8 +37,8 @@
                     <p>Jika Anda memiliki pertanyaan atau komentar tentang Kebijakan Pengembalian ini, silakan hubungi kami di:</p>
                     <p>
                         <strong>Joudah Store</strong><br>
-                        Email: support@joudahstore.com<br>
-                        Phone: +62 812-1202-1961
+                        Email: joudahoudstore@gmail.com<br>
+                        Phone: +62 877-9671-5916
                     </p>
                 </div>
             </div>
