@@ -66,17 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
         );
     }
 
-    // Navbar Scroll Effect
-    const navbar = document.getElementById('main-navbar');
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            navbar.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
-            navbar.classList.remove('bg-transparent', 'text-white');
-        } else {
-            navbar.classList.add('bg-transparent', 'text-white');
-            navbar.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
-        }
-    });
+    // Navbar - Already has solid background, no scroll effects needed
+    // This ensures navbar is always visible and not transparent
 
     // Slider Logic
     const sliders = document.querySelectorAll('.slider-container');

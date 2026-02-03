@@ -1,19 +1,203 @@
-<nav id="main-navbar" class="fixed top-0 w-full z-50 transition-all duration-300 bg-transparent text-white">
+<nav id="main-navbar" class="fixed top-0 w-full z-50 transition-all duration-300 bg-white text-gray-900 shadow-sm">
+    <style>
+        /* Desktop Navigation Styles */
+        .nav-desktop {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .nav-desktop {
+                display: flex;
+            }
+
+            .nav-mobile-btn {
+                display: none !important;
+            }
+        }
+
+        /* Mobile Menu Styles */
+        .nav-mobile-btn {
+            display: block;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .nav-mobile-btn:hover {
+            background-color: #f5f5f5;
+            border-radius: 4px;
+        }
+
+        /* Hamburger Icon */
+        .hamburger {
+            width: 24px;
+            height: 18px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .hamburger span {
+            width: 100%;
+            height: 2px;
+            background-color: #1a1a1a;
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(7px, 7px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(8px, -8px);
+        }
+
+        /* Mobile Menu Overlay */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 40;
+        }
+
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Mobile Menu Panel */
+        .mobile-menu {
+            position: fixed;
+            top: 80px;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            max-width: 400px;
+            background-color: #ffffff;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 50;
+            overflow-y: auto;
+            box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 600px) {
+            .mobile-menu {
+                max-width: 100%;
+            }
+        }
+
+        .mobile-menu.active {
+            transform: translateX(0);
+        }
+
+        /* Mobile Menu Items */
+        .mobile-menu-items {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .mobile-menu-item {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .mobile-menu-item a,
+        .mobile-menu-btn,
+        .mobile-dropdown-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            color: #1a1a1a;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .mobile-menu-item a:hover,
+        .mobile-menu-btn:hover {
+            background-color: #f5f5f5;
+            color: #b45309;
+        }
+
+        /* Mobile Dropdown */
+        .mobile-submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background-color: #fafafa;
+        }
+
+        .mobile-submenu.active {
+            max-height: 500px;
+        }
+
+        .mobile-submenu-item {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .mobile-submenu-item a {
+            padding: 12px 24px 12px 48px;
+            font-weight: 400;
+            font-size: 13px;
+        }
+
+        /* Dropdown Indicator */
+        .dropdown-arrow {
+            transition: transform 0.3s ease;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dropdown-arrow.active {
+            transform: rotate(180deg);
+        }
+    </style>
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-center h-20 items-center relative">
-            <!-- Left: Logo -->
+            <!-- Left: Logo (Absolute Positioning) -->
             <div class="absolute left-0 flex-shrink-0 flex items-center">
                 <a href="/" class="flex items-center gap-2">
                     <div class="w-8 h-8 rounded-full flex items-center justify-center relative overflow-hidden">
-                         <!-- Placeholder Abstract Logo -->
-                          <img src="{{ asset('images/logos/logo.png') }}" alt="">
+                        <img src="{{ asset('images/logos/logo.png') }}" alt="Joudah Store">
                     </div>
                 </a>
             </div>
 
-            <!-- Center: Navigation Links -->
-            <div class="hidden md:flex space-x-8">
-                <a href="/" class="nav-link font-bold text-sm border-b-2 border-transparent pb-1">
+            <!-- Center: Desktop Navigation Links -->
+            <div class="nav-desktop space-x-8">
+                <a href="/" class="nav-link font-bold text-sm border-b-2 border-transparent pb-1 hover:border-gray-300 transition">
                     Home
                 </a>
                 <a href="{{ route('category.show', 'kayu-gaharu') }}" class="nav-link font-medium text-sm transition pb-1 border-b-2 border-transparent hover:border-gray-300">
@@ -40,6 +224,181 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Right: Cart Icon (Desktop Only) -->
+            <div class="absolute right-0 hidden md:flex items-center">
+                <a href="{{ route('cart.index') }}" class="relative p-2 text-gray-900 hover:bg-gray-100 transition rounded-lg" title="Shopping Cart">
+                    <i class="fa-solid fa-shopping-cart text-lg"></i>
+                    <span class="absolute top-0 right-0 bg-amber-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center" id="cart-count">0</span>
+                </a>
+            </div>
+
+            <!-- Right: Cart Icon + Hamburger Menu Button (Mobile) -->
+            <div class="absolute right-0 flex md:hidden items-center gap-2">
+                <a href="{{ route('cart.index') }}" class="relative p-2 text-gray-900 hover:bg-gray-100 transition rounded-lg" title="Shopping Cart">
+                    <i class="fa-solid fa-shopping-cart text-lg"></i>
+                    <span class="absolute top-0 right-0 bg-amber-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center" id="cart-count-mobile">0</span>
+                </a>
+                <button id="nav-hamburger-btn" class="nav-mobile-btn" aria-label="Toggle menu" aria-expanded="false">
+                    <div class="hamburger">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </button>
+            </div>
         </div>
     </div>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+
+    <!-- Mobile Menu Panel -->
+    <div id="mobile-menu" class="mobile-menu">
+        <ul class="mobile-menu-items">
+            <li class="mobile-menu-item">
+                <a href="/">Home</a>
+            </li>
+            <li class="mobile-menu-item">
+                <a href="{{ route('category.show', 'kayu-gaharu') }}">Kayu Gaharu</a>
+            </li>
+            <li class="mobile-menu-item">
+                <a href="{{ route('category.show', 'bukhur-gaharu') }}">Bukhur Gaharu</a>
+            </li>
+            <li class="mobile-menu-item">
+                <a href="{{ route('category.show', 'perfume') }}">Perfume</a>
+            </li>
+            <li class="mobile-menu-item">
+                <button class="mobile-dropdown-toggle" data-submenu="lainnya">
+                    Lainnya
+                    <svg class="dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <div id="submenu-lainnya" class="mobile-submenu">
+                    <div class="mobile-submenu-item">
+                        <a href="{{ route('category.show', 'linen-spray') }}">Linen Spray</a>
+                    </div>
+                    <div class="mobile-submenu-item">
+                        <a href="{{ route('category.show', 'deodorant') }}">Deodorant</a>
+                    </div>
+                    <div class="mobile-submenu-item">
+                        <a href="{{ route('category.show', 'premium-series') }}">Premium Series</a>
+                    </div>
+                    <div class="mobile-submenu-item">
+                        <a href="{{ route('category.show', 'produk-luar') }}">Produk Luar Joudah</a>
+                    </div>
+                </div>
+            </li>
+            <li class="mobile-menu-item border-t">
+                <a href="{{ route('cart.index') }}" class="flex items-center gap-3">
+                    <i class="fa-solid fa-shopping-cart"></i>
+                    Keranjang
+                </a>
+            </li>
+        </ul>
+    </div>
 </nav>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const hamburgerBtn = document.getElementById('nav-hamburger-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+    const hamburger = hamburgerBtn.querySelector('.hamburger');
+    const dropdownToggles = document.querySelectorAll('.mobile-dropdown-toggle');
+
+    // Toggle mobile menu
+    function toggleMenu() {
+        const isActive = mobileMenu.classList.contains('active');
+        
+        if (!isActive) {
+            // Open menu
+            mobileMenu.classList.add('active');
+            mobileMenuOverlay.classList.add('active');
+            hamburger.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            hamburgerBtn.setAttribute('aria-expanded', 'true');
+        } else {
+            // Close menu
+            closeMenu();
+        }
+    }
+
+    function closeMenu() {
+        mobileMenu.classList.remove('active');
+        mobileMenuOverlay.classList.remove('active');
+        hamburger.classList.remove('active');
+        document.body.style.overflow = '';
+        hamburgerBtn.setAttribute('aria-expanded', 'false');
+        
+        // Close all submenus
+        dropdownToggles.forEach(toggle => {
+            const submenuId = toggle.getAttribute('data-submenu');
+            const submenu = document.getElementById(`submenu-${submenuId}`);
+            const arrow = toggle.querySelector('.dropdown-arrow');
+            
+            if (submenu) {
+                submenu.classList.remove('active');
+                arrow.classList.remove('active');
+            }
+        });
+    }
+
+    // Hamburger button click
+    hamburgerBtn.addEventListener('click', toggleMenu);
+
+    // Overlay click
+    mobileMenuOverlay.addEventListener('click', closeMenu);
+
+    // Mobile menu items click (close menu)
+    document.querySelectorAll('.mobile-menu-item a').forEach(link => {
+        link.addEventListener('click', closeMenu);
+    });
+
+    // Dropdown toggle
+    dropdownToggles.forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            const submenuId = this.getAttribute('data-submenu');
+            const submenu = document.getElementById(`submenu-${submenuId}`);
+            const arrow = this.querySelector('.dropdown-arrow');
+            
+            if (submenu) {
+                submenu.classList.toggle('active');
+                arrow.classList.toggle('active');
+            }
+        });
+    });
+
+    // Close menu on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeMenu();
+        }
+    });
+
+    // Initialize cart count on page load
+    async function initializeCartCount() {
+        try {
+            const response = await fetch('/cart/count');
+            if (response.ok) {
+                const data = await response.json();
+                const cartCountDesktop = document.getElementById('cart-count');
+                const cartCountMobile = document.getElementById('cart-count-mobile');
+                
+                if (cartCountDesktop) {
+                    cartCountDesktop.textContent = data.cartCount;
+                }
+                if (cartCountMobile) {
+                    cartCountMobile.textContent = data.cartCount;
+                }
+            }
+        } catch (error) {
+            console.error('Error loading cart count:', error);
+        }
+    }
+
+    initializeCartCount();
+});
+</script>

@@ -23,12 +23,141 @@
             .slider-btn:hover { background: #1a1a1a; color: white; border-color: #1a1a1a; }
             .prev-btn { left: -22px; }
             .next-btn { right: -22px; }
+
+            /* Mobile slider drag styling */
+            .slider-scroll {
+                cursor: grab;
+                user-select: none;
+            }
+
+            .slider-scroll.dragging {
+                cursor: grabbing;
+                scroll-behavior: auto;
+            }
+
+            .slider-scroll::-webkit-scrollbar {
+                display: none;
+            }
+
+            /* Perfume section responsive styles */
+            @media (max-width: 768px) {
+                .perfume-section .slider-scroll {
+                    padding: 0 16px;
+                    gap: 12px;
+                    margin: 0 -16px;
+                }
+
+                .perfume-section .slider-scroll a {
+                    width: 220px !important;
+                }
+
+                .perfume-section .slider-scroll a h4 {
+                    font-size: 16px;
+                }
+
+                .perfume-section .slider-scroll a span,
+                .perfume-section .slider-scroll a p {
+                    font-size: 12px;
+                }
+            }
         </style>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all slider scroll containers
+            const sliderScrolls = document.querySelectorAll('.slider-scroll');
+
+            sliderScrolls.forEach(slider => {
+                let isDown = false;
+                let startX;
+                let scrollLeft;
+                let isDragging = false;
+
+                const startDrag = (e) => {
+                    isDown = true;
+                    isDragging = false;
+                    startX = e.pageX || e.touches[0].pageX;
+                    scrollLeft = slider.scrollLeft;
+                    slider.classList.add('dragging');
+                };
+
+                const endDrag = () => {
+                    isDown = false;
+                    slider.classList.remove('dragging');
+                };
+
+                const drag = (e) => {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    
+                    const x = e.pageX || e.touches[0].pageX;
+                    const walk = (x - startX) * 1;
+                    const newScrollLeft = scrollLeft - walk;
+                    
+                    if (Math.abs(walk) > 5) {
+                        isDragging = true;
+                    }
+                    
+                    slider.scrollLeft = newScrollLeft;
+                };
+
+                // Mouse events
+                slider.addEventListener('mousedown', startDrag);
+                slider.addEventListener('mouseleave', endDrag);
+                slider.addEventListener('mouseup', endDrag);
+                slider.addEventListener('mousemove', drag);
+
+                // Touch events
+                slider.addEventListener('touchstart', startDrag);
+                slider.addEventListener('touchend', endDrag);
+                slider.addEventListener('touchmove', drag);
+
+                // Prevent product link click when dragging
+                const links = slider.querySelectorAll('a');
+                links.forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        if (isDragging) {
+                            e.preventDefault();
+                            return false;
+                        }
+                    });
+                });
+
+                // Prevent image drag
+                const images = slider.querySelectorAll('img');
+                images.forEach(img => {
+                    img.addEventListener('dragstart', (e) => e.preventDefault());
+                });
+            });
+
+            // Navigation buttons for desktop
+            const navButtons = document.querySelectorAll('.slider-btn');
+            navButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const container = this.closest('.slider-container');
+                    const slider = container.querySelector('.slider-scroll');
+                    const isNext = this.classList.contains('next-btn');
+                    
+                    if (slider) {
+                        const scrollAmount = 300;
+                        const newScrollLeft = isNext 
+                            ? slider.scrollLeft + scrollAmount 
+                            : slider.scrollLeft - scrollAmount;
+                        
+                        slider.scrollTo({
+                            left: newScrollLeft,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+        </script>
 
         <!-- 1. FEATURED: Parfum Joudah (Grid Layout) -->
         @if($category = $categories['perfume'] ?? null)
-        <div class="mb-40">
-             <div class="flex flex-col md:flex-row items-end justify-between mb-12">
+        <div class="mb-40 perfume-section">
+             <div class="flex flex-col items-center justify-center text-center md:flex-row md:items-end md:justify-between md:text-left mb-12 px-4 md:px-0">
                  <div class="max-w-xl">
                     <h3 class="text-3xl font-serif text-gray-900 mb-4">{{ $category->name }}</h3>
                     <p class="text-gray-500 font-light leading-relaxed">{{ $category->description }}</p>
@@ -36,9 +165,9 @@
                 <a href="{{ route('category.show', 'perfume') }}" class="hidden md:inline-block text-sm uppercase tracking-widest border-b border-gray-900 pb-1 hover:text-amber-600 hover:border-amber-600 transition">Lihat Semua Parfum</a>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-y-16 gap-x-8">
+            <div class="slider-scroll flex md:grid md:grid-cols-3 gap-y-16 gap-x-8 pb-8 scrollbar-hide md:pb-0 md:gap-8 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory">
                 @foreach($category->products->take(3) as $product)
-                <a href="{{ route('product.detail', $product->slug) }}" class="group cursor-pointer block">
+                <a href="{{ route('product.detail', $product->slug) }}" class="group cursor-pointer block snap-start shrink-0 w-56 md:w-auto md:snap-start md:shrink-0">
                     <div class="relative bg-gray-50 aspect-[4/5] overflow-hidden mb-6">
                          @php
                              $imagePath = $product->images[0] ?? null;

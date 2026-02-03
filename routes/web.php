@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CartController;
 
 Route::get('/', function () {
     $categories = \App\Models\Category::with(['products' => function($query) {
@@ -25,6 +26,13 @@ Route::get('/category/{slug}', function ($slug) {
     $category = \App\Models\Category::where('slug', $slug)->with('products')->firstOrFail();
     return view('category.show', ['category' => $category]);
 })->name('category.show');
+
+// Cart routes
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+Route::delete('/cart/{productId}', [CartController::class, 'remove'])->name('cart.remove');
+Route::patch('/cart/{productId}', [CartController::class, 'updateQuantity'])->name('cart.update');
+Route::get('/cart/count', [CartController::class, 'getCartCount'])->name('cart.count');
 
 Route::view('/privacy-policy', 'privacy-policy')->name('privacy-policy');
 Route::view('/shipping-policy', 'shipping-policy')->name('shipping-policy');

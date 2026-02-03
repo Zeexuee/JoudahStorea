@@ -1,4 +1,36 @@
 <x-layouts.app title="{{ $category['title'] }} - Joudah Store" description="{{ $category['description'] }}">
+    <style>
+        /* Mobile responsive product grid */
+        @media (max-width: 768px) {
+            .category-products {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
+            }
+
+            .category-products a {
+                width: 100%;
+            }
+
+            .category-products h3 {
+                font-size: 14px !important;
+            }
+
+            .category-products p {
+                font-size: 12px !important;
+            }
+
+            .category-products .aspect-\[4\/5\] {
+                aspect-ratio: 4/5;
+                margin-bottom: 8px !important;
+            }
+
+            .category-products .group-hover\:translate-y-0 {
+                font-size: 10px !important;
+                padding: 4px 8px !important;
+            }
+        }
+    </style>
+
     <div class="bg-white min-h-screen">
         <!-- Navbar spacer -->
         <div class="h-24"></div>
@@ -31,7 +63,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-y-16 gap-x-8">
+            <div class="category-products grid grid-cols-1 md:grid-cols-3 gap-y-16 gap-x-8">
                 @foreach($category->products as $product)
                 <!-- Product Card (Minimalist) -->
                 <a href="{{ route('product.detail', $product->slug) }}" class="group block cursor-pointer">

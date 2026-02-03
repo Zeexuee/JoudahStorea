@@ -1,119 +1,239 @@
 <x-layouts.app title="{{ $product->name }} - {{ $product->category->name }}'s" description="{{ $product->description }}">
-    <div class="bg-white min-h-screen flex flex-col pt-24">
+    <div class="bg-white min-h-screen pt-24 pb-32 lg:pb-0">
         
         <style>
             .scrollbar-hide::-webkit-scrollbar { display: none; }
             .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-        </style>
-        
-        <div class="max-w-[1600px] mx-auto w-full px-6 lg:px-12 flex-grow flex flex-col lg:flex-row gap-12 lg:gap-20">
             
-            <!-- LEFT COLUMN: Content & Card -->
-            <div class="w-full lg:w-5/12 py-12 flex flex-col">
+            /* Desktop Split screen layout */
+            .split-screen {
+                display: flex;
+                height: calc(100vh - 96px);
+                width: 100%;
+            }
+            
+            .split-section {
+                flex: 1;
+                overflow-y: scroll;
+                overflow-x: hidden;
+            }
+            
+            .split-left {
+                padding: 48px 40px;
+                background: #ffffff;
+                border-right: 1px solid #f0f0f0;
+                order: 2;
+            }
+            
+            .split-right {
+                padding: 48px 40px;
+                background: #fafafa;
+                order: 1;
+            }
+            
+            /* Mobile responsive - Stacked vertical layout */
+            @media (max-width: 1024px) {
+                .split-screen {
+                    flex-direction: column;
+                    height: auto;
+                    overflow: visible;
+                }
                 
-                <!-- Typography: Matching "Marble Statue Collection's" -->
-                <div class="mb-8">
-                    <h1 class="text-7xl md:text-8xl font-serif font-thin text-gray-900 -ml-1 leading-none tracking-tight">
-                        {{ $product->category->name }}'s
-                    </h1>
-                    <h2 class="text-4xl text-gray-900 font-light mb-0 tracking-wide">{{ $product->name }}</h2>
-                </div>
-
-                <div id="product-description-container" class="relative">
-                    <div id="product-description" class="text-slate-500 text-lg leading-relaxed text-justify mb-5 max-w-lg transition-all duration-500 ease-in-out max-h-[200px] overflow-hidden [&_p]:!mb-6 [&_p]:leading-loose [&_strong]:font-bold [&_strong]:text-gray-900 [&_b]:font-bold [&_b]:text-gray-900 [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:!mb-6 [&_li]:mb-2 [&_br]:block [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:!mb-4 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:!mb-4 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:!mb-4">
-                        {!! $product->description !!}
-                    </div>
-                    <div id="description-overlay" class="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
-                </div>
-                <button id="toggle-description" class="text-amber-600 font-bold text-sm tracking-widest uppercase hover:text-amber-800 transition mb-8 focus:outline-none">
-                    Read More
-                </button>
-
-                @push('scripts')
-                <script>
-                    document.addEventListener('DOMContentLoaded', () => {
-                        const container = document.getElementById('product-description');
-                        const toggleBtn = document.getElementById('toggle-description');
-                        const overlay = document.getElementById('description-overlay');
-                        const fullHeight = container.scrollHeight;
-                        
-                        // If content is short, hide button and overlay
-                        if (fullHeight <= 200) {
-                            toggleBtn.style.display = 'none';
-                            overlay.style.display = 'none';
-                            container.classList.remove('max-h-[200px]', 'overflow-hidden');
-                        }
-
-                        let isExpanded = false;
-
-                        toggleBtn.addEventListener('click', () => {
-                            isExpanded = !isExpanded;
-                            
-                            if (isExpanded) {
-                                container.style.maxHeight = fullHeight + 'px';
-                                container.classList.remove('overflow-hidden');
-                                overlay.classList.add('opacity-0');
-                                toggleBtn.textContent = 'Read Less';
-                            } else {
-                                container.style.maxHeight = '200px';
-                                container.classList.add('overflow-hidden');
-                                overlay.classList.remove('opacity-0');
-                                toggleBtn.textContent = 'Read More';
-                            }
-                        });
-                    });
-                </script>
-                @endpush
-
-                <!-- THE GOLD CARD -->
-                <div class="mt-10 bg-[#F3EAD8] p-8 rounded-none shadow-none relative overflow-hidden">
-
-                    <!-- Price Info Grid -->
-                    <div class="grid grid-cols-2 gap-8 mb-8">
-                        <div>
-                            <span class="block text-gray-500 text-xs mb-1">Instant price</span>
-                            <span class="block text-3xl font-bold text-gray-900">{{ Number::currency($product->price, 'IDR') }}</span>
-                        </div>
-                        @if($product->shopee_link || $product->tokopedia_link)
-                        <div>
-                            <span class="block text-gray-500 text-xs mb-2">Available at</span>
-                            <div class="flex gap-8 items-center">
-                                <!-- Shopee -->
-                                @if($product->shopee_link)
-                                <a href="{{ $product->shopee_link }}" target="_blank" class="block hover:opacity-80 transition transform hover:scale-105">
-                                    <img src="{{ asset('images/logos/shopee.png') }}" class="h-12 w-auto object-contain" alt="Shopee">
-                                </a>
-                                @endif
-                                <!-- Tokopedia -->
-                                @if($product->tokopedia_link)
-                                <a href="{{ $product->tokopedia_link }}" target="_blank" class="block hover:opacity-80 transition transform hover:scale-105">
-                                    <img src="{{ asset('images/logos/tokopedia.png') }}" class="h-12 w-auto object-contain" alt="Tokopedia">
-                                </a>
-                                @endif
-                            </div>
-                        </div>
-                        @endif
-                    </div>
-
-                    <!-- Buttons (Likely redundant now, or maybe keep for WhatsApp?) -->
-                    <div class="grid grid-cols-1">
-                        <a href="https://wa.me/+6287796715916?text={{ urlencode('Halo, saya tertarik dengan produk ' . $product->name . ' ini. Apakah masih ada stok?') }}" target="_blank" class="bg-[#1A1A1A] text-white py-4 px-6 text-sm font-bold tracking-wide hover:bg-black transition text-center flex items-center justify-center gap-2">
-                            <span>Contact via WhatsApp</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- RIGHT COLUMN: Gallery (Slider Style to match Reference) -->
-            <div class="w-full lg:w-7/12 py-12 flex flex-col justify-between h-full relative">
+                .split-section {
+                    height: auto;
+                    overflow: visible !important;
+                    flex: none;
+                    padding: 0;
+                    background: transparent;
+                    border: none;
+                }
                 
-                <!-- Slider Container -->
-                <div id="gallery-slider" class="flex gap-8 overflow-x-auto scrollbar-hide snap-x snap-mandatory h-[600px] lg:h-[700px] items-stretch">
+                .split-right {
+                    order: 1;
+                    padding: 0;
+                    overflow-x: auto;
+                    overflow-y: hidden;
+                    -webkit-overflow-scrolling: touch;
+                    scroll-behavior: smooth;
+                }
+
+                /* Gallery horizontal scroll on mobile */
+                #gallery-slider {
+                    flex-direction: row !important;
+                    flex-wrap: nowrap !important;
+                    gap: 12px !important;
+                    padding: 16px;
+                    width: 100%;
+                    max-width: 100% !important;
+                    overflow-x: auto;
+                    overflow-y: hidden;
+                    -webkit-overflow-scrolling: touch;
+                    scroll-behavior: smooth;
+                    scroll-snap-type: x mandatory;
+                    user-select: none;
+                    min-height: auto;
+                }
+
+                #gallery-slider > div {
+                    flex-shrink: 0;
+                    width: 280px;
+                    height: 280px;
+                    scroll-snap-align: start;
+                }
+
+                #gallery-slider .w-full {
+                    width: 100%;
+                    height: 100%;
+                }
+
+                #gallery-slider .aspect-square {
+                    aspect-ratio: 1 / 1;
+                }
+
+                #gallery-slider > div:last-child {
+                    margin-right: 16px;
+                }
+                
+                .split-left {
+                    order: 2;
+                    padding: 24px 16px;
+                    background: #ffffff;
+                }
+                
+                /* Sticky action button at bottom on mobile */
+                .sticky-action-btn {
+                    position: fixed;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    padding: 16px;
+                    background: #ffffff;
+                    border-top: 1px solid #f0f0f0;
+                    z-index: 40;
+                }
+                
+                .sticky-action-btn a {
+                    min-height: 48px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                
+                /* Accordion for details */
+                .accordion-header {
+                    padding: 16px 0;
+                    border-bottom: 1px solid #f0f0f0;
+                    cursor: pointer;
+                    user-select: none;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                
+                .accordion-header:hover {
+                    background-color: #fafafa;
+                }
+                
+                .accordion-content {
+                    max-height: 0;
+                    overflow: hidden;
+                    transition: max-height 0.3s ease-out;
+                }
+                
+                .accordion-content.active {
+                    max-height: 1000px;
+                }
+                
+                .accordion-icon {
+                    transition: transform 0.3s ease-out;
+                }
+                
+                .accordion-icon.active {
+                    transform: rotate(180deg);
+                }
+            }
+```        </style>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const gallerySlider = document.getElementById('gallery-slider');
+            if (!gallerySlider) return;
+
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+            let isDragging = false;
+
+            const startDrag = (e) => {
+                isDown = true;
+                isDragging = false;
+                startX = e.pageX || e.touches[0].pageX;
+                scrollLeft = gallerySlider.scrollLeft;
+                gallerySlider.style.cursor = 'grabbing';
+            };
+
+            const endDrag = () => {
+                isDown = false;
+                gallerySlider.style.cursor = 'grab';
+            };
+
+            const drag = (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                
+                const x = e.pageX || e.touches[0].pageX;
+                const walk = (x - startX) * 1;
+                const newScrollLeft = scrollLeft - walk;
+                
+                if (Math.abs(walk) > 5) {
+                    isDragging = true;
+                }
+                
+                gallerySlider.scrollLeft = newScrollLeft;
+            };
+
+            // Mouse events
+            gallerySlider.addEventListener('mousedown', startDrag);
+            gallerySlider.addEventListener('mouseleave', endDrag);
+            gallerySlider.addEventListener('mouseup', endDrag);
+            gallerySlider.addEventListener('mousemove', drag);
+
+            // Touch events
+            gallerySlider.addEventListener('touchstart', startDrag);
+            gallerySlider.addEventListener('touchend', endDrag);
+            gallerySlider.addEventListener('touchmove', drag);
+
+            // Prevent image drag
+            const images = gallerySlider.querySelectorAll('img');
+            images.forEach(img => {
+                img.addEventListener('dragstart', (e) => e.preventDefault());
+                img.addEventListener('click', function(e) {
+                    if (isDragging) {
+                        e.preventDefault();
+                        return false;
+                    }
+                    // Open image modal if not dragging
+                    const modal = document.getElementById('gallery-modal');
+                    const modalImg = document.getElementById('modal-gallery-image');
+                    if (modal && modalImg) {
+                        modalImg.src = this.src;
+                        modal.classList.add('active');
+                    }
+                });
+            });
+
+            // Set cursor style
+            gallerySlider.style.cursor = 'grab';
+        });
+        </script>        
+        <div class="split-screen">
+            <!-- RIGHT SECTION: Gallery (Order 1 - Left on Desktop) -->
+            <div id="scroll-right" class="split-section split-right scrollbar-hide">
+                <!-- Gallery Container - Vertical Stack -->
+                <div id="gallery-slider" class="flex flex-col gap-8 w-full max-w-2xl mx-auto">
                     
                     <!-- Item 1: Front View -->
-                    <div class="min-w-[85%] md:min-w-[45%] snap-center flex flex-col h-full">
-                        <span class="block text-xs font-bold uppercase tracking-widest text-gray-900 mb-4"></span>
-                        <div class="flex-grow bg-gray-100 overflow-hidden relative">
+                    <div class="w-full flex flex-col">
+                        <div class="w-full bg-gray-100 overflow-hidden relative aspect-square">
                              @php
                                 $imagePath = $product->images[0] ?? null;
                                 $src = $imagePath 
@@ -126,9 +246,8 @@
 
                     <!-- Item 2: Packaging Detail -->
                     @if(isset($product->images[1]))
-                    <div class="min-w-[85%] md:min-w-[45%] snap-center flex flex-col h-full">
-                        <span class="block text-xs font-bold uppercase tracking-widest text-gray-900 mb-4"></span>
-                        <div class="flex-grow bg-gray-100 overflow-hidden relative">
+                    <div class="w-full flex flex-col">
+                        <div class="w-full bg-gray-100 overflow-hidden relative aspect-square">
                              @php
                                 $img1 = $product->images[1];
                                 $src1 = Str::startsWith($img1, 'images/') ? asset($img1) : asset('storage/' . $img1);
@@ -140,9 +259,8 @@
 
                      <!-- Item 3: Texture -->
                     @if(isset($product->images[2]))
-                    <div class="min-w-[85%] md:min-w-[45%] snap-center flex flex-col h-full">
-                        <span class="block text-xs font-bold uppercase tracking-widest text-gray-900 mb-4"></span>
-                        <div class="flex-grow bg-gray-100 overflow-hidden relative">
+                    <div class="w-full flex flex-col">
+                        <div class="w-full bg-gray-100 overflow-hidden relative aspect-square">
                              @php
                                 $img2 = $product->images[2];
                                 $src2 = Str::startsWith($img2, 'images/') ? asset($img2) : asset('storage/' . $img2);
@@ -154,9 +272,8 @@
                     
                     <!-- Item 4: In Context -->
                     @if(isset($product->images[3]))
-                    <div class="min-w-[85%] md:min-w-[45%] snap-center flex flex-col h-full">
-                        <span class="block text-xs font-bold uppercase tracking-widest text-gray-900 mb-4"></span>
-                        <div class="flex-grow bg-gray-100 overflow-hidden relative">
+                    <div class="w-full flex flex-col">
+                        <div class="w-full bg-gray-100 overflow-hidden relative aspect-square">
                              @php
                                 $img3 = $product->images[3];
                                 $src3 = Str::startsWith($img3, 'images/') ? asset($img3) : asset('storage/' . $img3);
@@ -167,80 +284,142 @@
                     @endif
 
                 </div>
-
-                <!-- Custom Arrows (Bottom Left relative to slider) -->
-                <div class="flex gap-4 mt-6">
-                    <button onclick="document.getElementById('gallery-slider').scrollBy({left: -300, behavior: 'smooth'})" class="w-14 h-14 rounded-full border border-gray-300 flex items-center justify-center hover:border-gray-900 hover:bg-gray-50 transition">
-                        <svg class="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 19l-7-7 7-7"></path></svg>
-                    </button>
-                    <button onclick="document.getElementById('gallery-slider').scrollBy({left: 300, behavior: 'smooth'})" class="w-14 h-14 rounded-full border border-gray-300 flex items-center justify-center hover:border-gray-900 hover:bg-gray-50 transition">
-                         <svg class="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14 5l7 7-7 7"></path></svg>
-                    </button>
-                </div>
             </div>
 
-                </div>
-            </div>
-
-        </div>
-
-        <!-- NEW SECTIONS: Reviews & Recommendations -->
-        <div class="max-w-[1600px] mx-auto w-full px-6 lg:px-12 pb-24">
-            
-            <!-- 1. Customer Reviews -->
-            <div class="mb-32 max-w-4xl">
-                <h3 class="text-3xl font-serif text-gray-900 mb-12">Ulasan Pelanggan</h3>
-                
-                <div class="space-y-12">
-                    @forelse($product->reviews->where('is_approved', true) as $review)
-                    <!-- Review Item -->
-                    <div class="border-b border-gray-100 pb-12">
-                        <div class="flex items-center gap-4 mb-4">
-                            <div class="flex text-amber-500 text-xs">
-                                @for($i = 0; $i < $review->rating; $i++)
-                                    <i class="fas fa-star">★</i>
-                                @endfor
-                                @for($i = $review->rating; $i < 5; $i++)
-                                    <i class="far fa-star text-gray-300">★</i>
-                                @endfor
-                            </div>
-                            <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Pembeli Terpercaya</span>
-                        </div>
-                        <h4 class="text-lg font-bold text-gray-900 mb-2">{{ $review->name }}</h4>
-                        <p class="text-gray-500 font-light leading-relaxed">"{{ $review->comment }}"</p>
-                        <span class="block mt-4 text-xs font-serif italic text-gray-400">— {{ $review->created_at->format('F d, Y') }}</span>
+            <!-- LEFT SECTION: Product Details (Order 2 - Right on Desktop) -->
+            <div id="scroll-left" class="split-section split-left scrollbar-hide">
+                <div class="max-w-2xl mx-auto">
+                    <!-- Typography: Product Name -->
+                    <div class="mb-8 pb-8 border-b-2 border-gray-300">
+                        <h2 class="text-4xl md:text-5xl text-gray-900 font-light mb-0 tracking-wide">{{ $product->name }}</h2>
                     </div>
-                    @empty
-                    <div class="text-gray-500 italic">Belum ada ulasan, nantikan ulasan dari pembeli lainnya</div>
-                    @endforelse
-                </div>
-            </div>
 
-            <!-- 2. Recommendations (You May Also Like) -->
-            <div>
-                <h3 class="text-3xl font-serif text-gray-900 mb-12">Kamu Mungkin Suka</h3>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    @foreach($relatedProducts as $related)
-                    <a href="{{ route('product.detail', $related->slug) }}" class="group block cursor-pointer">
-                        <div class="relative bg-gray-50 aspect-[4/5] overflow-hidden mb-4">
-                            @php
-                                $relImg = $related->images[0] ?? null;
-                                $relSrc = $relImg 
-                                    ? (Str::startsWith($relImg, 'images/') ? asset($relImg) : asset('storage/' . $relImg))
-                                    : asset('images/placeholder.png');
-                            @endphp
-                            <img src="{{ $relSrc }}" alt="{{ $related->name }}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-700 ease-out grayscale-[0.1] group-hover:grayscale-0">
+                    <!-- THE GOLD CARD -->
+                    <div class="mb-8 bg-[#F3EAD8] p-5 rounded-none shadow-none relative overflow-hidden max-w-md">
+
+                        <!-- Price Info Grid -->
+                        <div class="grid grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <span class="block text-gray-500 text-xs mb-1">Instant price</span>
+                                <span class="block text-2xl font-bold text-gray-900">{{ Number::currency($product->price, 'IDR') }}</span>
+                            </div>
+                            @if($product->shopee_link || $product->tokopedia_link)
+                            <div>
+                                <span class="block text-gray-500 text-xs mb-2">Available at</span>
+                                <div class="flex gap-6 items-center">
+                                    <!-- Shopee -->
+                                    @if($product->shopee_link)
+                                    <a href="{{ $product->shopee_link }}" target="_blank" class="block hover:opacity-80 transition transform hover:scale-105">
+                                        <img src="{{ asset('images/logos/shopee.png') }}" class="h-10 w-auto object-contain" alt="Shopee">
+                                    </a>
+                                    @endif
+                                    <!-- Tokopedia -->
+                                    @if($product->tokopedia_link)
+                                    <a href="{{ $product->tokopedia_link }}" target="_blank" class="block hover:opacity-80 transition transform hover:scale-105">
+                                        <img src="{{ asset('images/logos/tokopedia.png') }}" class="h-10 w-auto object-contain" alt="Tokopedia">
+                                    </a>
+                                    @endif
+                                </div>
+                            </div>
+                            @endif
                         </div>
-                        <h4 class="font-serif text-lg text-gray-900 mb-1 group-hover:text-amber-700 transition">{{ $related->name }}</h4>
-                        <p class="text-sm text-gray-500">{{ Number::currency($related->price, 'IDR') }}</p>
-                    </a>
-                    @endforeach
+
+                        <!-- Buttons -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <!-- Left Button: Add to Cart (Icon only) -->
+                            <button class="bg-[#F3EAD8] text-gray-900 py-2 px-3 text-xs font-bold tracking-wide hover:bg-[#E8DCC8] transition text-center flex items-center justify-center gap-1 border border-gray-300 rounded-sm" title="Add to Cart">
+                                <i class="fa-solid fa-cart-plus text-lg"></i>
+                            </button>
+                            
+                            <!-- Right Button: Contact via WhatsApp -->
+                            <a href="https://wa.me/+6287796715916?text={{ urlencode('Halo, saya tertarik dengan produk ' . $product->name . ' ini. Apakah masih ada stok?') }}" target="_blank" class="bg-[#1A1A1A] text-white py-3 px-4 text-sm font-bold tracking-wide hover:bg-black transition text-center flex items-center justify-center gap-2">
+                                <span>WhatsApp</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div id="product-description-container" class="relative mb-8">
+                        <div id="product-description" class="text-slate-500 text-base leading-relaxed text-justify mb-5 max-w-xl transition-all duration-500 ease-in-out max-h-[200px] overflow-hidden [&_p]:!mb-6 [&_p]:leading-loose [&_strong]:font-bold [&_strong]:text-gray-900 [&_b]:font-bold [&_b]:text-gray-900 [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:!mb-6 [&_li]:mb-2 [&_br]:block [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:!mb-4 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:!mb-4 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:!mb-4">
+                            {!! $product->description !!}
+                        </div>
+                        <div id="description-overlay" class="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+                    </div>
+                    <button id="toggle-description" class="text-amber-600 font-bold text-sm tracking-widest uppercase hover:text-amber-800 transition mb-8 focus:outline-none">
+                        Read More
+                    </button>
+                    <div class="w-full border-b-2 border-gray-300 mb-8"></div>
+
+                    <!-- Customer Reviews Section -->
+                    <div class="mb-20 pb-8 border-b-2 border-gray-300">
+                        <h3 class="text-2xl font-serif text-gray-900 mb-8">Ulasan Pelanggan</h3>
+                        
+                        <div class="space-y-8">
+                            @forelse($product->reviews->where('is_approved', true) as $review)
+                            <!-- Review Item -->
+                            <div class="border-b border-gray-100 pb-8">
+                                <div class="flex items-center gap-4 mb-4">
+                                    <div class="flex text-amber-500 text-xs">
+                                        @for($i = 0; $i < $review->rating; $i++)
+                                            <i class="fas fa-star">★</i>
+                                        @endfor
+                                        @for($i = $review->rating; $i < 5; $i++)
+                                            <i class="far fa-star text-gray-300">★</i>
+                                        @endfor
+                                    </div>
+                                    <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Pembeli Terpercaya</span>
+                                </div>
+                                <h4 class="text-lg font-bold text-gray-900 mb-2">{{ $review->name }}</h4>
+                                <p class="text-gray-500 font-light leading-relaxed">"{{ $review->comment }}"</p>
+                                <span class="block mt-4 text-xs font-serif italic text-gray-400">— {{ $review->created_at->format('F d, Y') }}</span>
+                            </div>
+                            @empty
+                            <div class="text-gray-500 italic">Belum ada ulasan, nantikan ulasan dari pembeli lainnya</div>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    <!-- Related Products Section -->
+                    <div class="mb-8 pt-8">
+                        <h3 class="text-2xl font-serif text-gray-900 mb-8">Kamu Mungkin Suka</h3>
+                        
+                        <div class="grid grid-cols-2 gap-6">
+                            @foreach($relatedProducts->shuffle()->take(4) as $related)
+                            <a href="{{ route('product.detail', $related->slug) }}" class="group block cursor-pointer">
+                                <div class="relative bg-gray-50 aspect-[4/5] overflow-hidden mb-4">
+                                    @php
+                                        $relImg = $related->images[0] ?? null;
+                                        $relSrc = $relImg 
+                                            ? (Str::startsWith($relImg, 'images/') ? asset($relImg) : asset('storage/' . $relImg))
+                                            : asset('images/placeholder.png');
+                                    @endphp
+                                    <img src="{{ $relSrc }}" alt="{{ $related->name }}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-700 ease-out grayscale-[0.1] group-hover:grayscale-0">
+                                </div>
+                                <h4 class="font-serif text-sm text-gray-900 mb-1 group-hover:text-amber-700 transition">{{ $related->name }}</h4>
+                                <p class="text-xs text-gray-500">{{ Number::currency($related->price, 'IDR') }}</p>
+                            </a>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
             </div>
-
         </div>
     </div>
+
+    <!-- Sticky Action Button (Mobile Only) -->
+    <div class="sticky-action-btn hidden lg:hidden">
+        <div class="flex gap-3">
+            <!-- Add to Cart Button -->
+            <button class="bg-[#F3EAD8] text-gray-900 py-2 px-3 text-xs font-bold tracking-wide hover:bg-[#E8DCC8] transition flex items-center justify-center gap-1 border border-gray-300 rounded-sm flex-shrink-0" title="Add to Cart">
+                <i class="fa-solid fa-cart-plus text-lg"></i>
+            </button>
+            
+            <!-- WhatsApp Button -->
+            <a href="https://wa.me/+6287796715916?text={{ urlencode('Halo, saya tertarik dengan produk ' . $product->name . ' ini. Apakah masih ada stok?') }}" target="_blank" class="bg-[#1A1A1A] text-white py-3 px-4 text-sm font-bold tracking-wide hover:bg-black transition text-center flex items-center justify-center gap-2 rounded-none flex-1">
+                <span>WhatsApp</span>
+            </a>
+        </div>
+    </div>
+
     <!-- Image Modal -->
     <div id="image-modal" class="fixed inset-0 z-[100] hidden bg-black/95 flex items-center justify-center p-4 opacity-0 transition-opacity duration-300 ease-out backdrop-blur-sm">
         <button id="modal-close" class="absolute top-6 right-6 text-white/50 hover:text-white transition focus:outline-none bg-black/20 p-2 rounded-full hover:bg-white/10">
@@ -251,6 +430,62 @@
 
     @push('scripts')
     <script>
+        // Toggle description - works on both desktop and mobile
+        function toggleDescription() {
+            const container = document.getElementById('product-description');
+            const toggleBtn = document.getElementById('toggle-description');
+            const overlay = document.getElementById('description-overlay');
+            const fullHeight = container.scrollHeight;
+            
+            let isExpanded = toggleBtn.getAttribute('data-expanded') === 'true';
+            isExpanded = !isExpanded;
+            
+            if (isExpanded) {
+                container.style.maxHeight = fullHeight + 'px';
+                container.classList.remove('overflow-hidden');
+                overlay.classList.add('opacity-0');
+                toggleBtn.textContent = 'Read Less';
+                toggleBtn.setAttribute('data-expanded', 'true');
+            } else {
+                container.style.maxHeight = '200px';
+                container.classList.add('overflow-hidden');
+                overlay.classList.remove('opacity-0');
+                toggleBtn.textContent = 'Read More';
+                toggleBtn.setAttribute('data-expanded', 'false');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('product-description');
+            const toggleBtn = document.getElementById('toggle-description');
+            const overlay = document.getElementById('description-overlay');
+            const fullHeight = container.scrollHeight;
+            
+            toggleBtn.setAttribute('data-expanded', 'false');
+            
+            // If content is short, hide button and overlay
+            if (fullHeight <= 200) {
+                toggleBtn.style.display = 'none';
+                overlay.style.display = 'none';
+                container.classList.remove('max-h-[200px]', 'overflow-hidden');
+            }
+
+            toggleBtn.addEventListener('click', toggleDescription);
+        });
+
+        // Toggle accordion for product description
+        function toggleAccordion(headerElement) {
+            const content = headerElement.nextElementSibling;
+            const icon = headerElement.querySelector('.accordion-icon');
+            
+            content.classList.toggle('active');
+            icon.classList.toggle('active');
+        }
+
+        // Independent scroll - no chaining
+        // Each section scrolls independently without any restrictions
+
+        // Image modal
         document.addEventListener('DOMContentLoaded', () => {
             const modal = document.getElementById('image-modal');
             const modalImg = document.getElementById('modal-image');
@@ -302,6 +537,68 @@
                     closeModal();
                 }
             });
+
+            // Add to Cart functionality
+            const productId = {{ $product->id }};
+            const addToCartButtons = document.querySelectorAll('button[title="Add to Cart"]');
+            
+            addToCartButtons.forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    
+                    try {
+                        const response = await fetch('/cart/add', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({
+                                product_id: productId,
+                                quantity: 1
+                            })
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
+                        const data = await response.json();
+                        
+                        // Update cart counts in navbar
+                        const cartCountDesktop = document.getElementById('cart-count');
+                        const cartCountMobile = document.getElementById('cart-count-mobile');
+                        
+                        if (cartCountDesktop) {
+                            cartCountDesktop.textContent = data.cartCount;
+                        }
+                        if (cartCountMobile) {
+                            cartCountMobile.textContent = data.cartCount;
+                        }
+
+                        // Show success message
+                        showToast(`${data.productName} ditambahkan ke keranjang!`);
+                        
+                    } catch (error) {
+                        console.error('Error adding to cart:', error);
+                        showToast('Gagal menambahkan ke keranjang', 'error');
+                    }
+                });
+            });
+
+            // Toast notification function
+            function showToast(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `fixed bottom-6 right-6 px-6 py-4 rounded-sm text-white font-bold text-sm z-50 transition-all duration-300 ${
+                    type === 'success' ? 'bg-green-600' : 'bg-red-600'
+                }`;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+            }
         });
     </script>
     @endpush
