@@ -225,20 +225,64 @@
                 </div>
             </div>
 
-            <!-- Right: Cart Icon (Desktop Only) -->
-            <div class="absolute right-0 hidden md:flex items-center">
-                <a href="{{ route('cart.index') }}" class="relative p-2 text-gray-900 hover:bg-gray-100 transition rounded-lg" title="Shopping Cart">
-                    <i class="fa-solid fa-shopping-cart text-lg"></i>
-                    <span class="absolute top-0 right-0 bg-amber-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center" id="cart-count">0</span>
-                </a>
+            <!-- Right: Cart Icon + Auth Buttons (Desktop Only) -->
+            <div class="absolute right-0 hidden md:flex items-center gap-4">
+                @auth
+                    <a href="{{ route('cart.index') }}" class="p-2 text-gray-900 hover:bg-gray-100 transition rounded-lg" title="Shopping Cart">
+                        <i class="fa-solid fa-shopping-cart text-lg"></i>
+                    </a>
+                @else
+                    <button onclick="showCartLoginAlert()" class="p-2 text-gray-900 hover:bg-gray-100 transition rounded-lg" title="Shopping Cart">
+                        <i class="fa-solid fa-shopping-cart text-lg"></i>
+                    </button>
+                @endauth
+
+                @if(auth()->check())
+                    <div class="relative group">
+                        <button class="flex items-center justify-center p-2 text-gray-900 hover:bg-gray-100 transition rounded-lg" title="Profil">
+                            <i class="fa-solid fa-circle-user text-2xl"></i>
+                        </button>
+                        <!-- User Dropdown Menu -->
+                        <div class="absolute top-full right-0 w-48 bg-white shadow-xl rounded-lg py-2 mt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition">
+                                <i class="fa-solid fa-user mr-2"></i>Profil
+                            </a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition">
+                                <i class="fa-solid fa-history mr-2"></i>Riwayat Pesanan
+                            </a>
+                            <hr class="my-2">
+                            <button onclick="handleLogout()" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition">
+                                <i class="fa-solid fa-sign-out-alt mr-2"></i>Logout
+                            </button>
+                        </div>
+                    </div>
+                @else
+                    <button onclick="openAuthModal()" class="flex items-center justify-center p-2 text-gray-900 hover:bg-gray-100 transition rounded-lg" title="Login">
+                        <i class="fa-solid fa-circle-user text-2xl"></i>
+                    </button>
+                @endif
             </div>
 
-            <!-- Right: Cart Icon + Hamburger Menu Button (Mobile) -->
+            <!-- Right: Cart Icon + Auth Button + Hamburger Menu Button (Mobile) -->
             <div class="absolute right-0 flex md:hidden items-center gap-2">
-                <a href="{{ route('cart.index') }}" class="relative p-2 text-gray-900 hover:bg-gray-100 transition rounded-lg" title="Shopping Cart">
-                    <i class="fa-solid fa-shopping-cart text-lg"></i>
-                    <span class="absolute top-0 right-0 bg-amber-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center" id="cart-count-mobile">0</span>
-                </a>
+                @auth
+                    <a href="{{ route('cart.index') }}" class="relative p-2 text-gray-900 hover:bg-gray-100 transition rounded-lg" title="Shopping Cart">
+                        <i class="fa-solid fa-shopping-cart text-lg"></i>
+                    </a>
+                @else
+                    <button onclick="showCartLoginAlert()" class="relative p-2 text-gray-900 hover:bg-gray-100 transition rounded-lg" title="Shopping Cart">
+                        <i class="fa-solid fa-shopping-cart text-lg"></i>
+                    </button>
+                @endauth
+                @if(auth()->check())
+                    <button onclick="toggleProfileMenu()" class="p-2 text-gray-900 hover:bg-gray-100 transition rounded-lg" title="Profil">
+                        <i class="fa-solid fa-circle-user text-2xl"></i>
+                    </button>
+                @else
+                    <button onclick="openAuthModal()" class="p-2 text-gray-900 hover:bg-gray-100 transition rounded-lg" title="Login">
+                        <i class="fa-solid fa-circle-user text-2xl"></i>
+                    </button>
+                @endif
                 <button id="nav-hamburger-btn" class="nav-mobile-btn" aria-label="Toggle menu" aria-expanded="false">
                     <div class="hamburger">
                         <span></span>
@@ -291,11 +335,38 @@
                 </div>
             </li>
             <li class="mobile-menu-item border-t">
-                <a href="{{ route('cart.index') }}" class="flex items-center gap-3">
-                    <i class="fa-solid fa-shopping-cart"></i>
-                    Keranjang
-                </a>
+                @auth
+                    <a href="{{ route('cart.index') }}" class="flex items-center gap-3">
+                        <i class="fa-solid fa-shopping-cart"></i>
+                        Keranjang
+                    </a>
+                @else
+                    <button onclick="showCartLoginAlert(); closeMenu();" class="w-full text-left flex items-center gap-3 px-6 py-4">
+                        <i class="fa-solid fa-shopping-cart"></i>
+                        Keranjang
+                    </button>
+                @endauth
             </li>
+            @if(auth()->check())
+                <li class="mobile-menu-item">
+                    <a href="#" class="flex items-center gap-3">
+                        <i class="fa-solid fa-user"></i>
+                        Profil
+                    </a>
+                </li>
+                <li class="mobile-menu-item">
+                    <button onclick="handleLogout(); closeMenu();" class="w-full text-left flex items-center gap-3 text-red-600 hover:text-red-700">
+                        <i class="fa-solid fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </li>
+            @else
+                <li class="mobile-menu-item">
+                    <button onclick="openAuthModal(); closeMenu();" class="w-full text-left px-6 py-4 bg-amber-600 text-white font-medium hover:bg-amber-700 transition">
+                        <i class="fa-solid fa-sign-in-alt mr-2"></i>Login
+                    </button>
+                </li>
+            @endif
         </ul>
     </div>
 </nav>
@@ -345,6 +416,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    window.closeMenu = closeMenu;
+
     // Hamburger button click
     hamburgerBtn.addEventListener('click', toggleMenu);
 
@@ -387,11 +460,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 const cartCountDesktop = document.getElementById('cart-count');
                 const cartCountMobile = document.getElementById('cart-count-mobile');
                 
-                if (cartCountDesktop) {
+                if (cartCountDesktop && data.cartCount > 0) {
                     cartCountDesktop.textContent = data.cartCount;
+                    cartCountDesktop.style.display = 'flex';
                 }
-                if (cartCountMobile) {
+                if (cartCountMobile && data.cartCount > 0) {
                     cartCountMobile.textContent = data.cartCount;
+                    cartCountMobile.style.display = 'flex';
                 }
             }
         } catch (error) {
@@ -400,5 +475,48 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     initializeCartCount();
+    
+    // Expose to window for updates from other scripts
+    window.updateCartCount = function(count) {
+        const cartCountDesktop = document.getElementById('cart-count');
+        const cartCountMobile = document.getElementById('cart-count-mobile');
+        
+        if (count > 0) {
+            if (cartCountDesktop) {
+                cartCountDesktop.textContent = count;
+                cartCountDesktop.style.display = 'flex';
+            }
+            if (cartCountMobile) {
+                cartCountMobile.textContent = count;
+                cartCountMobile.style.display = 'flex';
+            }
+        } else {
+            if (cartCountDesktop) {
+                cartCountDesktop.style.display = 'none';
+            }
+            if (cartCountMobile) {
+                cartCountMobile.style.display = 'none';
+            }
+        }
+    };
+
+    // Handle logout
+    window.handleLogout = function() {
+        // Create a temporary form for logout
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/auth/logout';
+        form.style.display = 'none';
+
+        // Add CSRF token
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = document.querySelector('meta[name="csrf-token"]').content;
+
+        form.appendChild(csrfToken);
+        document.body.appendChild(form);
+        form.submit();
+    };
 });
 </script>

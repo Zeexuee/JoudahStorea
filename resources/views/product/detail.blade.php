@@ -428,6 +428,39 @@
         <img id="modal-image" src="" class="max-w-full max-h-[90vh] object-contain shadow-2xl rounded-sm transform scale-95 transition-transform duration-300 ease-out select-none">
     </div>
 
+    <!-- Login Reminder Modal -->
+    <div id="login-reminder-modal" class="fixed inset-0 z-[90] hidden bg-black/50 flex items-center justify-center p-4 opacity-0 transition-opacity duration-300 ease-out">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform scale-95 transition-transform duration-300 ease-out overflow-hidden">
+            <!-- Header with Icon -->
+            <div class="bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-8 text-center relative overflow-hidden">
+                <div class="absolute inset-0 opacity-10">
+                    <svg class="w-32 h-32 absolute -top-4 -right-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
+                </div>
+                <div class="relative z-10">
+                    <i class="fa-solid fa-lock-open text-white text-5xl mb-3 inline-block"></i>
+                    <h2 class="text-2xl font-bold text-white mt-3">Login Diperlukan</h2>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="px-6 py-6">
+                <p class="text-gray-600 text-center mb-6 leading-relaxed">
+                    Untuk menambahkan produk ke keranjang, Anda perlu login terlebih dahulu. Jika belum punya akun, Anda dapat membuat akun baru.
+                </p>
+
+                <div class="space-y-3">
+                    <button onclick="openAuthModal(); closeLoginReminderModal();" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
+                        <i class="fa-solid fa-sign-in-alt"></i>
+                        Login Sekarang
+                    </button>
+                    <button onclick="closeLoginReminderModal();" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 px-4 rounded-lg transition duration-300">
+                        Nanti Saja
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @push('scripts')
     <script>
         // Toggle description - works on both desktop and mobile
@@ -547,6 +580,17 @@
                     e.preventDefault();
                     
                     try {
+                        // Check if user is authenticated
+                        const userResponse = await fetch('/auth/user');
+                        const userData = await userResponse.json();
+                        
+                        if (!userData.authenticated) {
+                            // User is not authenticated, show modern login reminder modal
+                            showLoginReminderModal();
+                            return;
+                        }
+                        
+                        // User is authenticated, add to cart
                         const response = await fetch('/cart/add', {
                             method: 'POST',
                             headers: {
@@ -565,15 +609,9 @@
 
                         const data = await response.json();
                         
-                        // Update cart counts in navbar
-                        const cartCountDesktop = document.getElementById('cart-count');
-                        const cartCountMobile = document.getElementById('cart-count-mobile');
-                        
-                        if (cartCountDesktop) {
-                            cartCountDesktop.textContent = data.cartCount;
-                        }
-                        if (cartCountMobile) {
-                            cartCountMobile.textContent = data.cartCount;
+                        // Update cart counts in navbar if function exists
+                        if (typeof window.updateCartCount !== 'undefined') {
+                            window.updateCartCount(data.cartCount);
                         }
 
                         // Show success message
@@ -584,6 +622,38 @@
                         showToast('Gagal menambahkan ke keranjang', 'error');
                     }
                 });
+            });
+
+            // Login Reminder Modal Functions
+            function showLoginReminderModal() {
+                const modal = document.getElementById('login-reminder-modal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    setTimeout(() => {
+                        modal.style.opacity = '1';
+                        const content = modal.querySelector('div');
+                        content.style.transform = 'scale(1)';
+                    }, 10);
+                }
+            }
+
+            window.closeLoginReminderModal = function() {
+                const modal = document.getElementById('login-reminder-modal');
+                if (modal) {
+                    modal.style.opacity = '0';
+                    const content = modal.querySelector('div');
+                    content.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        modal.classList.add('hidden');
+                    }, 300);
+                }
+            };
+
+            // Close modal when clicking outside
+            document.getElementById('login-reminder-modal')?.addEventListener('click', (e) => {
+                if (e.target.id === 'login-reminder-modal') {
+                    window.closeLoginReminderModal();
+                }
             });
 
             // Toast notification function

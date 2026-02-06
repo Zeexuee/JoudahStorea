@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\AuthController;
 
 Route::get('/', function () {
     $categories = \App\Models\Category::with(['products' => function($query) {
@@ -26,6 +27,12 @@ Route::get('/category/{slug}', function ($slug) {
     $category = \App\Models\Category::where('slug', $slug)->with('products')->firstOrFail();
     return view('category.show', ['category' => $category]);
 })->name('category.show');
+
+// Auth routes
+Route::post('/auth/login', [AuthController::class, 'login'])->name('auth.login');
+Route::post('/auth/register', [AuthController::class, 'register'])->name('auth.register');
+Route::post('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout')->middleware('auth');
+Route::get('/auth/user', [AuthController::class, 'getCurrentUser'])->name('auth.user');
 
 // Cart routes
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');

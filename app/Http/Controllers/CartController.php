@@ -8,10 +8,50 @@ use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
+    /**
+     * Get cart identifier (user_id or session_id)
+     */
+    private function getCartIdentifier()
+    {
+        if (auth()->check()) {
+            return [
+                'type' => 'user_id',
+                'value' => auth()->id()
+            ];
+        } else {
+            return [
+                'type' => 'session_id',
+                'value' => session()->getId()
+            ];
+        }
+    }
+
+    /**
+     * Query cart items by identifier
+     */
+    private function queryCartItems()
+    {
+        $identifier = $this->getCartIdentifier();
+        
+        $query = CartItem::query();
+        if ($identifier['type'] === 'user_id') {
+            $query->where('user_id', $identifier['value']);
+        } else {
+            $query->where('session_id', $identifier['value'])
+                  ->whereNull('user_id');
+        }
+        
+        return $query;
+    }
+
     public function index()
     {
-        $sessionId = session()->getId();
-        $cartItems = CartItem::where('session_id', $sessionId)
+        // Require authentication - redirect back to previous page
+        if (!auth()->check()) {
+            return redirect()->back();
+        }
+
+        $cartItems = $this->queryCartItems()
             ->with('product')
             ->get();
 
@@ -22,13 +62,14 @@ class CartController extends Controller
 
         return view('cart.index', [
             'cartItems' => $cartItems,
-            'subtotal' => $subtotal
+            'subtotal' => $subtotal,
+            'requireLogin' => false
         ]);
     }
 
     public function add(Request $request)
     {
-        $sessionId = session()->getId();
+        $identifier = $this->getCartIdentifier();
         $productId = $request->input('product_id');
         $quantity = $request->input('quantity', 1);
 
@@ -36,24 +77,36 @@ class CartController extends Controller
         $product = Product::findOrFail($productId);
 
         // Check if item already in cart
-        $cartItem = CartItem::where('session_id', $sessionId)
-            ->where('product_id', $productId)
-            ->first();
+        $cartItem = CartItem::query();
+        if ($identifier['type'] === 'user_id') {
+            $cartItem->where('user_id', $identifier['value']);
+        } else {
+            $cartItem->where('session_id', $identifier['value'])
+                     ->whereNull('user_id');
+        }
+        $cartItem = $cartItem->where('product_id', $productId)->first();
 
         if ($cartItem) {
             // Jika sudah ada, tambah quantity
             $cartItem->increment('quantity', $quantity);
         } else {
             // Jika belum ada, buat item baru
-            CartItem::create([
-                'session_id' => $sessionId,
+            $data = [
                 'product_id' => $productId,
                 'quantity' => $quantity,
-            ]);
+            ];
+            
+            if ($identifier['type'] === 'user_id') {
+                $data['user_id'] = $identifier['value'];
+            } else {
+                $data['session_id'] = $identifier['value'];
+            }
+            
+            CartItem::create($data);
         }
 
         // Get total cart count
-        $cartCount = CartItem::where('session_id', $sessionId)->sum('quantity');
+        $cartCount = $this->queryCartItems()->sum('quantity');
 
         return response()->json([
             'success' => true,
@@ -65,13 +118,18 @@ class CartController extends Controller
 
     public function remove($productId)
     {
-        $sessionId = session()->getId();
+        $identifier = $this->getCartIdentifier();
+        
+        $query = CartItem::where('product_id', $productId);
+        if ($identifier['type'] === 'user_id') {
+            $query->where('user_id', $identifier['value']);
+        } else {
+            $query->where('session_id', $identifier['value'])
+                  ->whereNull('user_id');
+        }
+        $query->delete();
 
-        CartItem::where('session_id', $sessionId)
-            ->where('product_id', $productId)
-            ->delete();
-
-        $cartCount = CartItem::where('session_id', $sessionId)->sum('quantity');
+        $cartCount = $this->queryCartItems()->sum('quantity');
 
         return response()->json([
             'success' => true,
@@ -82,18 +140,23 @@ class CartController extends Controller
 
     public function updateQuantity(Request $request, $productId)
     {
-        $sessionId = session()->getId();
+        $identifier = $this->getCartIdentifier();
         $quantity = $request->input('quantity', 1);
 
         if ($quantity <= 0) {
             return $this->remove($productId);
         }
 
-        CartItem::where('session_id', $sessionId)
-            ->where('product_id', $productId)
-            ->update(['quantity' => $quantity]);
+        $query = CartItem::where('product_id', $productId);
+        if ($identifier['type'] === 'user_id') {
+            $query->where('user_id', $identifier['value']);
+        } else {
+            $query->where('session_id', $identifier['value'])
+                  ->whereNull('user_id');
+        }
+        $query->update(['quantity' => $quantity]);
 
-        $cartCount = CartItem::where('session_id', $sessionId)->sum('quantity');
+        $cartCount = $this->queryCartItems()->sum('quantity');
 
         return response()->json([
             'success' => true,
@@ -103,8 +166,7 @@ class CartController extends Controller
 
     public function getCartCount()
     {
-        $sessionId = session()->getId();
-        $cartCount = CartItem::where('session_id', $sessionId)->sum('quantity');
+        $cartCount = $this->queryCartItems()->sum('quantity');
 
         return response()->json([
             'cartCount' => $cartCount,
