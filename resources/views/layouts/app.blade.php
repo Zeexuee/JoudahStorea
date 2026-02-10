@@ -35,11 +35,7 @@
     <div class="min-h-screen bg-white">
         <x-navbar />
         <main>
-            @isset($slot)
-                {{ $slot }}
-            @else
-                @yield('content')
-            @endisset
+            @yield('content')
         </main>
     </div>
     <x-auth-modal />

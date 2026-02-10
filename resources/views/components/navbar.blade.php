@@ -244,10 +244,10 @@
                         </button>
                         <!-- User Dropdown Menu -->
                         <div class="absolute top-full right-0 w-48 bg-white shadow-xl rounded-lg py-2 mt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition">
+                            <a href="{{ route('profile.show') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition">
                                 <i class="fa-solid fa-user mr-2"></i>Profil
                             </a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition">
+                            <a href="{{ route('orders.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition">
                                 <i class="fa-solid fa-history mr-2"></i>Riwayat Pesanan
                             </a>
                             <hr class="my-2">
@@ -349,9 +349,15 @@
             </li>
             @if(auth()->check())
                 <li class="mobile-menu-item">
-                    <a href="#" class="flex items-center gap-3">
+                    <a href="{{ route('profile.show') }}" class="flex items-center gap-3">
                         <i class="fa-solid fa-user"></i>
                         Profil
+                    </a>
+                </li>
+                <li class="mobile-menu-item">
+                    <a href="{{ route('orders.index') }}" class="flex items-center gap-3">
+                        <i class="fa-solid fa-shopping-bag"></i>
+                        Riwayat Pesanan
                     </a>
                 </li>
                 <li class="mobile-menu-item">

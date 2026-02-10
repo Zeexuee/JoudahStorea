@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
     $categories = \App\Models\Category::with(['products' => function($query) {
@@ -40,6 +41,14 @@ Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::delete('/cart/{productId}', [CartController::class, 'remove'])->name('cart.remove');
 Route::patch('/cart/{productId}', [CartController::class, 'updateQuantity'])->name('cart.update');
 Route::get('/cart/count', [CartController::class, 'getCartCount'])->name('cart.count');
+
+// Profile routes (protected with auth middleware)
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/orders', [ProfileController::class, 'orders'])->name('orders.index');
+    Route::get('/orders/{order}', [ProfileController::class, 'orderDetail'])->name('orders.show');
+});
 
 Route::view('/privacy-policy', 'privacy-policy')->name('privacy-policy');
 Route::view('/shipping-policy', 'shipping-policy')->name('shipping-policy');
