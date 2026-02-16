@@ -22,7 +22,21 @@
 
         <div class="max-w-md w-full mx-auto">
             <h1 class="text-3xl font-bold text-gray-900 mb-2">Sign in</h1>
-            <p class="text-gray-500 mb-10 text-sm">Please login to continue to your account.</p>
+            <p class="text-gray-500 mb-6 text-sm">Please login to continue to your account.</p>
+
+            <!-- Login Type Tabs -->
+            <div class="flex gap-4 mb-8 bg-gray-100 p-1 rounded-lg">
+                <button type="button" 
+                    class="login-tab flex-1 py-2 px-3 rounded-md font-bold text-sm transition @if($loginType === 'products') text-white bg-[#1A1A1A] @else text-gray-600 bg-transparent @endif"
+                    wire:click="setLoginType('products')">
+                    <i class="fas fa-box mr-2"></i>Kelola Barang
+                </button>
+                <button type="button" 
+                    class="login-tab flex-1 py-2 px-3 rounded-md font-bold text-sm transition @if($loginType === 'orders') text-white bg-[#1A1A1A] @else text-gray-600 bg-transparent @endif"
+                    wire:click="setLoginType('orders')">
+                    <i class="fas fa-shopping-bag mr-2"></i>Kelola Pesanan
+                </button>
+            </div>
 
             <form wire:submit="authenticate" class="space-y-6">
                 

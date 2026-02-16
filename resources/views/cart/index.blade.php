@@ -95,14 +95,23 @@
                                 </div>
                             </div>
 
+                            @if(auth()->check())
+                                <a href="{{ route('checkout.show') }}" 
+                                   class="block w-full bg-amber-600 hover:bg-amber-700 text-white py-3 px-4 font-bold tracking-wide transition text-center rounded-sm mb-3">
+                                    Lanjut ke Checkout
+                                </a>
+                            @else
+                                <button type="button" onclick="openAuthModal()"
+                                   class="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 px-4 font-bold tracking-wide transition rounded-sm mb-3">
+                                    <i class="fas fa-lock mr-2"></i>Login untuk Checkout
+                                </button>
+                            @endif
+
                             <a href="https://wa.me/+6287796715916?text=Halo%2C%20saya%20ingin%20melakukan%20pemesanan.%20Total%20pembelian%20saya%20adalah%20Rp%20{{ $subtotal }}" 
                                target="_blank"
-                               class="block w-full bg-[#1A1A1A] text-white py-3 px-4 font-bold tracking-wide hover:bg-black transition text-center rounded-sm mb-3">
-                                Pesan via WhatsApp
+                               class="block w-full bg-[#1A1A1A] text-white py-3 px-4 font-bold tracking-wide hover:bg-black transition text-center rounded-sm">
+                                <i class="fab fa-whatsapp mr-2"></i>Hubungi via WhatsApp
                             </a>
-                            <button class="w-full bg-white text-gray-900 py-3 px-4 font-bold tracking-wide hover:bg-gray-100 transition border border-gray-900 rounded-sm">
-                                Lanjutkan Belanja
-                            </button>
                         </div>
                     </div>
                 </div>

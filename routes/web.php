@@ -4,6 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 
 Route::get('/', function () {
     $categories = \App\Models\Category::with(['products' => function($query) {
@@ -48,6 +51,76 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/orders', [ProfileController::class, 'orders'])->name('orders.index');
     Route::get('/orders/{order}', [ProfileController::class, 'orderDetail'])->name('orders.show');
+
+    // Checkout routes
+    Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
+    Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
+    Route::get('/checkout/cities', [CheckoutController::class, 'getCities'])->name('checkout.getCities');
+    Route::get('/checkout/shipping-costs', [CheckoutController::class, 'getShippingCosts'])->name('checkout.getShippingCosts');
+
+    // Payment routes
+    Route::get('/payment/{order}', [PaymentController::class, 'show'])->name('payment.show');
+    Route::post('/payment/{order}/process', [PaymentController::class, 'process'])->name('payment.process');
+    Route::get('/payment/{order}/verify', [PaymentController::class, 'verify'])->name('payment.verify');
+    Route::get('/payment/{order}/status', [PaymentController::class, 'checkStatus'])->name('payment.checkStatus');
+    Route::post('/payment/{order}/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
+});
+
+// Payment callback (no auth required)
+Route::post('/payment/callback/doku', [PaymentController::class, 'callback'])->name('payment.callback');
+
+// Admin routes (protected with auth and admin middleware)
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminOrderController::class, 'dashboard'])->name('dashboard');
+    
+    // Order management
+    Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
+    Route::post('/orders/{order}/payment-status', [AdminOrderController::class, 'updatePaymentStatus'])->name('orders.updatePaymentStatus');
+    Route::post('/orders/{order}/shipping-status', [AdminOrderController::class, 'updateShippingStatus'])->name('orders.updateShippingStatus');
+});
+
+// Test routes (remove in production)
+Route::get('/test/rajaongkir', function () {
+    $service = new \App\Services\RajaongkirService();
+    
+    try {
+        $provinces = $service->getProvinces();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Rajaongkir API is working!',
+            'provinces_count' => count($provinces),
+            'sample_provinces' => array_slice($provinces, 0, 5, true),
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'error' => class_basename($e),
+        ], 500);
+    }
+});
+
+Route::get('/test/cities/{provinceId}', function ($provinceId) {
+    $service = new \App\Services\RajaongkirService();
+    
+    try {
+        $cities = $service->getCitiesByProvince($provinceId);
+        dd([
+            'province_id' => $provinceId,
+            'success' => true,
+            'cities_count' => count($cities),
+            'sample_cities' => array_slice($cities, 0, 5, true),
+            'raw_response' => http_build_query(['province_id' => $provinceId]),
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+            'error' => class_basename($e),
+        ], 500);
+    }
 });
 
 Route::view('/privacy-policy', 'privacy-policy')->name('privacy-policy');

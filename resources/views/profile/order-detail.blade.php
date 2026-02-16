@@ -102,11 +102,19 @@
                         <div class="space-y-3">
                             <div class="flex justify-between text-gray-700">
                                 <span>Subtotal</span>
-                                <span>Rp{{ number_format($order->total_price, 0, ',', '.') }}</span>
+                                <span>Rp{{ number_format($order->total_price - ($order->shipping?->cost ?? 0), 0, ',', '.') }}</span>
                             </div>
                             <div class="flex justify-between text-gray-700">
                                 <span>Ongkos Kirim</span>
-                                <span>Gratis</span>
+                                @if($order->shipping)
+                                    <span class="font-medium">
+                                        {{ $order->shipping->courier_name }} ({{ $order->shipping->service }})
+                                        <br>
+                                        <span class="text-sm">Rp{{ number_format($order->shipping->cost, 0, ',', '.') }}</span>
+                                    </span>
+                                @else
+                                    <span>-</span>
+                                @endif
                             </div>
                             <div class="flex justify-between text-lg font-bold text-amber-600 pt-3 border-t border-gray-300">
                                 <span>Total</span>
@@ -117,15 +125,58 @@
                 </div>
             </div>
 
-            <!-- Shipping Info -->
-            <div class="lg:col-span-1">
+            <!-- Shipping and Payment Info -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Payment Status -->
+                @if($order->payment)
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <i class="fas fa-credit-card text-amber-600"></i>
+                            Status Pembayaran
+                        </h3>
+                        <div class="space-y-3">
+                            <div>
+                                <p class="text-sm text-gray-600 mb-1">Status</p>
+                                <span class="inline-block px-3 py-1 rounded-full text-sm font-medium
+                                    @if($order->payment->status === 'pending') bg-yellow-100 text-yellow-800
+                                    @elseif($order->payment->status === 'processing') bg-blue-100 text-blue-800
+                                    @elseif($order->payment->status === 'completed') bg-green-100 text-green-800
+                                    @elseif($order->payment->status === 'failed') bg-red-100 text-red-800
+                                    @else bg-gray-100 text-gray-800
+                                    @endif">
+                                    {{ $order->payment->status_label }}
+                                </span>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600 mb-1">Metode Pembayaran</p>
+                                <p class="font-medium text-gray-900">{{ $order->payment->payment_gateway }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600 mb-1">Ref Pembayaran</p>
+                                <p class="font-mono text-sm text-gray-900">{{ $order->payment->reference_number }}</p>
+                            </div>
+                            @if($order->payment->paid_at)
+                                <div>
+                                    <p class="text-sm text-gray-600 mb-1">Tanggal Pembayaran</p>
+                                    <p class="text-sm text-gray-900">{{ $order->payment->paid_at->locale('id')->translatedFormat('d F Y H:i') }}</p>
+                                </div>
+                            @endif
+                        </div>
+                        @if($order->payment->status === 'pending')
+                            <a href="{{ route('payment.show', $order) }}" class="block mt-4 text-center bg-amber-600 hover:bg-amber-700 text-white font-medium py-2 px-4 rounded-lg transition">
+                                Lanjut ke Pembayaran
+                            </a>
+                        @endif
+                    </div>
+                @endif
+                
                 <!-- Shipping Address -->
-                <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div class="bg-white rounded-lg shadow-sm p-6">
                     <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                         <i class="fas fa-map-marker-alt text-amber-600"></i>
                         Alamat Pengiriman
                     </h3>
-                    <div class="space-y-3 text-gray-700">
+                    <div class="space-y-3 text-gray-700 text-sm">
                         <div>
                             <p class="text-sm text-gray-600">Nama Penerima</p>
                             <p class="font-medium">{{ $order->shipping_name }}</p>
@@ -155,11 +206,50 @@
                     </div>
                 </div>
 
+                <!-- Shipping Status -->
+                @if($order->shipping)
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <i class="fas fa-truck text-amber-600"></i>
+                            Info Pengiriman
+                        </h3>
+                        <div class="space-y-3 text-sm">
+                            <div>
+                                <p class="text-gray-600 mb-1">Kurir</p>
+                                <p class="font-medium text-gray-900">{{ $order->shipping->courier_name }} - {{ $order->shipping->service }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600 mb-1">Status Pengiriman</p>
+                                <span class="inline-block px-3 py-1 rounded-full text-sm font-medium
+                                    @if($order->shipping->status === 'pending') bg-yellow-100 text-yellow-800
+                                    @elseif(in_array($order->shipping->status, ['picked_up', 'in_transit', 'out_for_delivery'])) bg-blue-100 text-blue-800
+                                    @elseif($order->shipping->status === 'delivered') bg-green-100 text-green-800
+                                    @else bg-red-100 text-red-800
+                                    @endif">
+                                    {{ $order->shipping->status_label }}
+                                </span>
+                            </div>
+                            @if($order->shipping->tracking_number)
+                                <div>
+                                    <p class="text-gray-600 mb-1">Nomor Resi</p>
+                                    <p class="font-mono text-gray-900">{{ $order->shipping->tracking_number }}</p>
+                                </div>
+                            @endif
+                            @if($order->shipping->estimated_delivery)
+                                <div>
+                                    <p class="text-gray-600 mb-1">Perkiraan Tiba</p>
+                                    <p class="text-gray-900">{{ $order->shipping->estimated_delivery->locale('id')->translatedFormat('d F Y') }}</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
                 <!-- Status Timeline -->
                 <div class="bg-white rounded-lg shadow-sm p-6">
                     <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                         <i class="fas fa-info-circle text-blue-600"></i>
-                        Status Pengiriman
+                        Timeline
                     </h3>
                     <div class="relative">
                         <div class="space-y-4">
@@ -170,10 +260,36 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <p class="font-medium text-gray-900">Pesanan Diterima</p>
-                                    <p class="text-sm text-gray-600">{{ $order->created_at->locale('id')->translatedFormat('d F Y') }}</p>
+                                    <p class="font-medium text-gray-900">Pesanan Dibuat</p>
+                                    <p class="text-sm text-gray-600">{{ $order->created_at->locale('id')->translatedFormat('d F Y H:i') }}</p>
                                 </div>
                             </div>
+
+                            @if($order->payment && $order->payment->paid_at)
+                                <div class="flex gap-4">
+                                    <div class="flex flex-col items-center">
+                                        <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-900">Pembayaran Berhasil</p>
+                                        <p class="text-sm text-gray-600">{{ $order->payment->paid_at->locale('id')->translatedFormat('d F Y H:i') }}</p>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="flex gap-4">
+                                    <div class="flex flex-col items-center">
+                                        <div class="w-8 h-8 bg-yellow-300 rounded-full flex items-center justify-center text-white text-sm">
+                                            <i class="fas fa-hourglass-half"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-900">Menunggu Pembayaran</p>
+                                        <p class="text-sm text-gray-600">Belum dibayar</p>
+                                    </div>
+                                </div>
+                            @endif
 
                             @if(in_array($order->status, ['processing', 'shipped', 'delivered']))
                                 <div class="flex gap-4">

@@ -1,0 +1,370 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="min-h-screen bg-gray-50 pt-20 pb-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-900">Checkout</h1>
+            <p class="text-gray-600 mt-2">Selesaikan pemesanan Anda</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column - Form -->
+            <div class="lg:col-span-2">
+                <form action="{{ route('checkout.process') }}" method="POST" id="checkoutForm" class="space-y-6">
+                    @csrf
+
+                    <!-- Shipping Information -->
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6 pb-4 border-b border-gray-200">
+                            <i class="fas fa-map-marker-alt text-amber-600 mr-3"></i>Alamat Pengiriman
+                        </h2>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Recipient Name -->
+                            <div class="sm:col-span-2">
+                                <label for="shipping_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Nama Penerima
+                                </label>
+                                <input type="text" id="shipping_name" name="shipping_name" 
+                                    value="{{ old('shipping_name', $userProfile['name']) }}"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                    placeholder="Nama lengkap penerima" required>
+                                @error('shipping_name')
+                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- Phone -->
+                            <div>
+                                <label for="shipping_phone" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Nomor Telepon
+                                </label>
+                                <input type="tel" id="shipping_phone" name="shipping_phone"
+                                    value="{{ old('shipping_phone', $userProfile['phone']) }}"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                    placeholder="08xxxxxxxxxx" required>
+                                @error('shipping_phone')
+                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- Postal Code -->
+                            <div>
+                                <label for="shipping_postal_code" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Kode Pos
+                                </label>
+                                <input type="text" id="shipping_postal_code" name="shipping_postal_code"
+                                    value="{{ old('shipping_postal_code', $userProfile['postal_code']) }}"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                    placeholder="12345" required>
+                                @error('shipping_postal_code')
+                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- Province -->
+                            <div>
+                                <label for="shipping_province" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Provinsi
+                                </label>
+                                <select id="shipping_province" name="shipping_province"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                    required>
+                                    <option value="">Pilih Provinsi</option>
+                                    @forelse($provinces as $id => $name)
+                                        <option value="{{ $name }}" data-id="{{ $id }}"
+                                            {{ old('shipping_province', $userProfile['province']) === $name ? 'selected' : '' }}>
+                                            {{ $name }}
+                                        </option>
+                                    @empty
+                                        <option value="">Provinsi tidak tersedia</option>
+                                    @endforelse
+                                </select>
+                                @error('shipping_province')
+                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- City -->
+                            <div>
+                                <label for="shipping_city" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Kota / Kabupaten
+                                </label>
+                                <select id="shipping_city" name="shipping_city"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                    required disabled>
+                                    <option value="">Pilih Kota</option>
+                                </select>
+                                @error('shipping_city')
+                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- Address -->
+                            <div class="sm:col-span-2">
+                                <label for="shipping_address" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Alamat Lengkap
+                                </label>
+                                <textarea id="shipping_address" name="shipping_address" rows="3"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                    placeholder="Jalan, nomor rumah, desa/kelurahan" required>{{ old('shipping_address', $userProfile['address']) }}</textarea>
+                                @error('shipping_address')
+                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- Notes -->
+                            <div class="sm:col-span-2">
+                                <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Catatan (Opsional)
+                                </label>
+                                <textarea id="notes" name="notes" rows="2"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                    placeholder="Catatan untuk penjual atau kurir">{{ old('notes') }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shipping Method -->
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6 pb-4 border-b border-gray-200">
+                            <i class="fas fa-truck text-amber-600 mr-3"></i>Metode Pengiriman
+                        </h2>
+
+                        <div id="shippingMethods" class="space-y-3">
+                            <p class="text-gray-600">Pilih provinsi dan kota terlebih dahulu untuk melihat opsi pengiriman</p>
+                        </div>
+
+                        <!-- Hidden fields for shipping data -->
+                        <input type="hidden" id="province_id" name="province_id">
+                        <input type="hidden" id="city_id" name="city_id">
+                        <input type="hidden" id="courier" name="courier">
+                        <input type="hidden" id="service" name="service">
+                        <input type="hidden" id="shipping_cost" name="shipping_cost">
+                        <input type="hidden" id="admin_fee" name="admin_fee" value="3000">
+
+                        @error('courier')
+                            <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right Column - Summary -->
+            <div class="lg:col-span-1">
+                <!-- Order Summary -->
+                <div class="bg-white rounded-lg shadow-sm p-6 sticky top-24">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 pb-4 border-b border-gray-200">
+                       Ringkasan Pesanan
+                    </h2>
+
+                    <!-- Items -->
+                    <div class="space-y-3 mb-6 pb-6 border-b border-gray-200">
+                        @foreach($cartItems as $item)
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-700">
+                                    {{ $item->product->name }}
+                                    <span class="text-gray-500">(x{{ $item->quantity }})</span>
+                                </span>
+                                <span class="font-medium text-gray-900">
+                                    Rp{{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}
+                                </span>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <!-- Totals -->
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between text-gray-700">
+                            <span>Subtotal</span>
+                            <span>Rp{{ number_format($subtotal, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="flex justify-between text-gray-700">
+                            <span>Ongkos Kirim</span>
+                            <span id="displayShippingCost" class="font-medium">-</span>
+                        </div>
+                        <div class="flex justify-between text-gray-700">
+                            <span>Biaya Administratif</span>
+                            <span id="displayAdminFee" class="font-medium">Rp3.000</span>
+                        </div>
+                        <div class="flex justify-between text-lg font-bold text-amber-600 pt-3 border-t border-gray-300">
+                            <span>Total</span>
+                            <span id="totalPrice">Rp{{ number_format($subtotal + 3000, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" form="checkoutForm"
+                        class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2"
+                        id="submitBtn" disabled>
+            
+                        Lanjut ke Pembayaran
+                    </button>
+
+                    <!-- Info -->
+                    <p class="text-xs text-gray-500 text-center mt-4">
+                        Dengan melanjutkan, Anda menyetujui syarat dan ketentuan kami
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const provinceSelect = document.getElementById('shipping_province');
+    const citySelect = document.getElementById('shipping_city');
+    const shippingMethods = document.getElementById('shippingMethods');
+    const submitBtn = document.getElementById('submitBtn');
+
+    console.log('Checkout script loaded');
+    console.log('Province select:', provinceSelect);
+    console.log('City select:', citySelect);
+
+    // Handle province change
+    provinceSelect.addEventListener('change', async function() {
+        console.log('Province changed');
+        console.log('Selected option:', this.options[this.selectedIndex]);
+        console.log('Selected value:', this.value);
+        console.log('Dataset.id:', this.options[this.selectedIndex].dataset.id);
+        
+        const provinceId = this.options[this.selectedIndex].dataset.id;
+        
+        console.log('Province ID to send:', provinceId);
+        
+        if (!provinceId) {
+            console.log('No province ID, clearing city select');
+            citySelect.innerHTML = '<option value="">Pilih Kota</option>';
+            citySelect.disabled = true;
+            shippingMethods.innerHTML = '<p class="text-gray-600">Pilih kota untuk melihat opsi pengiriman</p>';
+            return;
+        }
+
+        try {
+            const url = '{{ route("checkout.getCities") }}?province_id=' + provinceId;
+            console.log('Fetching cities from:', url);
+            
+            const response = await fetch(url);
+            const data = await response.json();
+
+            console.log('Cities response:', data);
+
+            if (data.success) {
+                console.log('Success! Loading cities:', data.cities);
+                citySelect.innerHTML = '<option value="">Pilih Kota</option>';
+                Object.entries(data.cities).forEach(([id, name]) => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.dataset.id = id;
+                    option.textContent = name;
+                    citySelect.appendChild(option);
+                });
+                citySelect.disabled = false;
+            } else {
+                console.log('Error:', data.error);
+            }
+        } catch (error) {
+            console.error('Error loading cities:', error);
+            alert('Gagal memuat data kota: ' + error.message);
+        }
+    });
+
+    // Handle city change
+    citySelect.addEventListener('change', async function() {
+        console.log('City changed');
+        const provinceId = provinceSelect.options[provinceSelect.selectedIndex].dataset.id;
+        const cityId = this.options[this.selectedIndex].dataset.id;
+
+        console.log('Province ID:', provinceId, 'City ID:', cityId);
+
+        if (!provinceId || !cityId) {
+            shippingMethods.innerHTML = '<p class="text-gray-600">Pilih kota untuk melihat opsi pengiriman</p>';
+            document.getElementById('shipping_cost').value = '';
+            updateTotal();
+            return;
+        }
+
+        // Store IDs for form submission
+        document.getElementById('province_id').value = provinceId;
+        document.getElementById('city_id').value = cityId;
+
+        try {
+            shippingMethods.innerHTML = '<p class="text-gray-600">Memuat opsi pengiriman...</p>';
+
+            const url = '{{ route("checkout.getShippingCosts") }}?province_id=' + provinceId + '&city_id=' + cityId;
+            console.log('Fetching shipping costs from:', url);
+            
+            const response = await fetch(url);
+            const data = await response.json();
+
+            console.log('Shipping costs response:', data);
+
+            if (data.success && data.costs.length > 0) {
+                shippingMethods.innerHTML = '';
+                data.costs.forEach(cost => {
+                    const label = document.createElement('label');
+                    label.className = 'flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-amber-500 hover:bg-amber-50 transition';
+                    
+                    const input = document.createElement('input');
+                    input.type = 'radio';
+                    input.name = 'shipping_method';
+                    input.className = 'w-4 h-4 text-amber-600 cursor-pointer';
+                    input.value = JSON.stringify(cost);
+                    
+                    input.addEventListener('change', function() {
+                        document.getElementById('courier').value = cost.courier_code;
+                        document.getElementById('service').value = cost.courier_name;
+                        document.getElementById('shipping_cost').value = cost.cost;
+                        updateTotal();
+                        submitBtn.disabled = false;
+                    });
+
+                    const div = document.createElement('div');
+                    div.className = 'ml-4 flex-1';
+                    
+                    const name = document.createElement('p');
+                    name.className = 'font-medium text-gray-900';
+                    name.textContent = cost.courier_name + ' - ' + cost.courier_code;
+                    
+                    const details = document.createElement('p');
+                    details.className = 'text-sm text-gray-600';
+                    details.textContent = 'Rp' + new Intl.NumberFormat('id-ID').format(cost.cost) + 
+                        (cost.estimated_days ? ' • Est. ' + cost.estimated_days + ' hari' : '');
+                    
+                    div.appendChild(name);
+                    div.appendChild(details);
+                    
+                    label.appendChild(input);
+                    label.appendChild(div);
+                    shippingMethods.appendChild(label);
+                });
+            } else {
+                shippingMethods.innerHTML = '<p class="text-red-600">Tidak ada opsi pengiriman tersedia untuk lokasi ini</p>';
+                submitBtn.disabled = true;
+            }
+        } catch (error) {
+            console.error('Error loading shipping costs:', error);
+            shippingMethods.innerHTML = '<p class="text-red-600">Gagal memuat opsi pengiriman</p>';
+            submitBtn.disabled = true;
+        }
+    });
+
+    function updateTotal() {
+        const subtotal = {{ $subtotal }};
+        const adminFee = 3000; // Biaya administratif
+        const shippingCost = parseInt(document.getElementById('shipping_cost').value) || 0;
+        const total = subtotal + shippingCost + adminFee;
+
+        document.getElementById('displayShippingCost').textContent = 
+            'Rp' + new Intl.NumberFormat('id-ID').format(shippingCost);
+        document.getElementById('displayAdminFee').textContent = 
+            'Rp' + new Intl.NumberFormat('id-ID').format(adminFee);
+        document.getElementById('totalPrice').textContent = 
+            'Rp' + new Intl.NumberFormat('id-ID').format(total);
+    }
+});
+</script>
+@endsection
