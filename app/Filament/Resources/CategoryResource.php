@@ -6,9 +6,10 @@ use App\Filament\Resources\CategoryResource\Pages;
 use App\Models\Category;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 use Filament\Resources\Resource;
@@ -27,8 +28,7 @@ class CategoryResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema
-            ->components([
+        return $schema->schema([
                 TextInput::make('name')
                     ->required()
                     ->live(onBlur: true)

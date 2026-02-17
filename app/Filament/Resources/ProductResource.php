@@ -7,10 +7,10 @@ use App\Models\Product;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
-use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 use Filament\Resources\Resource;
@@ -29,8 +29,7 @@ class ProductResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema
-            ->components([
+        return $schema->schema([
                 Section::make('Product Details')->schema([
                     Select::make('category_id')
                         ->relationship('category', 'name')
