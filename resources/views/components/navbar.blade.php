@@ -250,15 +250,7 @@
                             <a href="{{ route('orders.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition">
                                 <i class="fa-solid fa-history mr-2"></i>Riwayat Pesanan
                             </a>
-                            @if(auth()->user()->is_admin)
-                                <hr class="my-2">
-                                <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-sm text-amber-700 hover:bg-amber-50 bg-amber-100 transition">
-                                    <i class="fa-solid fa-gauge mr-2"></i>Admin Dashboard
-                                </a>
-                                <hr class="my-2">
-                            @else
-                                <hr class="my-2">
-                            @endif
+                            <hr class="my-2">
                             <button onclick="handleLogout()" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition">
                                 <i class="fa-solid fa-sign-out-alt mr-2"></i>Logout
                             </button>
@@ -368,14 +360,6 @@
                         Riwayat Pesanan
                     </a>
                 </li>
-                @if(auth()->user()->is_admin)
-                    <li class="mobile-menu-item border-t">
-                        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 bg-amber-100 text-amber-700 font-medium">
-                            <i class="fa-solid fa-gauge"></i>
-                            Admin Dashboard
-                        </a>
-                    </li>
-                @endif
                 <li class="mobile-menu-item">
                     <button onclick="handleLogout(); closeMenu();" class="w-full text-left flex items-center gap-3 text-red-600 hover:text-red-700">
                         <i class="fa-solid fa-sign-out-alt"></i>

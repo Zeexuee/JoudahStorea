@@ -280,7 +280,7 @@
                                     <h4 class="text-xl font-serif text-gray-900 group-hover:text-amber-700 transition">{{ $product->name }}</h4>
                                     <span class="font-medium text-gray-900">{{ Number::currency($product->price, 'IDR') }}</span>
                                 </div>
-                                <p class="text-gray-500 text-sm leading-relaxed mb-3 font-light">{{ Str::limit($product->description, 100) }}</p>
+                                <p class="text-gray-500 text-sm leading-relaxed mb-3 font-light">{{ Str::limit(strip_tags($product->description), 100) }}</p>
                                 <span class="text-xs uppercase tracking-wider font-bold text-amber-600 opacity-0 group-hover:opacity-100 transition transform translate-x-[-10px] group-hover:translate-x-0 inline-block">Lihat Detail</span>
                             </a>
                         </div>
