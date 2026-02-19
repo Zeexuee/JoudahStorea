@@ -220,7 +220,7 @@
                         <a href="{{ route('category.show', 'linen-spray') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition">Linen Spray</a>
                         <a href="{{ route('category.show', 'deodorant') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition">Deodorant</a>
                         <a href="{{ route('category.show', 'premium-series') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition">Premium Series</a>
-                        <a href="{{ route('category.show', 'produk-luar') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition">Produk Luar Joudah</a>
+                        <a href="{{ route('category.show', 'produk-lainnya') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition">Produk Lainnya</a>
                     </div>
                 </div>
             </div>
@@ -330,7 +330,7 @@
                         <a href="{{ route('category.show', 'premium-series') }}">Premium Series</a>
                     </div>
                     <div class="mobile-submenu-item">
-                        <a href="{{ route('category.show', 'produk-luar') }}">Produk Luar Joudah</a>
+                        <a href="{{ route('category.show', 'produk-lainnya') }}">Produk Lainnya</a>
                     </div>
                 </div>
             </li>
