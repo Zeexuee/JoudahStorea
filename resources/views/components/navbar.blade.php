@@ -508,21 +508,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle logout
     window.handleLogout = function() {
-        // Create a temporary form for logout
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/auth/logout';
-        form.style.display = 'none';
+        try {
+            // Try POST first with CSRF token
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/auth/logout';
+            form.style.display = 'none';
 
-        // Add CSRF token
-        const csrfToken = document.createElement('input');
-        csrfToken.type = 'hidden';
-        csrfToken.name = '_token';
-        csrfToken.value = document.querySelector('meta[name="csrf-token"]').content;
+            // Add CSRF token
+            const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+            if (csrfMeta) {
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = csrfMeta.content;
+                form.appendChild(csrfToken);
+                document.body.appendChild(form);
+                form.submit();
+                return;
+            }
+        } catch (error) {
+            console.error('Logout form error:', error);
+        }
 
-        form.appendChild(csrfToken);
-        document.body.appendChild(form);
-        form.submit();
+        // Fallback: Use simple GET redirect if POST fails or CSRF token missing
+        setTimeout(() => {
+            window.location.href = '/auth/logout';
+        }, 500);
     };
 });
 </script>

@@ -44,11 +44,23 @@
                 </div>
                 <div>
                     <p class="text-gray-600 text-sm mb-1">Status Pembayaran</p>
-                    <p class="text-2xl font-bold text-gray-900">
-                        @if($order->status === 'cancelled')
-                            <span class="text-red-600">Dibatalkan</span>
+                    <p class="text-2xl font-bold">
+                        @if($order->payment)
+                            @if($order->payment->status === 'pending')
+                                <span class="text-yellow-600">{{ $order->payment->status_label }}</span>
+                            @elseif($order->payment->status === 'processing')
+                                <span class="text-blue-600">{{ $order->payment->status_label }}</span>
+                            @elseif($order->payment->status === 'completed')
+                                <span class="text-green-600">{{ $order->payment->status_label }}</span>
+                            @elseif($order->payment->status === 'failed')
+                                <span class="text-red-600">{{ $order->payment->status_label }}</span>
+                            @elseif($order->payment->status === 'expired')
+                                <span class="text-red-600">{{ $order->payment->status_label }}</span>
+                            @else
+                                <span class="text-gray-600">{{ $order->payment->status_label }}</span>
+                            @endif
                         @else
-                            <span class="text-green-600">Terbayar</span>
+                            <span class="text-gray-600">Belum ada pembayaran</span>
                         @endif
                     </p>
                 </div>
@@ -369,4 +381,7 @@
         </div>
     </div>
 </div>
+
+
+
 @endsection

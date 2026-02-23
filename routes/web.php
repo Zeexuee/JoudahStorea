@@ -35,7 +35,7 @@ Route::get('/category/{slug}', function ($slug) {
 // Auth routes
 Route::post('/auth/login', [AuthController::class, 'login'])->name('auth.login');
 Route::post('/auth/register', [AuthController::class, 'register'])->name('auth.register');
-Route::post('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout')->middleware('auth');
+Route::match(['get', 'post'], '/auth/logout', [AuthController::class, 'logout'])->name('auth.logout')->middleware('auth');
 Route::get('/auth/user', [AuthController::class, 'getCurrentUser'])->name('auth.user');
 
 // Cart routes
@@ -44,6 +44,17 @@ Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::delete('/cart/{productId}', [CartController::class, 'remove'])->name('cart.remove');
 Route::patch('/cart/{productId}', [CartController::class, 'updateQuantity'])->name('cart.update');
 Route::get('/cart/count', [CartController::class, 'getCartCount'])->name('cart.count');
+
+// Mock payment checkout (for testing - public route) - MUST BE BEFORE auth group
+Route::get('/payment/mock-checkout/{external_id}', function ($external_id) {
+    return view('payment.mock-checkout', ['external_id' => $external_id]);
+})->name('payment.mock-checkout');
+
+// Mock payment verification (public route, but controller checks auth) - MUST BE BEFORE auth group
+Route::get('/payment/verify-mock', [PaymentController::class, 'verifyMock'])->name('payment.verify-mock');
+
+// Payment callbacks (no auth required) - MUST BE BEFORE auth group
+Route::post('/payment/callback/doku', [PaymentController::class, 'callback'])->name('payment.callback');
 
 // Profile routes (protected with auth middleware)
 Route::middleware('auth')->group(function () {
@@ -58,16 +69,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/checkout/cities', [CheckoutController::class, 'getCities'])->name('checkout.getCities');
     Route::get('/checkout/shipping-costs', [CheckoutController::class, 'getShippingCosts'])->name('checkout.getShippingCosts');
 
-    // Payment routes
-    Route::get('/payment/{order}', [PaymentController::class, 'show'])->name('payment.show');
-    Route::post('/payment/{order}/process', [PaymentController::class, 'process'])->name('payment.process');
-    Route::get('/payment/{order}/verify', [PaymentController::class, 'verify'])->name('payment.verify');
-    Route::get('/payment/{order}/status', [PaymentController::class, 'checkStatus'])->name('payment.checkStatus');
-    Route::post('/payment/{order}/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
+    // Payment routes (with numeric constraint to avoid catching verify-mock)
+    Route::get('/payment/{order}', [PaymentController::class, 'show'])->where('order', '[0-9]+')->name('payment.show');
+    Route::post('/payment/{order}/process', [PaymentController::class, 'process'])->where('order', '[0-9]+')->name('payment.process');
+    Route::get('/payment/{order}/verify', [PaymentController::class, 'verify'])->where('order', '[0-9]+')->name('payment.verify');
+    Route::get('/payment/{order}/status', [PaymentController::class, 'checkStatus'])->where('order', '[0-9]+')->name('payment.checkStatus');
+    Route::post('/payment/{order}/cancel', [PaymentController::class, 'cancel'])->where('order', '[0-9]+')->name('payment.cancel');
 });
-
-// Payment callback (no auth required)
-Route::post('/payment/callback/doku', [PaymentController::class, 'callback'])->name('payment.callback');
 
 // Admin routes (protected with auth and admin middleware)
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -76,12 +84,20 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Order management
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
+    Route::get('/orders/{order}/print-receipt', [AdminOrderController::class, 'printReceipt'])->name('orders.print-receipt');
     Route::post('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
     Route::post('/orders/{order}/payment-status', [AdminOrderController::class, 'updatePaymentStatus'])->name('orders.updatePaymentStatus');
     Route::post('/orders/{order}/shipping-status', [AdminOrderController::class, 'updateShippingStatus'])->name('orders.updateShippingStatus');
+    Route::post('/orders/{order}/cancel', [AdminOrderController::class, 'cancelOrder'])->name('orders.cancel');
 });
 
 // Test routes (remove in production)
+Route::middleware(['auth', 'admin'])->prefix('test')->group(function () {
+    Route::get('/auto-update/{orderId}', [\App\Http\Controllers\TestAutoUpdateController::class, 'testPaymentAutoUpdate'])->name('test.auto-update');
+    Route::get('/check-status/{orderId}', [\App\Http\Controllers\TestAutoUpdateController::class, 'checkStatus'])->name('test.check-status');
+    Route::get('/logs', [\App\Http\Controllers\TestAutoUpdateController::class, 'testLogs'])->name('test.logs');
+});
+
 Route::get('/test/rajaongkir', function () {
     $service = new \App\Services\RajaongkirService();
     

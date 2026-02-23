@@ -36,6 +36,38 @@ class Shipping extends Model
     ];
 
     /**
+     * Boot method - Auto-update order status based on shipping status
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::updated(function ($shipping) {
+            // Auto-update order status based on shipping status changes
+            if ($shipping->wasChanged('status')) {
+                $newStatus = $shipping->status;
+
+                $orderStatus = match($newStatus) {
+                    'picked_up' => 'processing',
+                    'in_transit', 'out_for_delivery' => 'shipped',
+                    'delivered' => 'delivered',
+                    'failed', 'returned' => 'cancelled',
+                    default => $shipping->order->status,
+                };
+
+                if ($orderStatus !== $shipping->order->status) {
+                    $shipping->order->update(['status' => $orderStatus]);
+                    logger('Auto-update: Order status changed to ' . $orderStatus . ' (shipping: ' . $newStatus . ')', [
+                        'order_id' => $shipping->order_id,
+                        'shipping_id' => $shipping->id,
+                        'by' => 'shipping_model_observer'
+                    ]);
+                }
+            }
+        });
+    }
+
+    /**
      * Get the order that owns the shipping
      */
     public function order()

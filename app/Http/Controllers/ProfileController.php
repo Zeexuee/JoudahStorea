@@ -48,7 +48,7 @@ class ProfileController extends Controller
         $user = $request->user();
 
         $orders = $user->orders()
-            ->with('items.product')
+            ->with('items.product', 'payment', 'shipping')
             ->orderByDesc('created_at')
             ->paginate(10);
 
@@ -67,7 +67,9 @@ class ProfileController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        $order->load('items.product');
+        // Force fresh data from database (no caching)
+        $order = $order->fresh();
+        $order->load('items.product', 'payment', 'shipping');
 
         return view('profile.order-detail', [
             'order' => $order,

@@ -9,18 +9,35 @@ use App\Models\Payment;
 use App\Models\Shipping;
 use App\Services\RajaongkirService;
 use App\Services\DokuPaymentService;
+use App\Services\MockPaymentService;
+use App\Services\MindtransPaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
     private $rajaongkir;
-    private $dokuPayment;
+    private $paymentService;
+    private $activeGateway;
 
     public function __construct()
     {
         $this->rajaongkir = new RajaongkirService();
-        $this->dokuPayment = new DokuPaymentService();
+        $this->activeGateway = config('payment.gateway', 'mock');
+        $this->paymentService = $this->getPaymentService();
+    }
+
+    /**
+     * Get the appropriate payment service instance
+     */
+    private function getPaymentService()
+    {
+        return match($this->activeGateway) {
+            'mock' => new MockPaymentService(),
+            'mindtrans' => new MindtransPaymentService(),
+            'doku' => new DokuPaymentService(),
+            default => new MockPaymentService(), // Fallback to mock
+        };
     }
 
     /**
@@ -228,7 +245,7 @@ class CheckoutController extends Controller
                 'order_id' => $order->id,
                 'amount' => $total,
                 'currency' => 'IDR',
-                'payment_gateway' => 'doku',
+                'payment_gateway' => $this->activeGateway,
                 'status' => 'pending',
                 'reference_number' => 'PAY-' . $order->id . '-' . Str::random(8),
             ]);

@@ -1,6 +1,75 @@
 @extends('layouts.app')
 
 @section('content')
+
+<!-- Checkout Under Development Modal -->
+<div id="checkout-maintenance-modal" class="fixed inset-0 z-[80] bg-black/40 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md transform transition-all duration-300 overflow-hidden">
+        <!-- Header -->
+        <div class="bg-white px-8 py-10 text-center border-b border-gray-100">
+            <div class="mb-4">
+                <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto">
+                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            <h2 class="text-2xl font-semibold text-gray-900 mb-2">Dalam Pengembangan</h2>
+            <p class="text-gray-600 text-sm leading-relaxed">
+                Fitur checkout masih dalam tahap pengembangan. Namun Anda bisa melanjutkan pembelian melalui platform e-commerce kami yang tersedia.
+            </p>
+        </div>
+
+        <!-- Body with E-commerce Links -->
+        <div class="px-8 py-8">
+            <p class="text-xs font-semibold text-gray-400 uppercase letter-spacing mb-4">Platform Belanja Tersedia</p>
+            
+            <div class="space-y-3">
+                <!-- Tokopedia -->
+                <a href="https://www.tokopedia.com/joudah-official" target="_blank" rel="noopener noreferrer" 
+                   class="block w-full px-4 py-3 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700 font-medium text-sm">Tokopedia</span>
+                        <svg class="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                </a>
+
+                <!-- Shopee -->
+                <a href="https://shopee.co.id/joudah_official?categoryId=100630&entryPoint=ShopByPDP&itemId=25524347652&upstream=search" target="_blank" rel="noopener noreferrer"
+                   class="block w-full px-4 py-3 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700 font-medium text-sm">Shopee</span>
+                        <svg class="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                </a>
+
+                <!-- Lazada -->
+                <a href="https://api.whatsapp.com/send?phone=6289606989863&text=hallo%20saya%20sangat%20tertarik%20dengan%20produk%20joudah" target="_blank" rel="noopener noreferrer"
+                   class="block w-full px-4 py-3 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700 font-medium text-sm">WhatsApp</span>
+                        <svg class="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-50 px-8 py-6 border-t border-gray-100">
+            <button onclick="window.history.back();" 
+                    class="w-full px-4 py-2 rounded-lg bg-gray-900 hover:bg-gray-800 text-white font-medium text-sm transition-colors duration-200">
+                Kembali
+            </button>
+        </div>
+    </div>
+</div>
+
 <div class="min-h-screen bg-gray-50 pt-20 pb-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Page Header -->
@@ -365,6 +434,31 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('totalPrice').textContent = 
             'Rp' + new Intl.NumberFormat('id-ID').format(total);
     }
+
+    // Handle form submission - show maintenance modal instead
+    document.getElementById('checkoutForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const modal = document.getElementById('checkout-maintenance-modal');
+        if (modal) {
+            modal.style.display = 'flex';
+            // Trigger animation
+            setTimeout(() => {
+                modal.querySelector('div').style.transform = 'scale(1)';
+                modal.style.opacity = '1';
+            }, 10);
+        }
+    });
+
+    // Add smooth scroll to modal
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('checkout-maintenance-modal');
+        if (modal) {
+            modal.style.opacity = '0';
+            modal.querySelector('div').style.transform = 'scale(0.95)';
+            modal.style.transition = 'opacity 0.3s ease-out';
+            modal.querySelector('div').style.transition = 'transform 0.3s ease-out';
+        }
+    });
 });
 </script>
 @endsection

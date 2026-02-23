@@ -17,7 +17,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
                     <input type="email" id="login-email" name="email" required 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                         placeholder="Masukkan email Anda">
                     <span class="text-red-500 text-sm mt-1 hidden error-message" id="login-email-error"></span>
                 </div>
@@ -25,14 +25,14 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
                     <input type="password" id="login-password" name="password" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                         placeholder="Masukkan password Anda">
                     <span class="text-red-500 text-sm mt-1 hidden error-message" id="login-password-error"></span>
                 </div>
 
                 <div id="login-general-error" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded"></div>
 
-                <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                <button type="submit" class="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-2 px-4 rounded-lg transition">
                     <span id="login-btn-text">Login</span>
                     <span id="login-btn-spinner" class="hidden ml-2">
                         <i class="fas fa-spinner fa-spin"></i>
@@ -46,7 +46,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
                     <input type="text" id="register-name" name="name" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                         placeholder="Masukkan nama Anda">
                     <span class="text-red-500 text-sm mt-1 hidden error-message" id="register-name-error"></span>
                 </div>
@@ -54,7 +54,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
                     <input type="email" id="register-email" name="email" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                         placeholder="Masukkan email Anda">
                     <span class="text-red-500 text-sm mt-1 hidden error-message" id="register-email-error"></span>
                 </div>
@@ -62,7 +62,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Nomor Telepon</label>
                     <input type="tel" id="register-phone" name="phone" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                         placeholder="Masukkan nomor telepon Anda">
                     <span class="text-red-500 text-sm mt-1 hidden error-message" id="register-phone-error"></span>
                 </div>
@@ -70,7 +70,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Alamat Lengkap</label>
                     <textarea id="register-address" name="address" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                         placeholder="Masukkan alamat lengkap Anda" rows="3"></textarea>
                     <span class="text-red-500 text-sm mt-1 hidden error-message" id="register-address-error"></span>
                 </div>
@@ -78,7 +78,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Kota</label>
                     <input type="text" id="register-city" name="city" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                         placeholder="Masukkan kota Anda">
                     <span class="text-red-500 text-sm mt-1 hidden error-message" id="register-city-error"></span>
                 </div>
@@ -86,7 +86,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Provinsi</label>
                     <input type="text" id="register-province" name="province" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                         placeholder="Masukkan provinsi Anda">
                     <span class="text-red-500 text-sm mt-1 hidden error-message" id="register-province-error"></span>
                 </div>
@@ -94,7 +94,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Kode Pos</label>
                     <input type="text" id="register-postal-code" name="postal_code" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                         placeholder="Masukkan kode pos Anda">
                     <span class="text-red-500 text-sm mt-1 hidden error-message" id="register-postal-code-error"></span>
                 </div>
@@ -102,7 +102,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
                     <input type="password" id="register-password" name="password" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                         placeholder="Masukkan password (minimal 6 karakter)">
                     <span class="text-red-500 text-sm mt-1 hidden error-message" id="register-password-error"></span>
                 </div>
@@ -110,14 +110,14 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Konfirmasi Password</label>
                     <input type="password" id="register-password-confirmation" name="password_confirmation" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                         placeholder="Konfirmasi password Anda">
                     <span class="text-red-500 text-sm mt-1 hidden error-message" id="register-password-confirmation-error"></span>
                 </div>
 
                 <div id="register-general-error" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded"></div>
 
-                <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                <button type="submit" class="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-2 px-4 rounded-lg transition">
                     <span id="register-btn-text">Register</span>
                     <span id="register-btn-spinner" class="hidden ml-2">
                         <i class="fas fa-spinner fa-spin"></i>
@@ -127,8 +127,8 @@
 
             <!-- Toggle between login and register -->
             <div class="text-center mt-6 text-sm text-gray-600">
-                <span id="toggle-text-login">Belum punya akun? <button type="button" id="toggle-to-register" class="text-amber-600 hover:text-amber-700 font-bold">Daftar di sini</button></span>
-                <span id="toggle-text-register" class="hidden">Sudah punya akun? <button type="button" id="toggle-to-login" class="text-amber-600 hover:text-amber-700 font-bold">Login di sini</button></span>
+                <span id="toggle-text-login">Belum punya akun? <button type="button" id="toggle-to-register" class="text-blue-600 hover:text-blue-700 font-medium">Daftar di sini</button></span>
+                <span id="toggle-text-register" class="hidden">Sudah punya akun? <button type="button" id="toggle-to-login" class="text-blue-600 hover:text-blue-700 font-medium">Login di sini</button></span>
             </div>
         </div>
     </div>
@@ -136,30 +136,23 @@
 
 <!-- Cart Login Reminder Modal -->
 <div id="cart-login-reminder-modal" class="fixed inset-0 z-[70] hidden bg-black/50 flex items-center justify-center p-4 opacity-0 transition-opacity duration-300 ease-out">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform scale-95 transition-transform duration-300 ease-out overflow-hidden">
-        <!-- Header with Icon -->
-        <div class="bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-8 text-center relative overflow-hidden">
-            <div class="absolute inset-0 opacity-10">
-                <svg class="w-32 h-32 absolute -top-4 -right-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M7 4V3h2v1h6V3h2v1h5.248c.619 0 1.12.504 1.12 1.125V19.75c0 .621-.501 1.125-1.12 1.125H2.752C2.133 20.875 1.632 20.371 1.632 19.75V5.125C1.632 4.504 2.133 4 2.752 4H7zm0 2H3v14.75h16.496V6H17v1h-2V6H9v1H7V6z"/></svg>
-            </div>
-            <div class="relative z-10">
-                <i class="fa-solid fa-shopping-cart text-white text-5xl mb-3 inline-block"></i>
-                <h2 class="text-2xl font-bold text-white mt-3">Login untuk Lanjutkan</h2>
-            </div>
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-md transform scale-95 transition-transform duration-300 ease-out overflow-hidden border border-gray-200">
+        <!-- Header -->
+        <div class="bg-gray-50 px-6 py-8 text-center border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900">Login untuk Lanjutkan</h2>
         </div>
 
         <!-- Body -->
         <div class="px-6 py-6">
-            <p class="text-gray-600 text-center mb-6 leading-relaxed">
-                Untuk melihat dan mengelola keranjang belanja Anda, silakan login terlebih dahulu. Jika belum punya akun, Anda dapat membuat akun baru.
+            <p class="text-gray-600 text-center text-sm mb-6 leading-relaxed">
+                Untuk melihat dan mengelola keranjang belanja Anda, silakan login terlebih dahulu.
             </p>
 
             <div class="space-y-3">
-                <button onclick="closeCartLoginReminderModal(); openAuthModal();" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
-                    <i class="fa-solid fa-sign-in-alt"></i>
+                <button onclick="closeCartLoginReminderModal(); openAuthModal();" class="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
                     Login Sekarang
                 </button>
-                <button onclick="closeCartLoginReminderModal();" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 px-4 rounded-lg transition duration-300">
+                <button onclick="closeCartLoginReminderModal();" class="w-full bg-white hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-lg transition duration-300 border border-gray-300">
                     Nanti Saja
                 </button>
             </div>

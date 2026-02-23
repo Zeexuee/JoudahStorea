@@ -34,7 +34,7 @@
             </div>
 
             <!-- Main Content -->
-            <div class="lg:col-span-3">
+            <div class="lg:col-span-3" id="orders-container">
                 @if ($orders->count() > 0)
                     <div class="space-y-4">
                         @foreach ($orders as $order)
@@ -58,7 +58,7 @@
                                                 @elseif($order->status === 'delivered') bg-green-100 text-green-800
                                                 @elseif($order->status === 'cancelled') bg-red-100 text-red-800
                                                 @else bg-gray-100 text-gray-800
-                                                @endif">
+                                                @endif" data-status="{{ $order->status }}">
                                                 {{ $order->status_label }}
                                             </span>
                                         </div>
@@ -144,4 +144,6 @@
         </div>
     </div>
 </div>
+
+
 @endsection
