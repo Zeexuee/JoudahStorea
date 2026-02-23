@@ -658,12 +658,12 @@
                             window.updateCartCount(data.cartCount);
                         }
 
-                        // Show success message and redirect to checkout
+                        // Show success message and show maintenance modal
                         showToast(`${data.productName} ditambahkan ke keranjang!`);
                         
-                        // Redirect to checkout after a short delay
+                        // Show checkout maintenance modal after a short delay
                         setTimeout(() => {
-                            window.location.href = '{{ route("checkout.show") }}';
+                            window.showCheckoutMaintenanceModal();
                         }, 500);
                         
                     } catch (error) {

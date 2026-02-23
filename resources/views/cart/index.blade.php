@@ -96,10 +96,10 @@
                             </div>
 
                             @if(auth()->check())
-                                <a href="{{ route('checkout.show') }}" 
+                                <button type="button" onclick="showCheckoutMaintenanceModal();"
                                    class="block w-full bg-amber-600 hover:bg-amber-700 text-white py-3 px-4 font-bold tracking-wide transition text-center rounded-sm mb-3">
                                     Lanjut ke Checkout
-                                </a>
+                                </button>
                             @else
                                 <button type="button" onclick="openAuthModal()"
                                    class="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 px-4 font-bold tracking-wide transition rounded-sm mb-3">

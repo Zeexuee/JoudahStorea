@@ -160,6 +160,74 @@
     </div>
 </div>
 
+<!-- Checkout Maintenance Modal -->
+<div id="checkout-maintenance-modal" class="fixed inset-0 z-[70] hidden bg-black/40 flex items-center justify-center p-4 opacity-0 transition-opacity duration-300 ease-out backdrop-blur-sm">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md transform scale-95 transition-transform duration-300 ease-out overflow-hidden">
+        <!-- Header -->
+        <div class="bg-white px-8 py-10 text-center border-b border-gray-100">
+            <div class="mb-4">
+                <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto">
+                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            <h2 class="text-2xl font-semibold text-gray-900 mb-2">Dalam Pengembangan</h2>
+            <p class="text-gray-600 text-sm leading-relaxed">
+                Fitur checkout masih dalam tahap pengembangan. Namun Anda bisa melanjutkan pembelian melalui platform e-commerce kami yang tersedia.
+            </p>
+        </div>
+
+        <!-- Body with E-commerce Links -->
+        <div class="px-8 py-8">
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Platform Belanja Tersedia</p>
+            
+            <div class="space-y-3">
+                <!-- Tokopedia -->
+                <a href="https://www.tokopedia.com" target="_blank" rel="noopener noreferrer" 
+                   class="block w-full px-4 py-3 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700 font-medium text-sm">Tokopedia</span>
+                        <svg class="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                </a>
+
+                <!-- Shopee -->
+                <a href="https://www.shopee.co.id" target="_blank" rel="noopener noreferrer"
+                   class="block w-full px-4 py-3 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700 font-medium text-sm">Shopee</span>
+                        <svg class="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                </a>
+
+                <!-- Lazada -->
+                <a href="https://www.lazada.co.id" target="_blank" rel="noopener noreferrer"
+                   class="block w-full px-4 py-3 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700 font-medium text-sm">Lazada</span>
+                        <svg class="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-50 px-8 py-6 border-t border-gray-100">
+            <button onclick="closeCheckoutMaintenanceModal();" 
+                    class="w-full px-4 py-2 rounded-lg bg-gray-900 hover:bg-gray-800 text-white font-medium text-sm transition-colors duration-200">
+                Tutup
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const authModal = document.getElementById('auth-modal');
@@ -390,10 +458,36 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Close cart login modal when clicking outside
-    document.getElementById('cart-login-reminder-modal')?.addEventListener('click', (e) => {
-        if (e.target.id === 'cart-login-reminder-modal') {
-            window.closeCartLoginReminderModal();
+    // Function to show checkout maintenance modal
+    window.showCheckoutMaintenanceModal = function() {
+        const modal = document.getElementById('checkout-maintenance-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.style.opacity = '1';
+                const content = modal.querySelector('div');
+                content.style.transform = 'scale(1)';
+            }, 10);
+        }
+    };
+
+    // Function to close checkout maintenance modal
+    window.closeCheckoutMaintenanceModal = function() {
+        const modal = document.getElementById('checkout-maintenance-modal');
+        if (modal) {
+            modal.style.opacity = '0';
+            const content = modal.querySelector('div');
+            content.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+    };
+
+    // Close checkout modal when clicking outside
+    document.getElementById('checkout-maintenance-modal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'checkout-maintenance-modal') {
+            window.closeCheckoutMaintenanceModal();
         }
     });
 });
