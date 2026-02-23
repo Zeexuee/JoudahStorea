@@ -206,10 +206,10 @@
                 </a>
 
                 <!-- Lazada -->
-                <a href="https://www.lazada.co.id" target="_blank" rel="noopener noreferrer"
+                <a href="https://api.whatsapp.com/send/?phone=6287796715916&text=Hallo%20Saya%20sangat%20tertarik%20dengan%20produk%20Joudah" target="_blank" rel="noopener noreferrer"
                    class="block w-full px-4 py-3 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group">
                     <div class="flex items-center justify-between">
-                        <span class="text-gray-700 font-medium text-sm">Lazada</span>
+                        <span class="text-gray-700 font-medium text-sm">WhatsApp</span>
                         <svg class="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                         </svg>
