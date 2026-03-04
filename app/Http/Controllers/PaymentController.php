@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Payment;
-use App\Services\DokuPaymentService;
+
 use App\Services\MockPaymentService;
 use App\Services\MindtransPaymentService;
 use Illuminate\Http\Request;
@@ -28,7 +28,6 @@ class PaymentController extends Controller
         return match($this->activeGateway) {
             'mock' => new MockPaymentService(),
             'mindtrans' => new MindtransPaymentService(),
-            'doku' => new DokuPaymentService(),
             default => new MockPaymentService(), // Fallback to mock
         };
     }

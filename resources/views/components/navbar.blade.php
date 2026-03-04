@@ -120,6 +120,10 @@
         .mobile-menu-item {
             border-bottom: 1px solid #f0f0f0;
         }
+        
+        .mobile-menu-item.border-t {
+            border-top: 2px solid #e5e7eb;
+        }
 
         .mobile-menu-item a,
         .mobile-menu-btn,
@@ -127,11 +131,11 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 16px 24px;
+            padding: 14px 20px;
             color: #1a1a1a;
             text-decoration: none;
             font-weight: 500;
-            font-size: 14px;
+            font-size: 15px;
             transition: all 0.2s ease;
             cursor: pointer;
             background: none;
@@ -143,8 +147,44 @@
 
         .mobile-menu-item a:hover,
         .mobile-menu-btn:hover {
-            background-color: #f5f5f5;
+            background-color: #f9fafb;
             color: #b45309;
+        }
+        
+        /* User menu items styling */
+        .mobile-menu-item a.menu-content,
+        .mobile-menu-item button.menu-content {
+            gap: 12px;
+            padding: 12px 16px;
+        }
+        
+        .mobile-menu-item a.menu-content span,
+        .mobile-menu-item button.menu-content span {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+        
+        .mobile-menu-item a.menu-content i,
+        .mobile-menu-item button.menu-content i {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+        }
+        
+        /* Logout button styling */
+        .logout-btn {
+            color: #dc2626;
+            padding: 12px 16px;
+        }
+        
+        .logout-btn:hover {
+            background-color: #fef2f2 !important;
+            color: #991b1b !important;
         }
 
         /* Mobile Dropdown */
@@ -334,41 +374,51 @@
                     </div>
                 </div>
             </li>
-            <li class="mobile-menu-item border-t">
+            <li class="mobile-menu-item border-t border-gray-200">
                 @auth
-                    <a href="{{ route('cart.index') }}" class="flex items-center gap-3">
-                        <i class="fa-solid fa-shopping-cart"></i>
-                        Keranjang
+                    <a href="{{ route('cart.index') }}" class="menu-content">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-shopping-cart"></i>
+                            <span>Keranjang</span>
+                        </span>
                     </a>
                 @else
-                    <button onclick="showCartLoginAlert(); closeMenu();" class="w-full text-left flex items-center gap-3 px-6 py-4">
-                        <i class="fa-solid fa-shopping-cart"></i>
-                        Keranjang
+                    <button onclick="showCartLoginAlert(); closeMenu();" class="menu-content">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-shopping-cart"></i>
+                            <span>Keranjang</span>
+                        </span>
                     </button>
                 @endauth
             </li>
             @if(auth()->check())
                 <li class="mobile-menu-item">
-                    <a href="{{ route('profile.show') }}" class="flex items-center gap-3">
-                        <i class="fa-solid fa-user"></i>
-                        Profil
+                    <a href="{{ route('profile.show') }}" class="menu-content">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-user"></i>
+                            <span>Profil</span>
+                        </span>
                     </a>
                 </li>
                 <li class="mobile-menu-item">
-                    <a href="{{ route('orders.index') }}" class="flex items-center gap-3">
-                        <i class="fa-solid fa-shopping-bag"></i>
-                        Riwayat Pesanan
+                    <a href="{{ route('orders.index') }}" class="menu-content">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-shopping-bag"></i>
+                            <span>Riwayat Pesanan</span>
+                        </span>
                     </a>
                 </li>
-                <li class="mobile-menu-item">
-                    <button onclick="handleLogout(); closeMenu();" class="w-full text-left flex items-center gap-3 text-red-600 hover:text-red-700">
-                        <i class="fa-solid fa-sign-out-alt"></i>
-                        Logout
+                <li class="mobile-menu-item border-t border-gray-200">
+                    <button onclick="handleLogout(); closeMenu();" class="menu-content logout-btn">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </span>
                     </button>
                 </li>
             @else
                 <li class="mobile-menu-item">
-                    <button onclick="openAuthModal(); closeMenu();" class="w-full text-left px-6 py-4 bg-amber-600 text-white font-medium hover:bg-amber-700 transition">
+                    <button onclick="openAuthModal(); closeMenu();" class="w-full text-left px-5 py-3.5 bg-amber-600 text-white font-medium rounded-md hover:bg-amber-700 transition">
                         <i class="fa-solid fa-sign-in-alt mr-2"></i>Login
                     </button>
                 </li>

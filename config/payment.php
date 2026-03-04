@@ -3,16 +3,12 @@
 return [
     /**
      * Active payment gateway
-     * Options: 'mock', 'doku', 'mindtrans'
-     * 
-     * For testing/development: use 'mock'
-     * For production with DOKU: use 'doku'
-     * For production with MindTrans: use 'mindtrans'
+     * Options: 'mock' (testing/development), 'mindtrans' (production)
      */
     'gateway' => env('PAYMENT_GATEWAY', 'mock'),
 
     /**
-     * Mock Payment Service (for testing)
+     * Mock Payment Service (for testing/development)
      */
     'mock' => [
         'enabled' => true,
@@ -21,28 +17,9 @@ return [
     ],
 
     /**
-     * DOKU Payment Service
-     */
-    'doku' => [
-        'enabled' => !empty(env('DOKU_API_KEY')),
-        'api_key' => env('DOKU_API_KEY'),
-        'secret_key' => env('DOKU_SECRET_KEY'),
-        'merchant_id' => env('DOKU_MERCHANT_ID'),
-        'mode' => env('DOKU_MODE', 'sandbox'),
-        'base_url' => env('DOKU_MODE', 'sandbox') === 'production'
-            ? 'https://api.fintech.doku.com'
-            : 'https://sandbox.fintech.doku.com',
-        'callback_url' => env('APP_URL') . '/payment/callback/doku',
-        'supported_payment_methods' => [
-            'VIRTUAL_ACCOUNT',
-            'QRIS',
-            'E_WALLET',
-            'BANK_TRANSFER'
-        ],
-    ],
-
-    /**
-     * MindTrans Payment Service (prepared for future use)
+     * MindTrans Payment Service
+     * Official gateway for production
+     * Sign up: https://mindtrans.co.id
      */
     'mindtrans' => [
         'enabled' => !empty(env('MINDTRANS_API_KEY')),

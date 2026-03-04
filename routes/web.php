@@ -54,7 +54,7 @@ Route::get('/payment/mock-checkout/{external_id}', function ($external_id) {
 Route::get('/payment/verify-mock', [PaymentController::class, 'verifyMock'])->name('payment.verify-mock');
 
 // Payment callbacks (no auth required) - MUST BE BEFORE auth group
-Route::post('/payment/callback/doku', [PaymentController::class, 'callback'])->name('payment.callback');
+Route::post('/payment/callback/mindtrans', [PaymentController::class, 'callback'])->name('payment.callback');
 
 // Profile routes (protected with auth middleware)
 Route::middleware('auth')->group(function () {
