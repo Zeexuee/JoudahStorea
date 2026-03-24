@@ -134,33 +134,11 @@ class CheckoutController extends Controller
                 return ($item->product->weight ?? 500) * $item->quantity;
             });
 
-            // Testing mode: force all shipping options to Rp0.
-            $costs = [
-                [
-                    'courier_code' => 'JNE',
-                    'courier_name' => 'JNE - REG',
-                    'service' => 'REG',
-                    'description' => 'Reguler',
-                    'cost' => 0,
-                    'estimated_days' => 2,
-                ],
-                [
-                    'courier_code' => 'POS',
-                    'courier_name' => 'POS Indonesia - REG',
-                    'service' => 'REG',
-                    'description' => 'Reguler',
-                    'cost' => 0,
-                    'estimated_days' => 2,
-                ],
-                [
-                    'courier_code' => 'TIKI',
-                    'courier_name' => 'TIKI - REG',
-                    'service' => 'REG',
-                    'description' => 'Reguler',
-                    'cost' => 0,
-                    'estimated_days' => 2,
-                ],
-            ];
+            $costs = $this->rajaongkir->getShippingCosts(
+                $validated['city_id'],
+                $weight,
+                ['jne', 'pos', 'tiki']
+            );
 
             return response()->json([
                 'success' => true,
@@ -228,8 +206,8 @@ class CheckoutController extends Controller
             });
 
             // Calculate fees
-            $shippingCost = 0;
-            $adminFee = 0;
+            $shippingCost = (int) $validated['shipping_cost'];
+            $adminFee = (int) $validated['admin_fee'];
             $paymentGatewayFee = 0;
             
             // Calculate total

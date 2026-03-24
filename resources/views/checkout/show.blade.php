@@ -225,8 +225,8 @@
                         <input type="hidden" id="city_id" name="city_id">
                         <input type="hidden" id="courier" name="courier">
                         <input type="hidden" id="service" name="service">
-                        <input type="hidden" id="shipping_cost" name="shipping_cost" value="0">
-                        <input type="hidden" id="admin_fee" name="admin_fee" value="0">
+                        <input type="hidden" id="shipping_cost" name="shipping_cost" value="">
+                        <input type="hidden" id="admin_fee" name="admin_fee" value="">
 
                         @error('courier')
                             <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
@@ -435,7 +435,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     input.addEventListener('change', function() {
                         document.getElementById('courier').value = cost.courier_code;
                         document.getElementById('service').value = cost.courier_name;
-                        document.getElementById('shipping_cost').value = 0;
+                        document.getElementById('shipping_cost').value = cost.cost;
                         updateTotal();
                         submitBtn.disabled = false;
                     });
@@ -449,7 +449,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     const details = document.createElement('p');
                     details.className = 'text-sm text-gray-600';
-                    details.textContent = 'Rp' + new Intl.NumberFormat('id-ID').format(0) + 
+                    details.textContent = 'Rp' + new Intl.NumberFormat('id-ID').format(cost.cost) + 
                         (cost.estimated_days ? ' • Est. ' + cost.estimated_days + ' hari' : '');
                     
                     div.appendChild(name);
@@ -472,8 +472,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateTotal() {
         const subtotal = {{ $subtotal }};
-        const adminFee = 0;
         const shippingCost = parseInt(document.getElementById('shipping_cost').value) || 0;
+        const adminFee = parseInt(document.getElementById('admin_fee').value) || 0;
         const paymentGatewayFee = 0;
         
         const total = subtotal + shippingCost + adminFee + paymentGatewayFee;
