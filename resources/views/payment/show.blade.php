@@ -110,6 +110,7 @@
 
                     <form action="{{ route('payment.process', $order) }}" method="POST" id="paymentForm">
                         @csrf
+                        <input type="hidden" name="return_to" value="{{ route('orders.show', $order) }}">
                         <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2">
                             <i class="fas fa-lock"></i>
                             Lanjut ke Pembayaran
@@ -151,6 +152,7 @@
 
                     <form action="{{ route('payment.process', $order) }}" method="POST" id="retryPaymentForm">
                         @csrf
+                        <input type="hidden" name="return_to" value="{{ route('orders.show', $order) }}">
                         <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2 mb-3">
                             <i class="fas fa-redo"></i>
                             Coba Lagi

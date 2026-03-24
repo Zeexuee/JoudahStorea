@@ -401,7 +401,7 @@
                     </a>
                 </li>
                 <li class="mobile-menu-item">
-                    <a href="{{ route('orders.index') }}" class="menu-content">
+                        <a href="{{ route('orders.index') }}" class="menu-content">
                         <span class="flex items-center gap-3">
                             <i class="fa-solid fa-shopping-bag"></i>
                             <span>Riwayat Pesanan</span>

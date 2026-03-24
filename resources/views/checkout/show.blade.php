@@ -2,10 +2,10 @@
 
 @section('content')
 
-<!-- Checkout Under Development Modal -->
+{{-- Checkout Under Development Modal - DISABLED (Midtrans sudah aktif) --}}
+{{--
 <div id="checkout-maintenance-modal" class="fixed inset-0 z-[80] bg-black/40 flex items-center justify-center p-4 backdrop-blur-sm">
     <div class="bg-white rounded-xl shadow-xl w-full max-w-md transform transition-all duration-300 overflow-hidden">
-        <!-- Header -->
         <div class="bg-white px-8 py-10 text-center border-b border-gray-100">
             <div class="mb-4">
                 <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto">
@@ -19,13 +19,9 @@
                 Fitur checkout masih dalam tahap pengembangan. Namun Anda bisa melanjutkan pembelian melalui platform e-commerce kami yang tersedia.
             </p>
         </div>
-
-        <!-- Body with E-commerce Links -->
         <div class="px-8 py-8">
             <p class="text-xs font-semibold text-gray-400 uppercase letter-spacing mb-4">Platform Belanja Tersedia</p>
-            
             <div class="space-y-3">
-                <!-- Tokopedia -->
                 <a href="https://www.tokopedia.com/joudah-official" target="_blank" rel="noopener noreferrer" 
                    class="block w-full px-4 py-3 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group">
                     <div class="flex items-center justify-between">
@@ -35,8 +31,6 @@
                         </svg>
                     </div>
                 </a>
-
-                <!-- Shopee -->
                 <a href="https://shopee.co.id/joudah_official?categoryId=100630&entryPoint=ShopByPDP&itemId=25524347652&upstream=search" target="_blank" rel="noopener noreferrer"
                    class="block w-full px-4 py-3 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group">
                     <div class="flex items-center justify-between">
@@ -46,8 +40,6 @@
                         </svg>
                     </div>
                 </a>
-
-                <!-- Lazada -->
                 <a href="https://api.whatsapp.com/send?phone=6289606989863&text=hallo%20saya%20sangat%20tertarik%20dengan%20produk%20joudah" target="_blank" rel="noopener noreferrer"
                    class="block w-full px-4 py-3 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group">
                     <div class="flex items-center justify-between">
@@ -59,8 +51,6 @@
                 </a>
             </div>
         </div>
-
-        <!-- Footer -->
         <div class="bg-gray-50 px-8 py-6 border-t border-gray-100">
             <button onclick="window.history.back();" 
                     class="w-full px-4 py-2 rounded-lg bg-gray-900 hover:bg-gray-800 text-white font-medium text-sm transition-colors duration-200">
@@ -69,8 +59,9 @@
         </div>
     </div>
 </div>
+--}}
 
-<div class="min-h-screen bg-gray-50 pt-20 pb-16">
+<div class="min-h-screen bg-gray-50 pt-24 pb-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Page Header -->
         <div class="mb-8">
@@ -78,7 +69,30 @@
             <p class="text-gray-600 mt-2">Selesaikan pemesanan Anda</p>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Error Messages -->
+        @if(session('error'))
+            <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                <div class="flex items-center gap-2 text-red-800">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span class="font-medium">{{ session('error') }}</span>
+                </div>
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                <div class="text-red-800">
+                    <p class="font-medium mb-2"><i class="fas fa-exclamation-circle mr-2"></i>Ada masalah dengan form Anda:</p>
+                    <ul class="list-disc list-inside space-y-1 text-sm">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-6">
             <!-- Left Column - Form -->
             <div class="lg:col-span-2">
                 <form action="{{ route('checkout.process') }}" method="POST" id="checkoutForm" class="space-y-6">
@@ -211,12 +225,22 @@
                         <input type="hidden" id="city_id" name="city_id">
                         <input type="hidden" id="courier" name="courier">
                         <input type="hidden" id="service" name="service">
-                        <input type="hidden" id="shipping_cost" name="shipping_cost">
-                        <input type="hidden" id="admin_fee" name="admin_fee" value="3000">
+                        <input type="hidden" id="shipping_cost" name="shipping_cost" value="0">
+                        <input type="hidden" id="admin_fee" name="admin_fee" value="0">
 
                         @error('courier')
                             <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
                         @enderror
+                    </div>
+
+                    <!-- Payment Method Selection Moved to Snap -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6">
+                        <h2 class="text-lg font-bold text-blue-900 mb-3">
+                            <i class="fas fa-info-circle mr-2"></i>Metode Pembayaran
+                        </h2>
+                        <p class="text-blue-800 text-sm">
+                            Pilih metode pembayaran Anda di halaman pembayaran berikutnya. Kami menyediakan berbagai pilihan pembayaran yang aman dan terpercaya.
+                        </p>
                     </div>
                 </form>
             </div>
@@ -248,7 +272,7 @@
                     <div class="space-y-3 mb-6">
                         <div class="flex justify-between text-gray-700">
                             <span>Subtotal</span>
-                            <span>Rp{{ number_format($subtotal, 0, ',', '.') }}</span>
+                            <span id="displaySubtotal">Rp{{ number_format($subtotal, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between text-gray-700">
                             <span>Ongkos Kirim</span>
@@ -256,11 +280,15 @@
                         </div>
                         <div class="flex justify-between text-gray-700">
                             <span>Biaya Administratif</span>
-                            <span id="displayAdminFee" class="font-medium">Rp3.000</span>
+                            <span id="displayAdminFee" class="font-medium">Rp0</span>
+                        </div>
+                        <div class="flex justify-between text-gray-700">
+                            <span>Biaya Payment Gateway</span>
+                            <span id="displayPaymentFee" class="font-medium">-</span>
                         </div>
                         <div class="flex justify-between text-lg font-bold text-amber-600 pt-3 border-t border-gray-300">
                             <span>Total</span>
-                            <span id="totalPrice">Rp{{ number_format($subtotal + 3000, 0, ',', '.') }}</span>
+                            <span id="totalPrice">Rp{{ number_format($subtotal, 0, ',', '.') }}</span>
                         </div>
                     </div>
 
@@ -268,13 +296,12 @@
                     <button type="submit" form="checkoutForm"
                         class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2"
                         id="submitBtn" disabled>
-            
-                        Lanjut ke Pembayaran
+                        Bayar Sekarang
                     </button>
 
                     <!-- Info -->
                     <p class="text-xs text-gray-500 text-center mt-4">
-                        Dengan melanjutkan, Anda menyetujui syarat dan ketentuan kami
+                        Transaksi aman melalui Midtrans
                     </p>
                 </div>
             </div>
@@ -288,42 +315,57 @@ document.addEventListener('DOMContentLoaded', function() {
     const citySelect = document.getElementById('shipping_city');
     const shippingMethods = document.getElementById('shippingMethods');
     const submitBtn = document.getElementById('submitBtn');
+    const paymentMethodInputs = document.querySelectorAll('input[name="payment_method"]');
+    const bankSelectionWrapper = document.getElementById('bankSelectionWrapper');
+    const bankSelection = document.getElementById('bankSelection');
 
-    console.log('Checkout script loaded');
-    console.log('Province select:', provinceSelect);
-    console.log('City select:', citySelect);
+    console.log('[OK] Checkout script loaded successfully');
+    console.log('Province select element:', provinceSelect);
+    console.log('City select element:', citySelect);
+    console.log('City select disabled status:', citySelect.disabled);
 
     // Handle province change
     provinceSelect.addEventListener('change', async function() {
-        console.log('Province changed');
+        console.log('=== Province Changed ===');
         console.log('Selected option:', this.options[this.selectedIndex]);
         console.log('Selected value:', this.value);
         console.log('Dataset.id:', this.options[this.selectedIndex].dataset.id);
         
         const provinceId = this.options[this.selectedIndex].dataset.id;
+        const provinceName = this.value;
         
         console.log('Province ID to send:', provinceId);
+        console.log('Province Name:', provinceName);
         
-        if (!provinceId) {
-            console.log('No province ID, clearing city select');
+        if (!provinceId || !provinceName) {
+            console.log('No province selected, clearing city select');
             citySelect.innerHTML = '<option value="">Pilih Kota</option>';
             citySelect.disabled = true;
             shippingMethods.innerHTML = '<p class="text-gray-600">Pilih kota untuk melihat opsi pengiriman</p>';
+            submitBtn.disabled = true;
             return;
         }
+
+        // Show loading
+        citySelect.innerHTML = '<option value="">Memuat kota...</option>';
+        citySelect.disabled = true;
 
         try {
             const url = '{{ route("checkout.getCities") }}?province_id=' + provinceId;
             console.log('Fetching cities from:', url);
             
             const response = await fetch(url);
+            console.log('Response status:', response.status);
+            
             const data = await response.json();
-
             console.log('Cities response:', data);
 
-            if (data.success) {
-                console.log('Success! Loading cities:', data.cities);
+            if (data.success && data.cities) {
+                console.log('Success! Loading cities...');
+                console.log('Total cities:', Object.keys(data.cities).length);
+                
                 citySelect.innerHTML = '<option value="">Pilih Kota</option>';
+                
                 Object.entries(data.cities).forEach(([id, name]) => {
                     const option = document.createElement('option');
                     option.value = name;
@@ -331,12 +373,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     option.textContent = name;
                     citySelect.appendChild(option);
                 });
+                
                 citySelect.disabled = false;
+                console.log('City dropdown enabled with', citySelect.options.length, 'options');
             } else {
-                console.log('Error:', data.error);
+                console.error('Error in response:', data);
+                citySelect.innerHTML = '<option value="">Gagal memuat kota</option>';
+                citySelect.disabled = true;
+                alert('Gagal memuat data kota. Silakan coba lagi.');
             }
         } catch (error) {
             console.error('Error loading cities:', error);
+            citySelect.innerHTML = '<option value="">Gagal memuat kota</option>';
+            citySelect.disabled = true;
             alert('Gagal memuat data kota: ' + error.message);
         }
     });
@@ -351,7 +400,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (!provinceId || !cityId) {
             shippingMethods.innerHTML = '<p class="text-gray-600">Pilih kota untuk melihat opsi pengiriman</p>';
-            document.getElementById('shipping_cost').value = '';
+            document.getElementById('shipping_cost').value = '0';
             updateTotal();
             return;
         }
@@ -386,7 +435,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     input.addEventListener('change', function() {
                         document.getElementById('courier').value = cost.courier_code;
                         document.getElementById('service').value = cost.courier_name;
-                        document.getElementById('shipping_cost').value = cost.cost;
+                        document.getElementById('shipping_cost').value = 0;
                         updateTotal();
                         submitBtn.disabled = false;
                     });
@@ -400,7 +449,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     const details = document.createElement('p');
                     details.className = 'text-sm text-gray-600';
-                    details.textContent = 'Rp' + new Intl.NumberFormat('id-ID').format(cost.cost) + 
+                    details.textContent = 'Rp' + new Intl.NumberFormat('id-ID').format(0) + 
                         (cost.estimated_days ? ' • Est. ' + cost.estimated_days + ' hari' : '');
                     
                     div.appendChild(name);
@@ -423,42 +472,83 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateTotal() {
         const subtotal = {{ $subtotal }};
-        const adminFee = 3000; // Biaya administratif
+        const adminFee = 0;
         const shippingCost = parseInt(document.getElementById('shipping_cost').value) || 0;
-        const total = subtotal + shippingCost + adminFee;
+        const paymentGatewayFee = 0;
+        
+        const total = subtotal + shippingCost + adminFee + paymentGatewayFee;
 
         document.getElementById('displayShippingCost').textContent = 
             'Rp' + new Intl.NumberFormat('id-ID').format(shippingCost);
         document.getElementById('displayAdminFee').textContent = 
             'Rp' + new Intl.NumberFormat('id-ID').format(adminFee);
+        document.getElementById('displayPaymentFee').textContent = 
+            'Rp' + new Intl.NumberFormat('id-ID').format(paymentGatewayFee);
         document.getElementById('totalPrice').textContent = 
             'Rp' + new Intl.NumberFormat('id-ID').format(total);
     }
 
-    // Handle form submission - show maintenance modal instead
-    document.getElementById('checkoutForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const modal = document.getElementById('checkout-maintenance-modal');
-        if (modal) {
-            modal.style.display = 'flex';
-            // Trigger animation
-            setTimeout(() => {
-                modal.querySelector('div').style.transform = 'scale(1)';
-                modal.style.opacity = '1';
-            }, 10);
+    function togglePaymentOptionSelections() {
+        const selectedPaymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value;
+        const isBankTransfer = selectedPaymentMethod === 'bank_transfer';
+        const isCstore = selectedPaymentMethod === 'cstore';
+
+        const bankSelectionWrapper = document.getElementById('bankSelectionWrapper');
+        const bankSelection = document.getElementById('bankSelection');
+        const storeSelectionWrapper = document.getElementById('storeSelectionWrapper');
+        const storeSelection = document.getElementById('storeSelection');
+
+        // Handle bank selection
+        if (bankSelectionWrapper) {
+            bankSelectionWrapper.classList.toggle('hidden', !isBankTransfer);
         }
+        if (bankSelection) {
+            bankSelection.required = isBankTransfer;
+            if (!isBankTransfer) {
+                bankSelection.value = '';
+            }
+        }
+
+        // Handle store selection
+        if (storeSelectionWrapper) {
+            storeSelectionWrapper.classList.toggle('hidden', !isCstore);
+        }
+        if (storeSelection) {
+            storeSelection.required = isCstore;
+            if (!isCstore) {
+                storeSelection.value = '';
+            }
+        }
+    }
+
+    paymentMethodInputs.forEach((input) => {
+        input.addEventListener('change', togglePaymentOptionSelections);
     });
 
-    // Add smooth scroll to modal
-    document.addEventListener('DOMContentLoaded', function() {
-        const modal = document.getElementById('checkout-maintenance-modal');
-        if (modal) {
-            modal.style.opacity = '0';
-            modal.querySelector('div').style.transform = 'scale(0.95)';
-            modal.style.transition = 'opacity 0.3s ease-out';
-            modal.querySelector('div').style.transition = 'transform 0.3s ease-out';
+    // Handle form submission - Allow normal submission (Midtrans aktif!)
+    document.getElementById('checkoutForm')?.addEventListener('submit', function(e) {
+        // Validasi form sebelum submit
+        const selectedShippingMethod = document.querySelector('input[name="shipping_method"]:checked');
+        if (!selectedShippingMethod) {
+            e.preventDefault();
+            alert('Silakan pilih metode pengiriman terlebih dahulu');
+            return false;
         }
+
+        const selectedPaymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value;
+        if (selectedPaymentMethod === 'bank_transfer' && (!bankSelection || !bankSelection.value)) {
+            e.preventDefault();
+            alert('Silakan pilih bank untuk transfer terlebih dahulu');
+            return false;
+        }
+
+        // Form akan submit secara normal ke checkout.process route
+        console.log('Form submitted - processing checkout...');
     });
+
+    // Initialize display with payment gateway fee
+    togglePaymentOptionSelections();
+    updateTotal();
 });
 </script>
 @endsection

@@ -134,12 +134,33 @@ class CheckoutController extends Controller
                 return ($item->product->weight ?? 500) * $item->quantity;
             });
 
-            // Get shipping costs
-            $costs = $this->rajaongkir->getShippingCosts(
-                $validated['city_id'],
-                $weight,
-                ['jne', 'pos', 'tiki']
-            );
+            // Testing mode: force all shipping options to Rp0.
+            $costs = [
+                [
+                    'courier_code' => 'JNE',
+                    'courier_name' => 'JNE - REG',
+                    'service' => 'REG',
+                    'description' => 'Reguler',
+                    'cost' => 0,
+                    'estimated_days' => 2,
+                ],
+                [
+                    'courier_code' => 'POS',
+                    'courier_name' => 'POS Indonesia - REG',
+                    'service' => 'REG',
+                    'description' => 'Reguler',
+                    'cost' => 0,
+                    'estimated_days' => 2,
+                ],
+                [
+                    'courier_code' => 'TIKI',
+                    'courier_name' => 'TIKI - REG',
+                    'service' => 'REG',
+                    'description' => 'Reguler',
+                    'cost' => 0,
+                    'estimated_days' => 2,
+                ],
+            ];
 
             return response()->json([
                 'success' => true,
@@ -159,6 +180,11 @@ class CheckoutController extends Controller
      */
     public function process(Request $request)
     {
+        logger('Checkout process started', [
+            'user_id' => auth()->id(),
+            'request_data' => $request->except(['_token'])
+        ]);
+
         $validated = $request->validate([
             'shipping_name' => 'required|string|max:255',
             'shipping_phone' => 'required|string|max:20',
@@ -175,6 +201,8 @@ class CheckoutController extends Controller
             'notes' => 'nullable|string|max:500',
         ]);
 
+        logger('Validation passed', ['validated' => $validated]);
+
         try {
             $user = $request->user();
 
@@ -183,8 +211,15 @@ class CheckoutController extends Controller
                 ->with('product')
                 ->get();
 
+            logger('Cart items retrieved', [
+                'count' => $cartItems->count(),
+                'user_id' => $user->id
+            ]);
+
             if ($cartItems->isEmpty()) {
-                return back()->with('error', 'Keranjang belanja Anda kosong');
+                logger('Cart is empty, redirecting to cart page');
+                return redirect()->route('cart.index')
+                    ->with('error', 'Keranjang belanja Anda kosong');
             }
 
             // Calculate subtotal
@@ -192,9 +227,13 @@ class CheckoutController extends Controller
                 return $item->product->price * $item->quantity;
             });
 
-            // Calculate total (subtotal + shipping + admin fee)
-            $adminFee = 3000; // Biaya administratif
-            $total = $subtotal + $validated['shipping_cost'] + $adminFee;
+            // Calculate fees
+            $shippingCost = 0;
+            $adminFee = 0;
+            $paymentGatewayFee = 0;
+            
+            // Calculate total
+            $total = $subtotal + $shippingCost + $adminFee + $paymentGatewayFee;
 
             // Create order
             $orderNumber = 'ORD-' . date('YmdHis') . '-' . Str::random(4);
@@ -233,7 +272,7 @@ class CheckoutController extends Controller
                 'courier_name' => $this->getCourierName($validated['courier']),
                 'service' => $validated['service'],
                 'service_description' => $this->getServiceDescription($validated['courier'], $validated['service']),
-                'cost' => $validated['shipping_cost'],
+                'cost' => $shippingCost,
                 'weight' => $weight,
                 'origin_city_id' => config('rajaongkir.origin_city_id'),
                 'destination_city_id' => $validated['city_id'],
@@ -243,21 +282,73 @@ class CheckoutController extends Controller
             // Create payment record
             $payment = Payment::create([
                 'order_id' => $order->id,
+                'reference_number' => 'PAY-' . date('YmdHis') . '-' . Str::random(4),
                 'amount' => $total,
                 'currency' => 'IDR',
-                'payment_gateway' => $this->activeGateway,
+                'payment_gateway' => $this->activeGateway, // 'mindtrans' or 'mock'
+                'payment_method' => 'pending', // Will be determined in Snap payment form
                 'status' => 'pending',
-                'reference_number' => 'PAY-' . $order->id . '-' . Str::random(8),
+                'metadata' => [],
             ]);
 
-            // Clear cart
-            CartItem::where('user_id', $user->id)->delete();
+            logger('Payment created successfully', [
+                'payment_id' => $payment->id,
+                'order_id' => $order->id,
+                'amount' => $total,
+                'payment_gateway' => $this->activeGateway
+            ]);
 
-            // Redirect to payment
-            return redirect()->route('payment.show', $order->id);
+            // Keep cart until payment is confirmed successful.
+            // This allows users to navigate back to checkout without being forced to cart page.
+            logger('Cart retained until payment success', ['user_id' => $user->id]);
+
+            // Redirect to payment processing view (which will auto-submit POST to payment.process)
+            logger('Redirecting to payment processing', [
+                'payment_id' => $payment->id,
+                'order_id' => $order->id,
+            ]);
+            
+            return view('payment.processing', [
+                'order' => $order,
+                'returnTo' => route('checkout.show'),
+            ])
+                ->with('success', 'Pesanan berhasil dibuat. Silakan tunggu saat payment form dimuat...');
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal membuat pesanan: ' . $e->getMessage());
+            logger('Exception during checkout', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return back()
+                ->withInput()
+                ->with('error', 'Gagal membuat pesanan: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Prepare item details for payment gateway
+     */
+    private function prepareItemDetails(Order $order)
+    {
+        $items = [];
+
+        // Calculate subtotal for product items only
+        $subtotal = 0;
+        foreach ($order->items as $orderItem) {
+            $itemTotal = (int)$orderItem->price * (int)$orderItem->quantity;
+            $subtotal += $itemTotal;
+            
+            $items[] = [
+                'id' => (string)$orderItem->product_id,
+                'name' => $orderItem->product->name,
+                'price' => (int)$orderItem->price,
+                'quantity' => (int)$orderItem->quantity,
+            ];
+        }
+
+        return $items;
     }
 
     /**

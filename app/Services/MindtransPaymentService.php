@@ -7,33 +7,42 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 /**
- * MindTrans Payment Service
- * Integration for MindTrans payment gateway
+ * Midtrans Payment Service (Snap API)
+ * Integration with Midtrans payment gateway
  * 
- * Status: PREPARED FOR FUTURE USE
- * Note: Waiting for MindTrans account approval
+ * Documentation: https://docs.midtrans.com
+ * Dashboard: https://dashboard.midtrans.com
  */
 class MindtransPaymentService
 {
-    private $apiKey;
-    private $apiSecret;
+    private $serverKey;
+    private $clientKey;
     private $baseUrl;
-    private $merchantId;
+    private $coreApiBaseUrl;
     private $isConfigured = false;
 
     public function __construct()
     {
-        $this->apiKey = config('payment.mindtrans_api_key');
-        $this->apiSecret = config('payment.mindtrans_api_secret');
-        $this->merchantId = config('payment.mindtrans_merchant_id');
-        $this->baseUrl = config('payment.mindtrans_base_url');
+        $this->serverKey = config('payment.mindtrans.api_key');
+        $this->clientKey = config('payment.mindtrans.api_secret');
+        $mode = config('payment.mindtrans.mode', 'sandbox');
         
-        // Verify that MindTrans is configured
-        $this->isConfigured = !empty($this->apiKey) && !empty($this->apiSecret);
+        // Set base URL based on mode
+        $this->baseUrl = $mode === 'production'
+            ? 'https://app.midtrans.com/snap/v1'
+            : 'https://app.sandbox.midtrans.com/snap/v1';
+
+        // Core API URL (for direct charge/status API)
+        $this->coreApiBaseUrl = $mode === 'production'
+            ? 'https://api.midtrans.com/v2'
+            : 'https://api.sandbox.midtrans.com/v2';
+        
+        // Verify that Midtrans is configured
+        $this->isConfigured = !empty($this->serverKey);
     }
 
     /**
-     * Check if MindTrans is configured and ready
+     * Check if Midtrans is configured and ready
      */
     public function isReady()
     {
@@ -41,17 +50,18 @@ class MindtransPaymentService
     }
 
     /**
-     * Create payment request
+     * Create payment request using Midtrans Snap
      * @param Payment $payment
      * @param array $itemDetails
+     * @param string|null $paymentMethod User's chosen payment method
      * @return array
      */
-    public function createPayment(Payment $payment, $itemDetails = [])
+    public function createPayment(Payment $payment, $itemDetails = [], $paymentMethod = null)
     {
         if (!$this->isConfigured) {
             return [
                 'success' => false,
-                'error' => 'MindTrans is not configured. Please provide API credentials in .env',
+                'error' => 'Midtrans is not configured. Please provide Server Key in .env (MINDTRANS_API_KEY)',
                 'status' => 'not_configured'
             ];
         }
@@ -60,83 +70,123 @@ class MindtransPaymentService
             $externalId = $this->generateExternalId($payment->order_id);
             $amount = (int)$payment->amount;
 
+            // Prepare customer details with null checks
+            $nameParts = explode(' ', $payment->order->shipping_name ?? 'Customer', 2);
+            $firstName = $nameParts[0];
+            $lastName = $nameParts[1] ?? '';
+
             $payload = [
                 'transaction_details' => [
                     'order_id' => $externalId,
                     'gross_amount' => $amount,
                 ],
                 'customer_details' => [
-                    'first_name' => explode(' ', $payment->order->shipping_name)[0],
-                    'last_name' => implode(' ', array_slice(explode(' ', $payment->order->shipping_name), 1)),
-                    'email' => $payment->order->user->email,
-                    'phone' => $payment->order->shipping_phone,
-                    'billing_address' => [
-                        'first_name' => explode(' ', $payment->order->shipping_name)[0],
-                        'last_name' => implode(' ', array_slice(explode(' ', $payment->order->shipping_name), 1)),
-                        'email' => $payment->order->user->email,
-                        'phone' => $payment->order->shipping_phone,
-                        'address' => $payment->order->shipping_address,
-                        'city' => $payment->order->shipping_city,
-                        'postal_code' => $payment->order->shipping_postal_code,
-                        'country_code' => 'IDN',
-                    ],
-                    'shipping_address' => [
-                        'first_name' => explode(' ', $payment->order->shipping_name)[0],
-                        'last_name' => implode(' ', array_slice(explode(' ', $payment->order->shipping_name), 1)),
-                        'email' => $payment->order->user->email,
-                        'phone' => $payment->order->shipping_phone,
-                        'address' => $payment->order->shipping_address,
-                        'city' => $payment->order->shipping_city,
-                        'postal_code' => $payment->order->shipping_postal_code,
-                        'country_code' => 'IDN',
-                    ],
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'email' => $payment->order->user->email ?? 'customer@example.com',
+                    'phone' => $payment->order->shipping_phone ?? '',
                 ],
                 'item_details' => $itemDetails ?: $this->getDefaultItemDetails($payment),
-                'vt_web' => [
-                    'enabled' => true,
-                ],
-                'enabled_payments' => ['bank_transfer', 'qris', 'gopay', 'ovo', 'dana'],
             ];
 
-            $response = Http::withBasicAuth($this->apiKey, 'Bearer')
-                ->post($this->baseUrl . '/charge', $payload);
+            // Add enabled payment methods based on user's choice
+            if ($paymentMethod) {
+                $payload['enabled_payments'] = $this->mapPaymentMethod($paymentMethod);
+            }
+
+            // Add shipping address if available
+            if ($payment->order->shipping_address) {
+                $payload['customer_details']['shipping_address'] = [
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'phone' => $payment->order->shipping_phone ?? '',
+                    'address' => $payment->order->shipping_address,
+                    'city' => $payment->order->shipping_city ?? '',
+                    'postal_code' => $payment->order->shipping_postal_code ?? '',
+                    'country_code' => 'IDN',
+                ];
+            }
+
+            logger('Midtrans Payment Request', [
+                'order_id' => $externalId,
+                'amount' => $amount,
+                'payment_method' => $paymentMethod,
+                'enabled_payments' => $payload['enabled_payments'] ?? 'all',
+                'item_details' => $payload['item_details'],
+                'item_total' => array_sum(array_map(function($item) {
+                    return $item['price'] * $item['quantity'];
+                }, $payload['item_details'])),
+                'url' => $this->baseUrl . '/transactions'
+            ]);
+
+            // Call Midtrans Snap API
+            $response = Http::withBasicAuth($this->serverKey, '')
+                ->withHeaders([
+                    'Accept' => 'application/json',
+                    'Content-Type' => 'application/json',
+                ])
+                ->post($this->baseUrl . '/transactions', $payload);
 
             if ($response->successful()) {
                 $data = $response->json();
                 
-                // Save external ID to payment record
+                // Midtrans Snap returns: token, redirect_url
+                $snapToken = $data['token'] ?? null;
+                $redirectUrl = $data['redirect_url'] ?? null;
+
+                if (!$snapToken || !$redirectUrl) {
+                    logger('Midtrans Response Missing Data', ['response' => $data]);
+                    return [
+                        'success' => false,
+                        'error' => 'Invalid response from Midtrans',
+                    ];
+                }
+                
+                // Save transaction info to payment record
                 $payment->update([
-                    'external_id' => $data['transaction_id'] ?? $externalId,
-                    'payment_gateway' => 'mindtrans',
-                    'payment_method' => $data['payment_type'] ?? null,
+                    'external_id' => $externalId,
+                    'payment_gateway' => 'midtrans',
                     'metadata' => [
-                        'checkout_url' => $data['redirect_url'] ?? null,
-                        'transaction_id' => $data['transaction_id'] ?? null,
-                        'status' => $data['transaction_status'] ?? 'pending',
+                        'snap_token' => $snapToken,
+                        'checkout_url' => $redirectUrl,
+                        'order_id' => $externalId,
                     ]
                 ]);
 
-                logger('MindTrans Payment Created', [
+                logger('Midtrans Payment Created', [
                     'order_id' => $payment->order_id,
-                    'transaction_id' => $data['transaction_id'] ?? null,
+                    'external_id' => $externalId,
+                    'snap_token' => $snapToken,
                     'amount' => $amount
                 ]);
 
                 return [
                     'success' => true,
-                    'checkout_url' => $data['redirect_url'] ?? null,
-                    'external_id' => $data['transaction_id'] ?? $externalId,
-                    'payment_gateway' => 'mindtrans',
+                    'checkout_url' => $redirectUrl,
+                    'snap_token' => $snapToken,
+                    'external_id' => $externalId,
+                    'payment_gateway' => 'midtrans',
                 ];
             }
 
+            $errorMessage = $response->json('message') ?? $response->json('error_messages.0') ?? 'Failed to create payment';
+            
+            logger('Midtrans Payment Failed', [
+                'status' => $response->status(),
+                'response' => $response->json(),
+            ]);
+
             return [
                 'success' => false,
-                'error' => $response->json('error_message') ?? 'Failed to create payment',
-                'response' => $response->json()
+                'error' => $errorMessage,
+                'response' => $response->json(),
+                'status_code' => $response->status(),
             ];
         } catch (\Exception $e) {
-            logger('MindTrans Payment Error', ['error' => $e->getMessage()]);
+            logger('Midtrans Payment Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return [
                 'success' => false,
                 'error' => $e->getMessage()
@@ -145,7 +195,197 @@ class MindtransPaymentService
     }
 
     /**
-     * Verify payment status
+     * Create direct payment using Midtrans Core API (without Snap UI)
+     * Currently used for QRIS-first custom checkout flow.
+     *
+     * @param Payment $payment
+     * @param array $itemDetails
+     * @param string $paymentMethod
+     * @return array
+     */
+    public function createDirectPayment(Payment $payment, $itemDetails = [], $paymentMethod = 'qris', array $options = [])
+    {
+        if (!$this->isConfigured) {
+            return [
+                'success' => false,
+                'error' => 'Midtrans is not configured. Please provide Server Key in .env (MINDTRANS_API_KEY)',
+                'status' => 'not_configured'
+            ];
+        }
+
+        try {
+            $externalId = $this->generateExternalId($payment->order_id);
+            $amount = (int) $payment->amount;
+
+            $nameParts = explode(' ', $payment->order->shipping_name ?? 'Customer', 2);
+            $firstName = $nameParts[0];
+            $lastName = $nameParts[1] ?? '';
+
+            // Production often enables "QRIS Dinamis GoPay" instead of native qris charge.
+            // For qris selection in UI, route charge through gopay channel to get a scannable QR.
+            $midtransPaymentType = match ($paymentMethod) {
+                'cstore' => 'cstore',
+                'qris' => 'gopay',
+                default => $paymentMethod,
+            };
+
+            $payload = [
+                'payment_type' => $midtransPaymentType,
+                'transaction_details' => [
+                    'order_id' => $externalId,
+                    'gross_amount' => $amount,
+                ],
+                'customer_details' => [
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'email' => $payment->order->user->email ?? 'customer@example.com',
+                    'phone' => $payment->order->shipping_phone ?? '',
+                ],
+                'item_details' => $itemDetails ?: $this->getDefaultItemDetails($payment),
+            ];
+
+            $callbackUrl = rtrim(config('app.url'), '/') . '/orders/' . $payment->order_id;
+
+            if (in_array($paymentMethod, ['gopay', 'qris'], true)) {
+                $payload['gopay'] = [
+                    'enable_callback' => true,
+                    'callback_url' => $callbackUrl,
+                ];
+            }
+
+            if ($paymentMethod === 'shopeepay') {
+                $payload['shopeepay'] = [
+                    'callback_url' => $callbackUrl,
+                ];
+            }
+
+            if ($paymentMethod === 'bank_transfer') {
+                $bank = $options['bank'] ?? 'bca';
+                $payload['bank_transfer'] = [
+                    'bank' => $bank,
+                ];
+            }
+
+            if ($paymentMethod === 'cstore') {
+                $store = $options['store'] ?? 'indomaret';
+                $payload['cstore'] = [
+                    'store' => $store,
+                    'message' => 'Pembayaran pesanan Joudah Store',
+                ];
+            }
+
+            $chargeUrl = $this->coreApiBaseUrl . '/charge';
+
+            logger('Midtrans Direct Payment Request', [
+                'order_id' => $externalId,
+                'amount' => $amount,
+                'payment_method' => $paymentMethod,
+                'item_total' => array_sum(array_map(function ($item) {
+                    return $item['price'] * $item['quantity'];
+                }, $payload['item_details'])),
+                'url' => $chargeUrl,
+            ]);
+
+            $response = Http::withBasicAuth($this->serverKey, '')
+                ->withHeaders([
+                    'Accept' => 'application/json',
+                    'Content-Type' => 'application/json',
+                ])
+                ->post($chargeUrl, $payload);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $directDetails = $this->extractDirectDetailsFromChargeResponse($data, $paymentMethod);
+
+                if (
+                    in_array($paymentMethod, ['qris', 'gopay'], true)
+                    && empty($directDetails['qr_url'])
+                ) {
+                    $statusMessage = $data['status_message'] ?? null;
+                    logger('Midtrans Direct Payment Missing QR', ['response' => $data]);
+                    return [
+                        'success' => false,
+                        'error' => $statusMessage ?: 'QR code tidak tersedia dari Midtrans',
+                        'response' => $data,
+                    ];
+                }
+
+                $payment->update([
+                    'external_id' => $externalId,
+                    'payment_gateway' => 'midtrans',
+                    'metadata' => array_merge($payment->metadata ?? [], [
+                        'direct_payment' => true,
+                        'direct_payment_method' => $paymentMethod,
+                        'direct_qr_url' => $directDetails['qr_url'] ?? null,
+                        'direct_deeplink_url' => $directDetails['deeplink_url'] ?? null,
+                        'direct_payment_code' => $directDetails['payment_code'] ?? null,
+                        'direct_store' => $directDetails['store'] ?? null,
+                        'direct_bank' => $directDetails['bank'] ?? null,
+                        'direct_va_number' => $directDetails['va_number'] ?? null,
+                        'transaction_status' => $data['transaction_status'] ?? 'pending',
+                        'transaction_id' => $data['transaction_id'] ?? null,
+                        'expiry_time' => $data['expiry_time'] ?? null,
+                    ]),
+                ]);
+
+                logger('Midtrans Direct Payment Created', [
+                    'order_id' => $payment->order_id,
+                    'external_id' => $externalId,
+                    'payment_method' => $paymentMethod,
+                ]);
+
+                return [
+                    'success' => true,
+                    'payment_type' => $paymentMethod,
+                    'external_id' => $externalId,
+                    'qr_url' => $directDetails['qr_url'] ?? null,
+                    'deeplink_url' => $directDetails['deeplink_url'] ?? null,
+                    'payment_code' => $directDetails['payment_code'] ?? null,
+                    'store' => $directDetails['store'] ?? null,
+                    'bank' => $directDetails['bank'] ?? null,
+                    'va_number' => $directDetails['va_number'] ?? null,
+                    'expiry_time' => $data['expiry_time'] ?? null,
+                    'payment_gateway' => 'midtrans',
+                    'raw' => $data,
+                ];
+            }
+
+            $responseJson = $response->json();
+            $rawBody = $response->body();
+
+            $errorMessage = $responseJson['status_message']
+                ?? $responseJson['message']
+                ?? ($responseJson['error_messages'][0] ?? null)
+                ?? $rawBody
+                ?? 'Failed to create direct payment';
+
+            logger('Midtrans Direct Payment Failed', [
+                'status' => $response->status(),
+                'response' => $responseJson,
+                'raw_body' => $rawBody,
+            ]);
+
+            return [
+                'success' => false,
+                'error' => $errorMessage,
+                'response' => $responseJson,
+                'status_code' => $response->status(),
+            ];
+        } catch (\Exception $e) {
+            logger('Midtrans Direct Payment Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Verify payment status via Midtrans Transaction Status API
      * @param Payment $payment
      * @return array
      */
@@ -154,7 +394,7 @@ class MindtransPaymentService
         if (!$this->isConfigured) {
             return [
                 'success' => false,
-                'error' => 'MindTrans is not configured'
+                'error' => 'Midtrans is not configured'
             ];
         }
 
@@ -166,42 +406,63 @@ class MindtransPaymentService
         }
 
         try {
-            $response = Http::withBasicAuth($this->apiKey, 'Bearer')
-                ->get($this->baseUrl . '/' . $payment->external_id . '/status');
+            // Midtrans Transaction Status API
+            $statusUrl = $this->coreApiBaseUrl . '/' . $payment->external_id . '/status';
+
+            $response = Http::withBasicAuth($this->serverKey, '')
+                ->withHeaders(['Accept' => 'application/json'])
+                ->get($statusUrl);
 
             if ($response->successful()) {
                 $data = $response->json();
-                $status = $this->mapPaymentStatus($data['transaction_status'] ?? 'pending');
+                $transactionStatus = $data['transaction_status'] ?? 'pending';
+                $fraudStatus = $data['fraud_status'] ?? 'accept';
+                
+                $status = $this->mapPaymentStatus($transactionStatus, $fraudStatus);
 
                 $payment->update([
                     'status' => $status,
                     'payment_method' => $data['payment_type'] ?? null,
-                    'metadata' => array_merge($payment->metadata ?? [], $data)
+                    'metadata' => array_merge($payment->metadata ?? [], [
+                        'transaction_status' => $transactionStatus,
+                        'fraud_status' => $fraudStatus,
+                        'last_verified' => now()->toIso8601String(),
+                    ])
                 ]);
 
-                if ($status === 'completed') {
+                if ($status === 'completed' && !$payment->paid_at) {
                     $payment->update(['paid_at' => now()]);
                     $payment->order->update(['status' => 'processing']);
                 }
 
-                logger('MindTrans Payment Verified', [
+                logger('Midtrans Payment Verified', [
                     'order_id' => $payment->order_id,
-                    'status' => $status
+                    'external_id' => $payment->external_id,
+                    'transaction_status' => $transactionStatus,
+                    'mapped_status' => $status
                 ]);
 
                 return [
                     'success' => true,
                     'status' => $status,
+                    'transaction_status' => $transactionStatus,
+                    'fraud_status' => $fraudStatus,
                     'data' => $data
                 ];
             }
 
+            logger('Midtrans Verify Failed', [
+                'status' => $response->status(),
+                'response' => $response->json()
+            ]);
+
             return [
                 'success' => false,
-                'error' => 'Failed to verify payment'
+                'error' => 'Failed to verify payment',
+                'status_code' => $response->status()
             ];
         } catch (\Exception $e) {
-            logger('MindTrans Verify Error', ['error' => $e->getMessage()]);
+            logger('Midtrans Verify Error', ['error' => $e->getMessage()]);
             return [
                 'success' => false,
                 'error' => $e->getMessage()
@@ -210,70 +471,114 @@ class MindtransPaymentService
     }
 
     /**
-     * Process webhook callback
+     * Process webhook callback from Midtrans
      * @param array $payload
      * @return bool
      */
     public function processCallback($payload)
     {
+        logger('Midtrans Callback Received', ['payload' => $payload]);
+
+        // Verify signature first
         if (!$this->verifyCallbackSignature($payload)) {
-            logger('Invalid MindTrans callback signature');
+            logger('Invalid Midtrans callback signature', ['payload' => $payload]);
             return false;
         }
 
-        $transactionId = $payload['transaction_id'] ?? null;
+        $orderId = $payload['order_id'] ?? null;
+        $transactionStatus = $payload['transaction_status'] ?? null;
+        $fraudStatus = $payload['fraud_status'] ?? 'accept';
 
-        if (!$transactionId) {
+        if (!$orderId || !$transactionStatus) {
+            logger('Midtrans Callback Missing Data', ['payload' => $payload]);
             return false;
         }
 
-        // Find payment by external ID
-        $payment = Payment::where('external_id', $transactionId)->first();
+        // Find payment by external ID (order_id from Midtrans)
+        $payment = Payment::where('external_id', $orderId)->first();
 
         if (!$payment) {
+            logger('Midtrans Callback - Payment Not Found', ['order_id' => $orderId]);
             return false;
         }
 
         // Map and update payment status
-        $status = $this->mapPaymentStatus($payload['transaction_status'] ?? 'pending');
+        $status = $this->mapPaymentStatus($transactionStatus, $fraudStatus);
+        
         $payment->update([
             'status' => $status,
             'payment_method' => $payload['payment_type'] ?? null,
-            'metadata' => array_merge($payment->metadata ?? [], $payload)
+            'metadata' => array_merge($payment->metadata ?? [], [
+                'transaction_id' => $payload['transaction_id'] ?? null,
+                'transaction_status' => $transactionStatus,
+                'fraud_status' => $fraudStatus,
+                'settlement_time' => $payload['settlement_time'] ?? null,
+                'transaction_time' => $payload['transaction_time'] ?? null,
+            ])
         ]);
 
-        if ($status === 'completed') {
+        // Update order status if payment completed
+        if ($status === 'completed' && !$payment->paid_at) {
             $payment->update(['paid_at' => now()]);
             $payment->order->update(['status' => 'processing']);
+            
+            logger('Midtrans Payment Completed - Order Updated', [
+                'order_id' => $payment->order_id,
+                'payment_id' => $payment->id
+            ]);
         }
 
-        logger('MindTrans Callback Processed', [
-            'transaction_id' => $transactionId,
-            'status' => $status
+        // Handle failed payment
+        if ($status === 'failed' || $status === 'cancelled') {
+            $payment->order->update(['status' => 'cancelled']);
+            
+            logger('Midtrans Payment Failed - Order Cancelled', [
+                'order_id' => $payment->order_id,
+                'status' => $status
+            ]);
+        }
+
+        logger('Midtrans Callback Processed', [
+            'order_id' => $payment->order_id,
+            'external_id' => $orderId,
+            'transaction_status' => $transactionStatus,
+            'mapped_status' => $status
         ]);
+
 
         return true;
     }
 
     /**
-     * Verify callback signature
+     * Verify callback signature from Midtrans
      * @param array $payload
      * @return bool
      */
     private function verifyCallbackSignature($payload)
     {
-        $signature = $payload['signature'] ?? null;
+        $signature = $payload['signature_key'] ?? null;
         $orderId = $payload['order_id'] ?? null;
         $statusCode = $payload['status_code'] ?? null;
         $grossAmount = $payload['gross_amount'] ?? null;
 
         if (!$signature) {
+            logger('Midtrans Callback - No signature provided');
             return false;
         }
 
-        $signatureKey = hash('sha512', $orderId . $statusCode . $grossAmount . $this->apiSecret);
+        // Midtrans signature: SHA512(order_id+status_code+gross_amount+server_key)
+        $signatureKey = hash('sha512', $orderId . $statusCode . $grossAmount . $this->serverKey);
 
-        return hash_equals($signature, $signatureKey);
+        $isValid = hash_equals($signature, $signatureKey);
+        
+        if (!$isValid) {
+            logger('Midtrans Callback - Invalid signature', [
+                'expected' => $signatureKey,
+                'received' => $signature
+            ]);
+        }
+
+        return $isValid;
     }
 
     /**
@@ -282,23 +587,17 @@ class MindtransPaymentService
     private function getDefaultItemDetails(Payment $payment)
     {
         $items = [];
+        $subtotal = 0;
 
         foreach ($payment->order->items as $orderItem) {
+            $itemTotal = (int)$orderItem->price * (int)$orderItem->quantity;
+            $subtotal += $itemTotal;
+            
             $items[] = [
                 'id' => (string)$orderItem->product_id,
                 'price' => (int)$orderItem->price,
                 'quantity' => (int)$orderItem->quantity,
-                'name' => $orderItem->product->name,
-            ];
-        }
-
-        // Add shipping cost
-        if ($payment->order->shipping) {
-            $items[] = [
-                'id' => 'shipping',
-                'price' => (int)$payment->order->shipping->cost,
-                'quantity' => 1,
-                'name' => 'Ongkos Kirim - ' . $payment->order->shipping->courier_name,
+                'name' => $orderItem->product->name ?? 'Product',
             ];
         }
 
@@ -306,21 +605,44 @@ class MindtransPaymentService
     }
 
     /**
-     * Map MindTrans status to our system
+     * Map Midtrans transaction status to our system status
+     * 
+     * Midtrans statuses:
+     * - capture: Credit card transaction captured (authorized & collected)
+     * - settlement: Transaction settled (funds received)
+     * - pending: Transaction created, waiting for customer to complete payment
+     * - deny: Payment denied by bank/fraud detection
+     * - cancel: Transaction cancelled
+     * - expire: Transaction expired (customer didn't complete payment)
+     * - refund: Transaction refunded
+     * - partial_refund: Transaction partially refunded
      */
-    private function mapPaymentStatus($mindtransStatus)
+    private function mapPaymentStatus($transactionStatus, $fraudStatus = 'accept')
     {
-        return match($mindtransStatus) {
-            'capture', 'settlement' => 'completed',
+        // Handle fraud detection
+        if ($fraudStatus === 'deny') {
+            return 'failed';
+        }
+
+        if ($fraudStatus === 'challenge') {
+            return 'pending'; // Wait for manual review
+        }
+
+        // Map transaction status
+        return match($transactionStatus) {
+            'capture' => $fraudStatus === 'accept' ? 'completed' : 'pending',
+            'settlement' => 'completed',
             'pending' => 'pending',
-            'deny', 'cancel', 'expire' => 'failed',
-            'refund' => 'refunded',
+            'deny' => 'failed',
+            'cancel' => 'cancelled',
+            'expire' => 'failed',
+            'refund', 'partial_refund' => 'refunded',
             default => 'pending'
         };
     }
 
     /**
-     * Generate external ID
+     * Generate unique external ID for Midtrans
      */
     private function generateExternalId($orderId)
     {
@@ -328,19 +650,105 @@ class MindtransPaymentService
     }
 
     /**
-     * Get configuration status
+     * Get configuration status for debugging
      */
     public function getConfigStatus()
     {
         return [
             'is_configured' => $this->isConfigured,
-            'api_key_set' => !empty($this->apiKey),
-            'api_secret_set' => !empty($this->apiSecret),
-            'merchant_id_set' => !empty($this->merchantId),
-            'base_url' => $this->baseUrl ?? 'not set',
+            'server_key_set' => !empty($this->serverKey),
+            'client_key_set' => !empty($this->clientKey),
+            'base_url' => $this->baseUrl,
+            'environment' => config('payment.mindtrans.mode', 'sandbox'),
             'message' => $this->isConfigured 
-                ? 'MindTrans is fully configured and ready to use'
-                : 'MindTrans credentials are missing. Please set them in .env file',
+                ? 'Midtrans is fully configured and ready to use'
+                : 'Midtrans Server Key is missing. Please set MINDTRANS_API_KEY in .env file',
         ];
+    }
+
+    /**
+     * Map user-selected payment method to Midtrans enabled_payments array
+     * @param string $paymentMethod
+     * @return array
+     */
+    private function mapPaymentMethod($paymentMethod)
+    {
+        $paymentMap = [
+            'credit_card' => ['credit_card'],
+            'gopay' => ['gopay'],
+            'shopeepay' => ['shopeepay'],
+            // QRIS on some sandbox accounts may not be fully enabled.
+            // Add e-wallet fallback so at least one QR-capable channel appears.
+            'qris' => ['qris', 'gopay', 'shopeepay'],
+            'bank_transfer' => ['bca_va', 'bni_va', 'bri_va', 'permata_va', 'other_va'],
+            'cstore' => ['indomaret', 'alfamart'],
+        ];
+
+        return $paymentMap[$paymentMethod] ?? [];
+    }
+
+    /**
+     * Extract QR URL from Midtrans Core API charge response.
+     *
+     * @param array $data
+     * @return string|null
+     */
+    private function extractDirectDetailsFromChargeResponse(array $data, string $paymentMethod)
+    {
+        $result = [
+            'qr_url' => null,
+            'deeplink_url' => null,
+            'payment_code' => null,
+            'store' => null,
+            'bank' => null,
+            'va_number' => null,
+        ];
+
+        $actions = $data['actions'] ?? [];
+
+        foreach ($actions as $action) {
+            $name = $action['name'] ?? '';
+            $url = $action['url'] ?? null;
+
+            if (!$url) {
+                continue;
+            }
+
+            if (in_array($name, ['generate-qr-code', 'generate_qr_code'], true)) {
+                $result['qr_url'] = $url;
+            }
+
+            if (in_array($name, ['deeplink-redirect', 'deeplink_redirect'], true)) {
+                $result['deeplink_url'] = $url;
+            }
+        }
+
+        if (!$result['qr_url'] && !empty($actions[0]['url']) && in_array($paymentMethod, ['qris', 'gopay'], true)) {
+            $result['qr_url'] = $actions[0]['url'];
+        }
+
+        if (!empty($data['qr_string'])) {
+            $result['qr_url'] = 'https://api.qrserver.com/v1/create-qr-code/?size=420x420&data=' . urlencode($data['qr_string']);
+        }
+
+        if (!empty($data['va_numbers'][0]['bank'])) {
+            $result['bank'] = strtoupper($data['va_numbers'][0]['bank']);
+        }
+
+        if (!empty($data['va_numbers'][0]['va_number'])) {
+            $result['va_number'] = $data['va_numbers'][0]['va_number'];
+        }
+
+        if (!empty($data['permata_va_number'])) {
+            $result['bank'] = 'PERMATA';
+            $result['va_number'] = $data['permata_va_number'];
+        }
+
+        if (!empty($data['payment_code'])) {
+            $result['payment_code'] = $data['payment_code'];
+            $result['store'] = strtoupper($data['store'] ?? 'CSTORE');
+        }
+
+        return $result;
     }
 }

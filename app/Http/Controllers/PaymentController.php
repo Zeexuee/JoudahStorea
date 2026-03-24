@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\Payment;
 
@@ -54,7 +55,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Process payment (redirect to Doku)
+     * Process payment (render payment page with Snap embedded)
      */
     public function process(Request $request, Order $order)
     {
@@ -74,17 +75,49 @@ class PaymentController extends Controller
         }
 
         try {
+            $returnTo = $this->resolveReturnDestination($request, $order);
+
             // Create payment using configured payment service
             $result = $this->paymentService->createPayment($payment, $this->prepareItemDetails($order));
 
             if ($result['success']) {
-                return redirect()->to($result['checkout_url']);
+                // Return view with snap_token for embedded Snap
+                return view('payment.embedded', [
+                    'order' => $order,
+                    'payment' => $payment,
+                    'snapToken' => $result['snap_token'],
+                    'amount' => $payment->amount,
+                    'returnToUrl' => $returnTo['url'],
+                    'returnToLabel' => $returnTo['label'],
+                ]);
             } else {
                 return back()->with('error', 'Gagal membuat pembayaran: ' . $result['error']);
             }
         } catch (\Exception $e) {
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Resolve where the payment page back button should go.
+     */
+    private function resolveReturnDestination(Request $request, Order $order): array
+    {
+        $checkoutUrl = route('checkout.show');
+        $orderUrl = route('orders.show', $order);
+
+        $returnTo = (string) $request->input('return_to', '');
+
+        if ($returnTo === $checkoutUrl || str_contains($returnTo, '/checkout')) {
+            return ['url' => $checkoutUrl, 'label' => 'Kembali ke Checkout'];
+        }
+
+        if ($returnTo === $orderUrl || str_contains($returnTo, '/orders/' . $order->id)) {
+            return ['url' => $orderUrl, 'label' => 'Kembali ke Pesanan'];
+        }
+
+        // Default fallback: order detail page.
+        return ['url' => $orderUrl, 'label' => 'Kembali ke Pesanan'];
     }
 
     /**
@@ -125,6 +158,8 @@ class PaymentController extends Controller
             if ($result['success']) {
                 // Payment info updated by service
                 if ($payment->fresh()->isPaid()) {
+                    CartItem::where('user_id', $order->user_id)->delete();
+
                     return redirect()->route('orders.show', $order)
                         ->with('success', 'Pembayaran berhasil diverifikasi');
                 } else {
@@ -166,6 +201,151 @@ class PaymentController extends Controller
     }
 
     /**
+     * Show custom payment page (our design)
+     */
+    public function showCustom(Request $request, Payment $payment)
+    {
+        // Authorize user
+        if ($payment->order->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Load order with relationships
+        $order = $payment->order()->with(['items.product', 'shipping'])->first();
+
+        return view('payment.custom', compact('payment', 'order'));
+    }
+
+    /**
+     * Process custom payment (trigger Midtrans API)
+     */
+    public function processCustom(Request $request, Payment $payment)
+    {
+        // Authorize user
+        if ($payment->order->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        try {
+            $directMethods = ['qris', 'gopay', 'shopeepay', 'bank_transfer', 'cstore'];
+            $selectedMethod = $payment->payment_method;
+            $requestedBank = strtolower((string) $request->input('bank', ''));
+            $requestedStore = strtolower((string) $request->input('store', ''));
+
+            $cachedBank = strtolower((string) ($payment->metadata['direct_bank'] ?? ''));
+            $cachedStore = strtolower((string) ($payment->metadata['direct_store'] ?? ''));
+
+            $isBankRequestChanged = $selectedMethod === 'bank_transfer' && $requestedBank !== '' && $requestedBank !== $cachedBank;
+            $isStoreRequestChanged = $selectedMethod === 'cstore' && $requestedStore !== '' && $requestedStore !== $cachedStore;
+
+            if (
+                in_array($selectedMethod, $directMethods, true)
+                && !empty($payment->metadata['direct_payment'])
+                && (($payment->metadata['direct_payment_method'] ?? null) === $selectedMethod)
+                && !$isBankRequestChanged
+                && !$isStoreRequestChanged
+                && (
+                    !empty($payment->metadata['direct_qr_url'])
+                    || !empty($payment->metadata['direct_deeplink_url'])
+                    || !empty($payment->metadata['direct_va_number'])
+                    || !empty($payment->metadata['direct_payment_code'])
+                )
+            ) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'payment_type' => $selectedMethod,
+                        'external_id' => $payment->external_id,
+                        'qr_url' => $payment->metadata['direct_qr_url'] ?? null,
+                        'deeplink_url' => $payment->metadata['direct_deeplink_url'] ?? null,
+                        'payment_code' => $payment->metadata['direct_payment_code'] ?? null,
+                        'store' => $payment->metadata['direct_store'] ?? null,
+                        'bank' => $payment->metadata['direct_bank'] ?? null,
+                        'va_number' => $payment->metadata['direct_va_number'] ?? null,
+                        'expiry_time' => $payment->metadata['expiry_time'] ?? null,
+                        'payment_gateway' => 'midtrans',
+                    ],
+                ]);
+            }
+
+            if (in_array($selectedMethod, $directMethods, true) && method_exists($this->paymentService, 'createDirectPayment')) {
+                $options = [];
+                if ($selectedMethod === 'bank_transfer') {
+                    $defaultBank = strtolower((string) ($payment->metadata['selected_bank'] ?? 'bca'));
+                    $options['bank'] = strtolower((string) $request->input('bank', $defaultBank));
+                }
+                if ($selectedMethod === 'cstore') {
+                    $defaultStore = strtolower((string) ($payment->metadata['selected_store'] ?? 'indomaret'));
+                    $options['store'] = strtolower((string) $request->input('store', $defaultStore));
+                }
+
+                $result = $this->paymentService->createDirectPayment(
+                    $payment,
+                    $this->prepareItemDetails($payment->order),
+                    $selectedMethod,
+                    $options
+                );
+
+                return response()->json([
+                    'success' => $result['success'],
+                    'data' => $result,
+                    'error' => $result['error'] ?? null,
+                ], $result['success'] ? 200 : 422);
+            }
+
+            // Always create a fresh token for pending payments to avoid stale channel config.
+            $result = $this->paymentService->createPayment(
+                $payment, 
+                $this->prepareItemDetails($payment->order),
+                $payment->payment_method
+            );
+
+            return response()->json([
+                'success' => $result['success'],
+                'data' => $result,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Check payment status (AJAX)
+     */
+    public function checkPaymentStatus(Request $request, Payment $payment)
+    {
+        // Authorize user
+        if ($payment->order->user_id !== auth()->id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Pull latest status from gateway so direct-flow methods (ShopeePay/GoPay/QRIS/VA/CStore)
+        // don't depend only on webhook timing.
+        try {
+            if (method_exists($this->paymentService, 'verifyPayment') && $payment->external_id) {
+                $this->paymentService->verifyPayment($payment);
+                $payment->refresh();
+                $payment->order->refresh();
+            }
+        } catch (\Throwable $e) {
+            logger('Payment status sync failed', [
+                'payment_id' => $payment->id,
+                'external_id' => $payment->external_id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return response()->json([
+            'status' => $payment->status,
+            'paid_at' => $payment->paid_at,
+            'order_status' => $payment->order->status,
+        ]);
+    }
+
+    /**
      * Cancel payment and return to checkout
      */
     public function cancel(Request $request, Order $order)
@@ -191,28 +371,23 @@ class PaymentController extends Controller
     }
 
     /**
-     * Prepare item details for Doku
+     * Prepare item details for Midtrans
      */
     private function prepareItemDetails(Order $order)
     {
         $items = [];
 
+        // Calculate subtotal for product items only
+        $subtotal = 0;
         foreach ($order->items as $orderItem) {
+            $itemTotal = (int)$orderItem->price * (int)$orderItem->quantity;
+            $subtotal += $itemTotal;
+            
             $items[] = [
                 'id' => (string)$orderItem->product_id,
                 'name' => $orderItem->product->name,
                 'price' => (int)$orderItem->price,
                 'quantity' => (int)$orderItem->quantity,
-            ];
-        }
-
-        // Add shipping cost
-        if ($order->shipping) {
-            $items[] = [
-                'id' => 'shipping',
-                'name' => 'Ongkos Kirim - ' . $order->shipping->courier_name,
-                'price' => (int)$order->shipping->cost,
-                'quantity' => 1,
             ];
         }
 

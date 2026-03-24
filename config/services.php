@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'fonte' => [
+        'enabled' => env('FONTE_ENABLED', false),
+        'base_url' => env('FONTE_BASE_URL', 'https://api.fonnte.com'),
+        'token' => env('FONTE_API_TOKEN'),
+        'admin_phone' => env('FONTE_ADMIN_PHONE'),
+    ],
+
 ];

@@ -88,17 +88,21 @@
                                     @php
                                         $statusColors = [
                                             'pending' => 'bg-yellow-100 text-yellow-800',
+                                            'processing' => 'bg-blue-100 text-blue-800',
                                             'completed' => 'bg-green-100 text-green-800',
                                             'failed' => 'bg-red-100 text-red-800',
                                             'cancelled' => 'bg-red-100 text-red-800',
                                             'expired' => 'bg-gray-100 text-gray-800',
+                                            'refunded' => 'bg-orange-100 text-orange-800',
                                         ];
                                         $icons = [
                                             'pending' => '⏳',
+                                            'processing' => '🔄',
                                             'completed' => '✓',
                                             'failed' => '✗',
                                             'cancelled' => '✗',
                                             'expired' => '⏱',
+                                            'refunded' => '↩️',
                                         ];
                                     @endphp
                                     <span class="px-4 py-2 rounded-full font-semibold text-lg {{ $statusColors[$order->payment->status] ?? 'bg-gray-100' }}">
@@ -144,6 +148,16 @@
                                     <h4 class="font-bold text-red-900 mb-2">✗ Pembayaran Gagal</h4>
                                     <p class="text-red-800">Pembayaran gagal diproses. Order status otomatis set ke "Dibatalkan".</p>
                                 </div>
+                            @elseif($order->payment->status === 'expired' || $order->payment->status === 'cancelled')
+                                <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-sm">
+                                    <h4 class="font-bold text-red-900 mb-2">⏱ Pembayaran Tidak Selesai</h4>
+                                    <p class="text-red-800">Pembayaran berakhir/terbatal. Order status otomatis set ke "Dibatalkan".</p>
+                                </div>
+                            @elseif($order->payment->status === 'refunded')
+                                <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 text-sm">
+                                    <h4 class="font-bold text-orange-900 mb-2">↩️ Dana Dikembalikan</h4>
+                                    <p class="text-orange-800">Pembayaran sudah direfund. Status order disesuaikan sebagai dibatalkan.</p>
+                                </div>
                             @endif
                         </div>
                     @else
@@ -155,202 +169,107 @@
 
                 <!-- Shipping Status -->
                 <div class="bg-white rounded-lg shadow p-6">
-                    <h2 class="text-lg font-bold text-gray-900 mb-4">Status Pengiriman</h2>
-                    
-                    @if($order->shipping)
-                        <!-- Edit Shipping Form -->
-                        <form action="{{ route('admin.orders.updateShippingStatus', $order->id) }}" method="POST" class="mb-6">
-                            @csrf
-                            <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
-                                <h3 class="font-semibold text-amber-900 mb-4">📝 Update Data Pengiriman</h3>
-                                
-                                <!-- Info Box: Cara Dapatin Nomor Resi -->
-                                <div class="bg-white border border-amber-300 rounded-lg p-3 mb-4 text-sm">
-                                    <p class="font-semibold text-amber-900 mb-2">💡 Cara Dapatin Nomor Resi:</p>
-                                    <ul class="list-disc list-inside text-amber-800 space-y-1">
-                                        <li><strong>Raja Ongkir:</strong> Jika integrasi Raja Ongkir aktif, nomor resi otomatis dari API saat order dikirim</li>
-                                        <li><strong>Manual:</strong> Cek website kurir (JNE, POS, TIKI, Shopee) → cari nomor resi ada di bukti pengiriman</li>
-                                        <li><strong>Kurir:</strong> Minta langsung kepada kurir saat pickup barang</li>
-                                        <li><strong>Email:</strong> Biasanya kurir kirim email dengan nomor resi + tracking link</li>
-                                    </ul>
-                                </div>
-                                
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                    <!-- Courier Name -->
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Kurir</label>
-                                        <input type="text" name="courier" value="{{ $order->shipping->courier_name ?? '' }}" 
-                                               placeholder="Misal: JNE, POS, TIKI, Shopee Express, etc"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
-                                        <small class="text-gray-500">Nama kurir pengiriman</small>
-                                    </div>
-                                    
-                                    <!-- Shipping Status -->
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Status Pengiriman *</label>
-                                        <select name="shipping_status" required
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
-                                            <option value="">-- Pilih Status --</option>
-                                            <option value="pending" @selected($order->shipping->status === 'pending')>📦 Menunggu Pickup</option>
-                                            <option value="picked_up" @selected($order->shipping->status === 'picked_up')>🚚 Sudah Diambil</option>
-                                            <option value="in_transit" @selected($order->shipping->status === 'in_transit')>🚛 Dalam Perjalanan</option>
-                                            <option value="out_for_delivery" @selected($order->shipping->status === 'out_for_delivery')>📍 Sedang di Anter</option>
-                                            <option value="delivered" @selected($order->shipping->status === 'delivered')>✓ Terima</option>
-                                            <option value="failed" @selected($order->shipping->status === 'failed')>✗ Gagal Dikirim</option>
-                                            <option value="returned" @selected($order->shipping->status === 'returned')>↩️ Dikembalikan</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                
-                                <!-- Tracking Number -->
-                                <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Nomor Resi / Tracking Number *</label>
-                                    <input type="text" name="tracking_number" value="{{ $order->shipping->tracking_number ?? '' }}" 
-                                           placeholder="Misal: JNE1234567890 atau nomor resi dari kurir"
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 font-mono"
-                                           required>
-                                    <small class="text-gray-500">Masukkan nomor resi yang diberikan kurir</small>
-                                </div>
-                                
-                                <div class="flex gap-2">
-                                    <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white font-medium py-2 px-4 rounded-lg transition">
-                                        💾 Simpan Data Pengiriman
-                                    </button>
-                                    <small class="text-gray-600 flex items-center">* Wajib diisi untuk print resi</small>
-                                </div>
-                            </div>
-                        </form>
-                    @else
-                        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
-                            <p class="text-amber-800"><strong>⚠️ Belum ada data pengiriman</strong> - Silakan isi form di bawah untuk membuat data pengiriman</p>
-                            <form action="{{ route('admin.orders.updateShippingStatus', $order->id) }}" method="POST" class="mt-4">
-                                @csrf
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Kurir</label>
-                                        <input type="text" name="courier" placeholder="Misal: JNE, POS, TIKI, Shopee Express, etc"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Status Pengiriman *</label>
-                                        <select name="shipping_status" required
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
-                                            <option value="">-- Pilih Status --</option>
-                                            <option value="pending">📦 Menunggu Pickup</option>
-                                            <option value="picked_up">🚚 Sudah Diambil</option>
-                                            <option value="in_transit">🚛 Dalam Perjalanan</option>
-                                            <option value="out_for_delivery">📍 Sedang di Anter</option>
-                                            <option value="delivered">✓ Terima</option>
-                                            <option value="failed">✗ Gagal Dikirim</option>
-                                            <option value="returned">↩️ Dikembalikan</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Nomor Resi / Tracking Number *</label>
-                                    <input type="text" name="tracking_number" placeholder="Misal: JNE1234567890"
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 font-mono"
-                                           required>
-                                </div>
-                                <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white font-medium py-2 px-4 rounded-lg transition">
-                                    ➕ Buat Data Pengiriman
-                                </button>
-                            </form>
-                        </div>
-                    @endif
-                    
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 text-sm">
-                        <p class="text-blue-800"><strong>ℹ️ Catatan:</strong> Saat status diubah, order status akan otomatis terupdate. Gunakan tombol Print Resi setelah nomor resi diisi.</p>
-                    </div>
+                    <h2 class="text-lg font-bold text-gray-900 mb-4">Pengiriman</h2>
 
                     @if($order->shipping)
-                        <!-- Current Shipping Status Display -->
-                        <h3 class="text-md font-bold text-gray-900 mb-3 mt-6">📊 Status Pengiriman Saat Ini</h3>
-                        <div class="space-y-4">
-                            <!-- Shipping Status Badge -->
-                            <div class="bg-gray-50 rounded-lg p-4">
-                                <p class="text-gray-600 text-sm mb-2">Status Pengiriman Saat Ini</p>
-                                <div class="flex items-center gap-2">
-                                    @php
-                                        $shippingStatusColors = [
-                                            'pending' => 'bg-gray-100 text-gray-800',
-                                            'picked_up' => 'bg-blue-100 text-blue-800',
-                                            'in_transit' => 'bg-indigo-100 text-indigo-800',
-                                            'out_for_delivery' => 'bg-purple-100 text-purple-800',
-                                            'delivered' => 'bg-green-100 text-green-800',
-                                            'failed' => 'bg-red-100 text-red-800',
-                                            'returned' => 'bg-orange-100 text-orange-800',
-                                        ];
-                                        $shippingIcons = [
-                                            'pending' => '📦',
-                                            'picked_up' => '🚚',
-                                            'in_transit' => '🚛',
-                                            'out_for_delivery' => '📍',
-                                            'delivered' => '✓',
-                                            'failed' => '✗',
-                                            'returned' => '↩️',
-                                        ];
-                                    @endphp
-                                    <span class="px-4 py-2 rounded-full font-semibold text-lg {{ $shippingStatusColors[$order->shipping->status] ?? 'bg-gray-100' }}">
-                                        {{ $shippingIcons[$order->shipping->status] ?? '' }} {{ $shippingStatuses[$order->shipping->status] ?? $order->shipping->status }}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <!-- Shipping Details -->
-                            <div class="grid grid-cols-2 gap-4 text-sm bg-gray-50 p-4 rounded-lg">
+                        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                 <div>
                                     <p class="text-gray-600">Kurir</p>
-                                    <p class="font-medium text-gray-900">{{ $order->shipping->courier ?? '-' }}</p>
+                                    <p class="font-medium text-gray-900">{{ $order->shipping->courier_name ?? $order->shipping->courier ?? '-' }}</p>
                                 </div>
                                 <div>
-                                    <p class="text-gray-600">Biaya Pengiriman</p>
-                                    <p class="font-medium text-gray-900">Rp{{ number_format($order->shipping->cost, 0, ',', '.') }}</p>
+                                    <p class="text-gray-600">Status</p>
+                                    <p class="font-medium text-gray-900">{{ $shippingStatuses[$order->shipping->status] ?? $order->shipping->status }}</p>
                                 </div>
-                                <div class="col-span-2">
+                                <div class="md:col-span-2">
                                     <p class="text-gray-600">Nomor Resi</p>
                                     <p class="font-medium text-gray-900">{{ $order->shipping->tracking_number ?? '-' }}</p>
                                 </div>
-                                @if($order->shipping->estimated_delivery)
-                                    <div class="col-span-2">
-                                        <p class="text-gray-600">Estimasi Tiba</p>
-                                        <p class="font-medium text-gray-900">{{ $order->shipping->estimated_delivery->format('d M Y') }}</p>
-                                    </div>
-                                @endif
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2 mb-4">
+                            <button type="button" id="shippingEditToggleButton" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-medium transition" onclick="toggleShippingEditForm()">
+                                Edit Data Pengiriman
+                            </button>
+                            @if($order->shipping->tracking_number)
+                                <a href="{{ route('admin.orders.print-receipt', $order->id) }}" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                                    Print Resi
+                                </a>
+                            @endif
+                        </div>
+
+                        <form id="shippingEditForm" action="{{ route('admin.orders.updateShippingStatus', $order->id) }}" method="POST" class="hidden border border-gray-200 rounded-lg p-4">
+                            @csrf
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Kurir</label>
+                                    <input type="text" name="courier" value="{{ old('courier', $order->shipping->courier_name ?? $order->shipping->courier) }}"
+                                           placeholder="Contoh: JNE, POS, TIKI"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Status Pengiriman (Opsional)</label>
+                                    <select name="shipping_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                        <option value="">Otomatis: Dalam Perjalanan saat resi diisi</option>
+                                        <option value="out_for_delivery" @selected(old('shipping_status', $order->shipping->status) === 'out_for_delivery')>Sedang Diantar</option>
+                                        <option value="delivered" @selected(old('shipping_status', $order->shipping->status) === 'delivered')>Terkirim</option>
+                                        <option value="failed" @selected(old('shipping_status', $order->shipping->status) === 'failed')>Gagal Dikirim</option>
+                                        <option value="returned" @selected(old('shipping_status', $order->shipping->status) === 'returned')>Dikembalikan</option>
+                                    </select>
+                                </div>
                             </div>
 
-                            <!-- Print Receipt Button -->
-                            @if($order->shipping->tracking_number)
-                                <div class="flex gap-2">
-                                    <a href="{{ route('admin.orders.print-receipt', $order->id) }}" 
-                                       target="_blank"
-                                       class="flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">
-                                        🖨️ Print Resi
-                                    </a>
-                                </div>
-                            @endif
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nomor Resi</label>
+                                <input type="text" name="tracking_number" value="{{ old('tracking_number', $order->shipping->tracking_number) }}"
+                                       placeholder="Contoh: JNE1234567890"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 font-mono" required>
+                            </div>
 
-                            @if($order->shipping->status === 'pending')
-                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm">
-                                    <h4 class="font-bold text-gray-900 mb-2">📦 Menunggu Pickup</h4>
-                                    <p class="text-gray-700">Barang belum diambil kurir. Status akan terupdate saat kurir pickup.</p>
-                                </div>
-                            @elseif($order->shipping->status === 'delivered')
-                                <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-sm">
-                                    <h4 class="font-bold text-green-900 mb-2">✓ Barang Terkirim</h4>
-                                    <p class="text-green-800">Barang telah diterima recipient. Order status otomatis berubah ke "Terkirim".</p>
-                                </div>
-                            @elseif($order->shipping->status === 'in_transit')
-                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm">
-                                    <h4 class="font-bold text-blue-900 mb-2">🚛 Dalam Pengiriman</h4>
-                                    <p class="text-blue-800">Barang sedang dalam perjalanan. Order status otomatis berubah ke "Dikirim".</p>
-                                </div>
-                            @endif
-                        </div>
+                            <div class="flex gap-2">
+                                <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                                    Simpan
+                                </button>
+                                <button type="button" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium transition" onclick="hideShippingEditForm()">
+                                    Batal
+                                </button>
+                            </div>
+                        </form>
                     @else
-                        <div class="bg-gray-50 rounded-lg p-4 text-gray-600">
-                            <p>📦 Belum ada data pengiriman untuk order ini.</p>
-                        </div>
+                        <form action="{{ route('admin.orders.updateShippingStatus', $order->id) }}" method="POST" class="border border-gray-200 rounded-lg p-4">
+                            @csrf
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Kurir</label>
+                                    <input type="text" name="courier" value="{{ old('courier') }}" placeholder="Contoh: JNE, POS, TIKI"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Status Pengiriman (Opsional)</label>
+                                    <select name="shipping_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                        <option value="">Otomatis: Dalam Perjalanan saat resi diisi</option>
+                                        <option value="out_for_delivery" @selected(old('shipping_status') === 'out_for_delivery')>Sedang Diantar</option>
+                                        <option value="delivered" @selected(old('shipping_status') === 'delivered')>Terkirim</option>
+                                        <option value="failed" @selected(old('shipping_status') === 'failed')>Gagal Dikirim</option>
+                                        <option value="returned" @selected(old('shipping_status') === 'returned')>Dikembalikan</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nomor Resi</label>
+                                <input type="text" name="tracking_number" value="{{ old('tracking_number') }}" placeholder="Contoh: JNE1234567890"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 font-mono" required>
+                            </div>
+
+                            <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                                Simpan Data Pengiriman
+                            </button>
+
+                            <p class="text-xs text-gray-500 mt-3">Saat resi disimpan, status pengiriman otomatis menjadi Dalam Perjalanan.</p>
+                        </form>
                     @endif
                 </div>
 
@@ -537,5 +456,48 @@
         </form>
     </div>
 </dialog>
+
+<script>
+function toggleShippingEditForm() {
+    const form = document.getElementById('shippingEditForm');
+    const button = document.getElementById('shippingEditToggleButton');
+
+    if (!form || !button) {
+        return;
+    }
+
+    const isHidden = form.classList.contains('hidden');
+    form.classList.toggle('hidden', !isHidden);
+    button.textContent = isHidden ? 'Tutup Edit' : 'Edit Data Pengiriman';
+}
+
+function hideShippingEditForm() {
+    const form = document.getElementById('shippingEditForm');
+    const button = document.getElementById('shippingEditToggleButton');
+
+    if (form) {
+        form.classList.add('hidden');
+    }
+
+    if (button) {
+        button.textContent = 'Edit Data Pengiriman';
+    }
+}
+
+@if($errors->has('courier') || $errors->has('tracking_number') || $errors->has('shipping_status'))
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('shippingEditForm');
+    const button = document.getElementById('shippingEditToggleButton');
+
+    if (form) {
+        form.classList.remove('hidden');
+    }
+
+    if (button) {
+        button.textContent = 'Tutup Edit';
+    }
+});
+@endif
+</script>
 
 @endsection

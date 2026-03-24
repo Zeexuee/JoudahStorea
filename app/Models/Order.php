@@ -21,6 +21,7 @@ class Order extends Model
         'shipping_province',
         'shipping_postal_code',
         'notes',
+        'cancel_reason',
     ];
 
     protected $casts = [

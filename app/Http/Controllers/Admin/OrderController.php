@@ -18,9 +18,23 @@ class OrderController extends Controller
         $query = Order::with('user', 'items.product', 'payment', 'shipping')
             ->orderByDesc('created_at');
 
-        // Filter by status
+        // Filter by order status
         if ($request->has('status') && $request->status) {
             $query->where('status', $request->status);
+        }
+
+        // Filter by payment status
+        if ($request->has('payment_status') && $request->payment_status) {
+            $query->whereHas('payment', function ($paymentQuery) use ($request) {
+                $paymentQuery->where('status', $request->payment_status);
+            });
+        }
+
+        // Filter by shipping status
+        if ($request->has('shipping_status') && $request->shipping_status) {
+            $query->whereHas('shipping', function ($shippingQuery) use ($request) {
+                $shippingQuery->where('status', $request->shipping_status);
+            });
         }
 
         // Search by order number or customer name
@@ -28,12 +42,11 @@ class OrderController extends Controller
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('order_number', 'like', "%$search%")
-                  ->orWhere('shipping_name', 'like', "%$search%")
-                  ->orWhere('shipping_phone', 'like', "%$search%");
+                  ->orWhere('shipping_name', 'like', "%$search%");
             });
         }
 
-        $orders = $query->paginate(20);
+        $orders = $query->paginate(20)->withQueryString();
         $statuses = [
             'pending' => 'Menunggu Pembayaran',
             'processing' => 'Diproses',
@@ -42,7 +55,27 @@ class OrderController extends Controller
             'cancelled' => 'Dibatalkan',
         ];
 
-        return view('admin.orders.index', compact('orders', 'statuses'));
+        $paymentStatuses = [
+            'pending' => 'Menunggu',
+            'processing' => 'Diproses',
+            'completed' => 'Lunas',
+            'failed' => 'Gagal',
+            'expired' => 'Kadaluarsa',
+            'cancelled' => 'Dibatalkan',
+            'refunded' => 'Dikembalikan',
+        ];
+
+        $shippingStatuses = [
+            'pending' => 'Menunggu Pickup',
+            'picked_up' => 'Sudah Diambil',
+            'in_transit' => 'Dalam Perjalanan',
+            'out_for_delivery' => 'Sedang Diantar',
+            'delivered' => 'Terkirim',
+            'failed' => 'Gagal Dikirim',
+            'returned' => 'Dikembalikan',
+        ];
+
+        return view('admin.orders.index', compact('orders', 'statuses', 'paymentStatuses', 'shippingStatuses'));
     }
 
     /**
@@ -64,9 +97,12 @@ class OrderController extends Controller
 
         $paymentStatuses = [
             'pending' => 'Menunggu',
+            'processing' => 'Diproses',
             'completed' => 'Lunas',
             'failed' => 'Gagal',
             'expired' => 'Kadaluarsa',
+            'cancelled' => 'Dibatalkan',
+            'refunded' => 'Dikembalikan',
         ];
 
         $shippingStatuses = [
@@ -105,7 +141,7 @@ class OrderController extends Controller
     public function updatePaymentStatus(Request $request, Order $order)
     {
         $validated = $request->validate([
-            'payment_status' => 'required|in:pending,completed,failed,expired',
+            'payment_status' => 'required|in:pending,processing,completed,failed,expired,cancelled,refunded',
         ]);
 
         $payment = $order->payment;
@@ -114,33 +150,19 @@ class OrderController extends Controller
             $payment = Payment::create([
                 'order_id' => $order->id,
                 'status' => $validated['payment_status'],
+                'paid_at' => $validated['payment_status'] === 'completed' ? now() : null,
             ]);
         } else {
             $payment->update([
                 'status' => $validated['payment_status'],
-            ]);
-        }
-
-        // AUTO UPDATE: Jika pembayaran berhasil, ubah status order menjadi "processing"
-        if ($validated['payment_status'] === 'completed') {
-            $order->update(['status' => 'processing']);
-            logger('Auto-update: Order status changed to processing (payment completed)', [
-                'order_id' => $order->id,
-                'by' => 'admin_payment_update'
-            ]);
-        }
-
-        // AUTO UPDATE: Jika pembayaran gagal, ubah status order menjadi "cancelled"
-        if ($validated['payment_status'] === 'failed') {
-            $order->update(['status' => 'cancelled']);
-            logger('Auto-update: Order status changed to cancelled (payment failed)', [
-                'order_id' => $order->id,
-                'by' => 'admin_payment_update'
+                'paid_at' => $validated['payment_status'] === 'completed'
+                    ? ($payment->paid_at ?? now())
+                    : null,
             ]);
         }
 
         return redirect()->route('admin.orders.show', $order)
-            ->with('success', 'Status pembayaran berhasil diperbarui (order status otomatis diupdate)');
+            ->with('success', 'Status pembayaran berhasil diperbarui. Status pesanan ikut tersinkron otomatis.');
     }
 
     /**
@@ -149,57 +171,37 @@ class OrderController extends Controller
     public function updateShippingStatus(Request $request, Order $order)
     {
         $validated = $request->validate([
-            'shipping_status' => 'required|in:pending,picked_up,in_transit,out_for_delivery,delivered,failed,returned',
-            'tracking_number' => 'nullable|string|max:100',
-            'courier' => 'nullable|string|max:100',
+            'tracking_number' => 'required|string|max:100',
+            'courier' => 'required|string|max:100',
+            'shipping_status' => 'nullable|in:pending,picked_up,in_transit,out_for_delivery,delivered,failed,returned',
         ]);
+
+        $trackingNumber = trim((string) $validated['tracking_number']);
+        $courier = trim((string) $validated['courier']);
+
+        // Default flow: once tracking number is entered, shipment is considered in transit.
+        $resolvedShippingStatus = $validated['shipping_status']
+            ?? ($trackingNumber !== '' ? 'in_transit' : ($order->shipping?->status ?? 'pending'));
+
+        $payload = [
+            'status' => $resolvedShippingStatus,
+            'tracking_number' => $trackingNumber,
+            'courier' => $courier,
+            'courier_name' => $courier,
+        ];
 
         $shipping = $order->shipping;
 
         if (!$shipping) {
-            $shipping = Shipping::create([
+            Shipping::create(array_merge($payload, [
                 'order_id' => $order->id,
-                'status' => $validated['shipping_status'],
-                'tracking_number' => $validated['tracking_number'] ?? null,
-                'courier' => $validated['courier'] ?? null,
-            ]);
+            ]));
         } else {
-            $shipping->update([
-                'status' => $validated['shipping_status'],
-                'tracking_number' => $validated['tracking_number'] ?? $shipping->tracking_number,
-                'courier' => $validated['courier'] ?? $shipping->courier,
-            ]);
-        }
-
-        // AUTO UPDATE: Update order status berdasarkan shipping status
-        if ($validated['shipping_status'] === 'picked_up') {
-            $order->update(['status' => 'processing']);
-            logger('Auto-update: Order status changed to processing (shipping picked up)', [
-                'order_id' => $order->id,
-                'by' => 'admin_shipping_update'
-            ]);
-        } elseif ($validated['shipping_status'] === 'in_transit' || $validated['shipping_status'] === 'out_for_delivery') {
-            $order->update(['status' => 'shipped']);
-            logger('Auto-update: Order status changed to shipped (in transit)', [
-                'order_id' => $order->id,
-                'by' => 'admin_shipping_update'
-            ]);
-        } elseif ($validated['shipping_status'] === 'delivered') {
-            $order->update(['status' => 'delivered']);
-            logger('Auto-update: Order status changed to delivered', [
-                'order_id' => $order->id,
-                'by' => 'admin_shipping_update'
-            ]);
-        } elseif ($validated['shipping_status'] === 'failed' || $validated['shipping_status'] === 'returned') {
-            $order->update(['status' => 'cancelled']);
-            logger('Auto-update: Order status changed to cancelled (shipping failed/returned)', [
-                'order_id' => $order->id,
-                'by' => 'admin_shipping_update'
-            ]);
+            $shipping->update($payload);
         }
 
         return redirect()->route('admin.orders.show', $order)
-            ->with('success', 'Status pengiriman berhasil diperbarui (order status otomatis diupdate)');
+            ->with('success', 'Data pengiriman berhasil disimpan. Status otomatis diperbarui sesuai alur pengiriman.');
     }
 
     /**

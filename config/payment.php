@@ -3,7 +3,7 @@
 return [
     /**
      * Active payment gateway
-     * Options: 'mock' (testing/development), 'mindtrans' (production)
+     * Options: 'mock' (testing/development), 'mindtrans' (Midtrans production)
      */
     'gateway' => env('PAYMENT_GATEWAY', 'mock'),
 
@@ -17,27 +17,34 @@ return [
     ],
 
     /**
-     * MindTrans Payment Service
-     * Official gateway for production
-     * Sign up: https://mindtrans.co.id
+     * Midtrans Payment Service (Snap API)
+     * Official Indonesian payment gateway
+     * Sign up: https://midtrans.com
+     * Dashboard Sandbox: https://dashboard.sandbox.midtrans.com
+     * Dashboard Production: https://dashboard.midtrans.com
+     * Documentation: https://docs.midtrans.com
      */
     'mindtrans' => [
         'enabled' => !empty(env('MINDTRANS_API_KEY')),
-        'api_key' => env('MINDTRANS_API_KEY'),
-        'api_secret' => env('MINDTRANS_API_SECRET'),
-        'merchant_id' => env('MINDTRANS_MERCHANT_ID'),
-        'mode' => env('MINDTRANS_MODE', 'sandbox'),
-        'base_url' => env('MINDTRANS_MODE', 'sandbox') === 'production'
-            ? 'https://api.mindtrans.co.id/v1'
-            : 'https://sandbox.mindtrans.co.id/v1',
+        'api_key' => env('MINDTRANS_API_KEY'), // Server Key from Dashboard
+        'api_secret' => env('MINDTRANS_API_SECRET'), // Client Key from Dashboard (optional for backend)
+        'mode' => env('MINDTRANS_MODE', 'sandbox'), // 'sandbox' or 'production'
         'callback_url' => env('APP_URL') . '/payment/callback/mindtrans',
         'supported_payment_methods' => [
+            'credit_card',
             'bank_transfer',
-            'qris',
+            'cimb_clicks',
+            'bca_klikbca',
+            'bca_klikpay',
+            'bri_epay',
+            'echannel',
+            'mandiri_clickpay',
             'gopay',
-            'ovo',
-            'dana',
-            'linking',
+            'shopeepay',
+            'qris',
+            'indomaret',
+            'alfamart',
+            'akulaku',
         ],
     ],
 

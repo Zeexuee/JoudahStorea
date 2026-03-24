@@ -22,9 +22,10 @@ class MockPaymentService
      * Create payment request (Mock)
      * @param Payment $payment
      * @param array $itemDetails
+     * @param string|null $paymentMethod User's chosen payment method (ignored in mock)
      * @return array
      */
-    public function createPayment(Payment $payment, $itemDetails = [])
+    public function createPayment(Payment $payment, $itemDetails = [], $paymentMethod = null)
     {
         $externalId = $this->generateExternalId($payment->order_id);
         $amount = (int)$payment->amount;

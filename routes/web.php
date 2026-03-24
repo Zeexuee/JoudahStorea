@@ -70,6 +70,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/checkout/shipping-costs', [CheckoutController::class, 'getShippingCosts'])->name('checkout.getShippingCosts');
 
     // Payment routes (with numeric constraint to avoid catching verify-mock)
+    Route::get('/payment/custom/{payment}', [PaymentController::class, 'showCustom'])->name('payment.custom');
+    Route::post('/payment/custom/{payment}/process', [PaymentController::class, 'processCustom'])->name('payment.custom.process');
+    Route::get('/payment/check-status/{payment}', [PaymentController::class, 'checkPaymentStatus'])->name('payment.checkPaymentStatus');
     Route::get('/payment/{order}', [PaymentController::class, 'show'])->where('order', '[0-9]+')->name('payment.show');
     Route::post('/payment/{order}/process', [PaymentController::class, 'process'])->where('order', '[0-9]+')->name('payment.process');
     Route::get('/payment/{order}/verify', [PaymentController::class, 'verify'])->where('order', '[0-9]+')->name('payment.verify');

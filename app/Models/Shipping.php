@@ -42,29 +42,49 @@ class Shipping extends Model
     {
         parent::boot();
 
+        static::created(function ($shipping) {
+            $shipping->syncOrderStatusFromShipping('shipping_model_observer_create');
+        });
+
         static::updated(function ($shipping) {
-            // Auto-update order status based on shipping status changes
             if ($shipping->wasChanged('status')) {
-                $newStatus = $shipping->status;
-
-                $orderStatus = match($newStatus) {
-                    'picked_up' => 'processing',
-                    'in_transit', 'out_for_delivery' => 'shipped',
-                    'delivered' => 'delivered',
-                    'failed', 'returned' => 'cancelled',
-                    default => $shipping->order->status,
-                };
-
-                if ($orderStatus !== $shipping->order->status) {
-                    $shipping->order->update(['status' => $orderStatus]);
-                    logger('Auto-update: Order status changed to ' . $orderStatus . ' (shipping: ' . $newStatus . ')', [
-                        'order_id' => $shipping->order_id,
-                        'shipping_id' => $shipping->id,
-                        'by' => 'shipping_model_observer'
-                    ]);
-                }
+                $shipping->syncOrderStatusFromShipping('shipping_model_observer_update');
             }
         });
+    }
+
+    /**
+     * Keep order status synchronized with shipping status.
+     */
+    private function syncOrderStatusFromShipping(string $source): void
+    {
+        $order = $this->order;
+
+        if (!$order) {
+            return;
+        }
+
+        $orderStatus = match($this->status) {
+            'picked_up' => 'processing',
+            'in_transit', 'out_for_delivery' => 'shipped',
+            'delivered' => 'delivered',
+            'failed', 'returned' => 'cancelled',
+            default => $order->status,
+        };
+
+        if ($orderStatus === $order->status) {
+            return;
+        }
+
+        $order->update(['status' => $orderStatus]);
+
+        logger('Auto-update: Order status changed from shipping state', [
+            'order_id' => $this->order_id,
+            'shipping_id' => $this->id,
+            'shipping_status' => $this->status,
+            'order_status' => $orderStatus,
+            'by' => $source,
+        ]);
     }
 
     /**

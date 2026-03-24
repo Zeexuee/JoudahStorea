@@ -70,7 +70,7 @@
                                     <div class="space-y-3">
                                         @foreach ($order->items as $item)
                                             <div class="flex items-start gap-4">
-                                                @if($item->product->images && count($item->product->images) > 0)
+                                                @if($item->product && $item->product->images && count($item->product->images) > 0)
                                                     <div class="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
                                                         <img src="{{ asset('storage/' . $item->product->images[0]) }}" alt="{{ $item->product->name }}"
                                                             class="w-full h-full object-cover">
@@ -81,7 +81,9 @@
                                                     </div>
                                                 @endif
                                                 <div class="flex-1">
-                                                    <h4 class="font-medium text-gray-900">{{ $item->product->name }}</h4>
+                                                    <h4 class="font-medium text-gray-900">
+                                                        {{ $item->product ? $item->product->name : '[Produk Dihapus]' }}
+                                                    </h4>
                                                     <p class="text-gray-600 text-sm">
                                                         {{ $item->quantity }}x × Rp{{ number_format($item->price, 0, ',', '.') }}
                                                     </p>

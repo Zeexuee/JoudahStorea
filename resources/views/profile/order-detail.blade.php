@@ -56,6 +56,10 @@
                                 <span class="text-red-600">{{ $order->payment->status_label }}</span>
                             @elseif($order->payment->status === 'expired')
                                 <span class="text-red-600">{{ $order->payment->status_label }}</span>
+                            @elseif($order->payment->status === 'cancelled')
+                                <span class="text-red-600">{{ $order->payment->status_label }}</span>
+                            @elseif($order->payment->status === 'refunded')
+                                <span class="text-orange-600">{{ $order->payment->status_label }}</span>
                             @else
                                 <span class="text-gray-600">{{ $order->payment->status_label }}</span>
                             @endif
@@ -154,6 +158,8 @@
                                     @elseif($order->payment->status === 'processing') bg-blue-100 text-blue-800
                                     @elseif($order->payment->status === 'completed') bg-green-100 text-green-800
                                     @elseif($order->payment->status === 'failed') bg-red-100 text-red-800
+                                    @elseif($order->payment->status === 'cancelled') bg-red-100 text-red-800
+                                    @elseif($order->payment->status === 'refunded') bg-orange-100 text-orange-800
                                     @else bg-gray-100 text-gray-800
                                     @endif">
                                     {{ $order->payment->status_label }}
