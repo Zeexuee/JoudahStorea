@@ -80,19 +80,31 @@ class PaymentController extends Controller
             // Create payment using configured payment service
             $result = $this->paymentService->createPayment($payment, $this->prepareItemDetails($order));
 
-            if ($result['success']) {
-                // Return view with snap_token for embedded Snap
-                return view('payment.embedded', [
-                    'order' => $order,
-                    'payment' => $payment,
-                    'snapToken' => $result['snap_token'],
-                    'amount' => $payment->amount,
-                    'returnToUrl' => $returnTo['url'],
-                    'returnToLabel' => $returnTo['label'],
-                ]);
-            } else {
-                return back()->with('error', 'Gagal membuat pembayaran: ' . $result['error']);
+            if (!empty($result['success'])) {
+                $snapToken = $result['snap_token'] ?? null;
+                $checkoutUrl = $result['checkout_url'] ?? null;
+
+                if (!empty($snapToken)) {
+                    // Midtrans Snap embedded flow.
+                    return view('payment.embedded', [
+                        'order' => $order,
+                        'payment' => $payment,
+                        'snapToken' => $snapToken,
+                        'amount' => $payment->amount,
+                        'returnToUrl' => $returnTo['url'],
+                        'returnToLabel' => $returnTo['label'],
+                    ]);
+                }
+
+                if (!empty($checkoutUrl)) {
+                    // Fallback for non-Snap-token gateways (e.g. mock/direct URL).
+                    return redirect()->to($checkoutUrl);
+                }
+
+                return back()->with('error', 'Gagal membuat pembayaran: respon gateway tidak lengkap (snap token / checkout URL tidak tersedia).');
             }
+
+            return back()->with('error', 'Gagal membuat pembayaran: ' . ($result['error'] ?? 'unknown error'));
         } catch (\Exception $e) {
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
