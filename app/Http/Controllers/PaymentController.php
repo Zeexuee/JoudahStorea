@@ -391,6 +391,37 @@ class PaymentController extends Controller
             ];
         }
 
+        $shippingCost = (int) optional($order->shipping)->cost;
+        $adminFee = 3000;
+        $paymentGatewayFee = max(0, (int) $order->total_price - $subtotal - $shippingCost - $adminFee);
+
+        if ($shippingCost > 0) {
+            $items[] = [
+                'id' => 'shipping',
+                'name' => 'Biaya Pengiriman',
+                'price' => $shippingCost,
+                'quantity' => 1,
+            ];
+        }
+
+        if ($adminFee > 0) {
+            $items[] = [
+                'id' => 'admin_fee',
+                'name' => 'Biaya Administratif',
+                'price' => $adminFee,
+                'quantity' => 1,
+            ];
+        }
+
+        if ($paymentGatewayFee > 0) {
+            $items[] = [
+                'id' => 'payment_gateway_fee',
+                'name' => 'Biaya Payment Gateway',
+                'price' => $paymentGatewayFee,
+                'quantity' => 1,
+            ];
+        }
+
         return $items;
     }
 

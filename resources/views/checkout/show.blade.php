@@ -226,7 +226,7 @@
                         <input type="hidden" id="courier" name="courier">
                         <input type="hidden" id="service" name="service">
                         <input type="hidden" id="shipping_cost" name="shipping_cost" value="">
-                        <input type="hidden" id="admin_fee" name="admin_fee" value="">
+                        <input type="hidden" id="admin_fee" name="admin_fee" value="3000">
 
                         @error('courier')
                             <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
@@ -280,7 +280,7 @@
                         </div>
                         <div class="flex justify-between text-gray-700">
                             <span>Biaya Administratif</span>
-                            <span id="displayAdminFee" class="font-medium">Rp0</span>
+                            <span id="displayAdminFee" class="font-medium">Rp3.000</span>
                         </div>
                         <div class="flex justify-between text-gray-700">
                             <span>Biaya Payment Gateway</span>
@@ -473,8 +473,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateTotal() {
         const subtotal = {{ $subtotal }};
         const shippingCost = parseInt(document.getElementById('shipping_cost').value) || 0;
-        const adminFee = parseInt(document.getElementById('admin_fee').value) || 0;
-        const paymentGatewayFee = 0;
+        const adminFee = 3000;
+        const paymentGatewayFee = subtotal < 1000000
+            ? 5000
+            : Math.round(subtotal * 0.025);
+
+        document.getElementById('admin_fee').value = adminFee;
         
         const total = subtotal + shippingCost + adminFee + paymentGatewayFee;
 

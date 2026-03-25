@@ -175,7 +175,7 @@ class CheckoutController extends Controller
             'courier' => 'required|string',
             'service' => 'required|string',
             'shipping_cost' => 'required|integer|min:0',
-            'admin_fee' => 'required|integer|min:0',
+            'admin_fee' => 'nullable|integer|min:0',
             'notes' => 'nullable|string|max:500',
         ]);
 
@@ -207,8 +207,10 @@ class CheckoutController extends Controller
 
             // Calculate fees
             $shippingCost = (int) $validated['shipping_cost'];
-            $adminFee = (int) $validated['admin_fee'];
-            $paymentGatewayFee = 0;
+            $adminFee = 3000;
+            $paymentGatewayFee = $subtotal < 1000000
+                ? 5000
+                : (int) round($subtotal * 0.025);
             
             // Calculate total
             $total = $subtotal + $shippingCost + $adminFee + $paymentGatewayFee;
@@ -323,6 +325,37 @@ class CheckoutController extends Controller
                 'name' => $orderItem->product->name,
                 'price' => (int)$orderItem->price,
                 'quantity' => (int)$orderItem->quantity,
+            ];
+        }
+
+        $shippingCost = (int) optional($order->shipping)->cost;
+        $adminFee = 3000;
+        $paymentGatewayFee = max(0, (int) $order->total_price - $subtotal - $shippingCost - $adminFee);
+
+        if ($shippingCost > 0) {
+            $items[] = [
+                'id' => 'shipping',
+                'name' => 'Biaya Pengiriman',
+                'price' => $shippingCost,
+                'quantity' => 1,
+            ];
+        }
+
+        if ($adminFee > 0) {
+            $items[] = [
+                'id' => 'admin_fee',
+                'name' => 'Biaya Administratif',
+                'price' => $adminFee,
+                'quantity' => 1,
+            ];
+        }
+
+        if ($paymentGatewayFee > 0) {
+            $items[] = [
+                'id' => 'payment_gateway_fee',
+                'name' => 'Biaya Payment Gateway',
+                'price' => $paymentGatewayFee,
+                'quantity' => 1,
             ];
         }
 
