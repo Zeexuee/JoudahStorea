@@ -32,8 +32,11 @@ class CheckoutController extends Controller
      */
     private function getPaymentService()
     {
-        return match($this->activeGateway) {
+        $gateway = strtolower((string) $this->activeGateway);
+
+        return match($gateway) {
             'mock' => new MockPaymentService(),
+            'midtrans',
             'mindtrans' => new MindtransPaymentService(),
             'doku' => new DokuPaymentService(),
             default => new MockPaymentService(), // Fallback to mock
