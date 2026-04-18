@@ -67,7 +67,7 @@
                         <div class="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
                             <i class="fas fa-check-circle text-green-600 text-5xl mb-4"></i>
                             <h3 class="text-xl font-bold text-green-900 mb-2">Pembayaran Berhasil!</h3>
-                            <p class="text-green-700 mb-4">Terima kasih atas pembayaran Anda. Pesanan Anda sedang diproses.</p>
+                            <p class="text-green-700 mb-4">Terima kasih atas pembayaran Anda. Status pesanan Anda sekarang: Sudah Dibayar.</p>
                             <a href="{{ route('orders.show', $order) }}" class="inline-block px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium">
                                 Lihat Detail Pesanan
                             </a>

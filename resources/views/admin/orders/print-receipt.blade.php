@@ -399,7 +399,7 @@
                         @php
                             $statuses = [
                                 'pending' => 'Menunggu Pembayaran',
-                                'processing' => 'Diproses',
+                                'processing' => 'Sudah Dibayar',
                                 'shipped' => 'Dikirim',
                                 'delivered' => 'Terima',
                                 'cancelled' => 'Dibatalkan'

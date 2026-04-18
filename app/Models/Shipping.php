@@ -23,6 +23,8 @@ class Shipping extends Model
         'status',
         'estimated_delivery',
         'actual_delivery',
+        'reminder_last_sent_at',
+        'reminder_sent_count',
         'notes',
     ];
 
@@ -31,6 +33,8 @@ class Shipping extends Model
         'weight' => 'integer',
         'estimated_delivery' => 'datetime',
         'actual_delivery' => 'datetime',
+        'reminder_last_sent_at' => 'datetime',
+        'reminder_sent_count' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

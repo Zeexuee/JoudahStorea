@@ -521,7 +521,7 @@ class PaymentController extends Controller
                 $order->refresh();
 
                 return redirect()->route('orders.show', $order)
-                    ->with('success', '✓ Pembayaran berhasil disetujui (Test Mode) - Status pesanan otomatis berubah ke "Diproses"');
+                    ->with('success', '✓ Pembayaran berhasil disetujui (Test Mode) - Status pesanan otomatis berubah ke "Sudah Dibayar"');
             } elseif ($status === 'cancelled') {
                 // Mark payment as cancelled
                 $payment->update([

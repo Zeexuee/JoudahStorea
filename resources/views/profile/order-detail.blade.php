@@ -259,6 +259,24 @@
                                     <p class="text-gray-900">{{ $order->shipping->estimated_delivery->locale('id')->translatedFormat('d F Y') }}</p>
                                 </div>
                             @endif
+
+                            @if($order->status === 'shipped')
+                                <div class="pt-2 border-t border-gray-200">
+                                    <form method="POST" action="{{ route('orders.confirmDelivered', $order) }}" onsubmit="return confirm('Konfirmasi bahwa barang sudah sampai?')">
+                                        @csrf
+                                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition">
+                                            Konfirmasi Barang Sudah Sampai
+                                        </button>
+                                    </form>
+                                </div>
+                            @elseif($order->status === 'delivered')
+                                <div class="pt-2 border-t border-gray-200 text-xs text-gray-600">
+                                    Dikonfirmasi diterima oleh {{ $order->delivered_confirmed_by === 'admin' ? 'admin' : 'user' }}
+                                    @if($order->delivered_confirmed_at)
+                                        pada {{ $order->delivered_confirmed_at->locale('id')->translatedFormat('d F Y H:i') }}
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @endif
@@ -317,8 +335,8 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <p class="font-medium text-gray-900">Pesanan Diproses</p>
-                                        <p class="text-sm text-gray-600">Dalam proses</p>
+                                        <p class="font-medium text-gray-900">Sudah Dibayar</p>
+                                        <p class="text-sm text-gray-600">Pembayaran tervalidasi</p>
                                     </div>
                                 </div>
                             @else
@@ -327,7 +345,7 @@
                                         <div class="w-8 h-8 bg-gray-300 rounded-full"></div>
                                     </div>
                                     <div>
-                                        <p class="font-medium text-gray-600">Pesanan Diproses</p>
+                                        <p class="font-medium text-gray-600">Sudah Dibayar</p>
                                         <p class="text-sm text-gray-500">Menunggu</p>
                                     </div>
                                 </div>

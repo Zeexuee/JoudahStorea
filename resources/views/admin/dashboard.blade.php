@@ -75,7 +75,7 @@
         <!-- Detailed Stats Row -->
         <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
             <div class="bg-white rounded-lg shadow p-4 text-center">
-                <p class="text-gray-600 text-sm">Diproses</p>
+                <p class="text-gray-600 text-sm">Sudah Dibayar</p>
                 <p class="text-2xl font-bold text-blue-600">{{ $stats['processing_orders'] }}</p>
             </div>
             <div class="bg-white rounded-lg shadow p-4 text-center">
@@ -149,7 +149,7 @@
                                         ];
                                         $labels = [
                                             'pending' => 'Menunggu Pembayaran',
-                                            'processing' => 'Diproses',
+                                            'processing' => 'Sudah Dibayar',
                                             'shipped' => 'Dikirim',
                                             'delivered' => 'Terkirim',
                                             'cancelled' => 'Dibatalkan',

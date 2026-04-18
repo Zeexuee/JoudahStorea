@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Order;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Http;
 
@@ -22,7 +23,12 @@ class FonteNotificationService
 
     public function isReady(): bool
     {
-        return $this->enabled && !empty($this->token) && !empty($this->normalizePhone($this->adminPhone));
+        return $this->isTokenReady() && !empty($this->normalizePhone($this->adminPhone));
+    }
+
+    public function isTokenReady(): bool
+    {
+        return $this->enabled && !empty($this->token);
     }
 
     public function notifyAdminPaymentCompleted(Payment $payment): array
@@ -46,6 +52,82 @@ class FonteNotificationService
 
         $message = $this->buildAdminPaymentMessage($payment);
 
+        return $this->sendMessageToPhone($target, $message);
+    }
+
+    public function notifyUserDeliveryReminder(Order $order, ?string $confirmationUrl, bool $isFollowUp = false): array
+    {
+        if (!$this->isTokenReady()) {
+            return [
+                'success' => false,
+                'message' => 'Fonte notification is not configured',
+            ];
+        }
+
+        $target = $this->normalizePhone($order->shipping_phone ?: $order->user?->phone);
+
+        if (!$target) {
+            return [
+                'success' => false,
+                'message' => 'User phone is missing',
+            ];
+        }
+
+        $shipping = $order->shipping;
+        $messageLines = [
+            $isFollowUp ? 'Pengingat konfirmasi pesanan.' : 'Pesanan Anda sedang dalam pengiriman.',
+            '',
+            'Order: ' . ($order->order_number ?? '-'),
+            'Kurir: ' . ($shipping?->courier_name ?? '-'),
+            'Resi: ' . ($shipping?->tracking_number ?? '-'),
+            'Estimasi tiba: ' . (($shipping?->estimated_delivery)?->format('d-m-Y') ?? '-'),
+        ];
+
+        if ($isFollowUp && !empty($confirmationUrl)) {
+            $messageLines = array_merge($messageLines, [
+                '',
+                'Klik tautan berikut untuk langsung mengonfirmasi barang sudah sampai:',
+                $confirmationUrl,
+            ]);
+        }
+
+        $message = implode("\n", $messageLines);
+
+        return $this->sendMessageToPhone($target, $message);
+    }
+
+    public function sendOtpToPhone(string $phone, string $otpCode): array
+    {
+        if (!$this->isTokenReady()) {
+            return [
+                'success' => false,
+                'message' => 'Fonte notification is not configured',
+            ];
+        }
+
+        $target = $this->normalizePhone($phone);
+
+        if (!$target) {
+            return [
+                'success' => false,
+                'message' => 'User phone is missing',
+            ];
+        }
+
+        $message = implode("\n", [
+            'Kode OTP verifikasi akun Anda:',
+            $otpCode,
+            '',
+            'Kode berlaku selama 10 menit.',
+            'Jangan bagikan kode ini ke siapa pun.',
+        ]);
+
+        return $this->sendMessageToPhone($target, $message);
+    }
+
+    private function sendMessageToPhone(string $target, string $message): array
+    {
+
         $response = Http::withHeaders([
             'Authorization' => (string) $this->token,
         ])->post($this->baseUrl . '/send', [
@@ -54,17 +136,21 @@ class FonteNotificationService
             'countryCode' => '62',
         ]);
 
-        if ($response->successful()) {
+        $responseData = $response->json() ?? [];
+        $fonteStatus = $responseData['status'] ?? null;
+
+        if ($response->successful() && $fonteStatus === true) {
             return [
                 'success' => true,
-                'response' => $response->json(),
+                'response' => $responseData,
             ];
         }
 
         return [
             'success' => false,
-            'message' => $response->body(),
+            'message' => $responseData['reason'] ?? $response->body(),
             'status' => $response->status(),
+            'response' => $responseData,
         ];
     }
 

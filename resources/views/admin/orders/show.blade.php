@@ -17,7 +17,7 @@
                 <div class="flex gap-3">
                     @if(in_array($order->status, ['pending', 'processing']))
                         <button onclick="document.getElementById('cancelModal').showModal()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition">
-                            🗑️ Batalkan Pesanan
+                            Batalkan Pesanan
                         </button>
                     @endif
                     <a href="{{ route('admin.orders.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-900 px-6 py-2 rounded-lg font-medium transition">
@@ -40,9 +40,6 @@
                 <div class="bg-white rounded-lg shadow p-6">
                     <h2 class="text-lg font-bold text-gray-900 mb-4">Status Pesanan</h2>
                     @if($order->payment?->status === 'completed')
-                        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4 text-sm">
-                            <p class="text-green-800"><strong>✓ Status otomatis ter-perbarui</strong> karena pembayaran sudah berhasil. Admin tidak dapat mengubah status secara manual untuk order yang sudah dibayar.</p>
-                        </div>
                         <div class="bg-gray-100 rounded-lg p-4">
                             <p class="text-gray-600 text-sm mb-2">Status Pesanan Saat Ini</p>
                             <p class="font-bold text-gray-900 text-lg">{{ $statuses[$order->status] ?? $order->status }}</p>
@@ -75,9 +72,6 @@
                 <!-- Payment Status -->
                 <div class="bg-white rounded-lg shadow p-6">
                     <h2 class="text-lg font-bold text-gray-900 mb-4">Status Pembayaran</h2>
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 text-sm">
-                        <p class="text-blue-800"><strong>ℹ️ Auto-Update Enabled</strong> - Status pembayaran dikelola sistem secara otomatis. Admin tidak bisa mengubah status secara manual.</p>
-                    </div>
 
                     @if($order->payment)
                         <div class="space-y-4">
@@ -131,34 +125,6 @@
                                 </div>
                             </div>
 
-                            <!-- Auto-Update Info -->
-                            @if($order->payment->status === 'pending')
-                                <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm">
-                                    <h4 class="font-bold text-amber-900 mb-2">⏳ Menunggu Pembayaran</h4>
-                                    <p class="text-amber-800 mb-2">Customer perlu menyelesaikan pembayaran di payment gateway. Status akan otomatis terupdate ketika pembayaran berhasil.</p>
-                                    <p class="text-amber-700 text-xs">Sistem akan automatically set order status ke "Diproses" saat pembayaran confirmed.</p>
-                                </div>
-                            @elseif($order->payment->status === 'completed')
-                                <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-sm">
-                                    <h4 class="font-bold text-green-900 mb-2">✓ Pembayaran Berhasil</h4>
-                                    <p class="text-green-800">Pembayaran telah confirmed pada {{ $order->payment->paid_at?->format('d M Y H:i') }}. Order status otomatis berubah ke "Diproses".</p>
-                                </div>
-                            @elseif($order->payment->status === 'failed')
-                                <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-sm">
-                                    <h4 class="font-bold text-red-900 mb-2">✗ Pembayaran Gagal</h4>
-                                    <p class="text-red-800">Pembayaran gagal diproses. Order status otomatis set ke "Dibatalkan".</p>
-                                </div>
-                            @elseif($order->payment->status === 'expired' || $order->payment->status === 'cancelled')
-                                <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-sm">
-                                    <h4 class="font-bold text-red-900 mb-2">⏱ Pembayaran Tidak Selesai</h4>
-                                    <p class="text-red-800">Pembayaran berakhir/terbatal. Order status otomatis set ke "Dibatalkan".</p>
-                                </div>
-                            @elseif($order->payment->status === 'refunded')
-                                <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 text-sm">
-                                    <h4 class="font-bold text-orange-900 mb-2">↩️ Dana Dikembalikan</h4>
-                                    <p class="text-orange-800">Pembayaran sudah direfund. Status order disesuaikan sebagai dibatalkan.</p>
-                                </div>
-                            @endif
                         </div>
                     @else
                         <div class="bg-gray-50 rounded-lg p-4 text-gray-600">
@@ -193,31 +159,37 @@
                             <button type="button" id="shippingEditToggleButton" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-medium transition" onclick="toggleShippingEditForm()">
                                 Edit Data Pengiriman
                             </button>
-                            @if($order->shipping->tracking_number)
-                                <a href="{{ route('admin.orders.print-receipt', $order->id) }}" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition">
-                                    Print Resi
-                                </a>
+                            @if($order->status !== 'delivered')
+                                <form method="POST" action="{{ route('admin.orders.confirmDelivered', $order) }}" onsubmit="return confirm('Konfirmasi pesanan sudah diterima?')">
+                                    @csrf
+                                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                                        Konfirmasi Diterima (Admin)
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ route('admin.orders.sendDeliveryReminder', $order) }}" onsubmit="return confirm('Kirim ulang pengingat WA/email ke user?')">
+                                    @csrf
+                                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition">
+                                        Kirim Reminder WA
+                                    </button>
+                                </form>
                             @endif
                         </div>
 
+                        @if($order->status === 'delivered' && $order->delivered_confirmed_at)
+                            <p class="text-xs text-gray-600 mb-4">
+                                Dikonfirmasi diterima oleh {{ $order->delivered_confirmed_by === 'admin' ? 'admin' : 'user' }}
+                                pada {{ $order->delivered_confirmed_at->format('d M Y H:i') }}.
+                            </p>
+                        @endif
+
                         <form id="shippingEditForm" action="{{ route('admin.orders.updateShippingStatus', $order->id) }}" method="POST" class="hidden border border-gray-200 rounded-lg p-4">
                             @csrf
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div class="grid grid-cols-1 gap-4 mb-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Kurir</label>
                                     <input type="text" name="courier" value="{{ old('courier', $order->shipping->courier_name ?? $order->shipping->courier) }}"
                                            placeholder="Contoh: JNE, POS, TIKI"
                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" required>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Status Pengiriman (Opsional)</label>
-                                    <select name="shipping_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
-                                        <option value="">Otomatis: Dalam Perjalanan saat resi diisi</option>
-                                        <option value="out_for_delivery" @selected(old('shipping_status', $order->shipping->status) === 'out_for_delivery')>Sedang Diantar</option>
-                                        <option value="delivered" @selected(old('shipping_status', $order->shipping->status) === 'delivered')>Terkirim</option>
-                                        <option value="failed" @selected(old('shipping_status', $order->shipping->status) === 'failed')>Gagal Dikirim</option>
-                                        <option value="returned" @selected(old('shipping_status', $order->shipping->status) === 'returned')>Dikembalikan</option>
-                                    </select>
                                 </div>
                             </div>
 
@@ -240,21 +212,11 @@
                     @else
                         <form action="{{ route('admin.orders.updateShippingStatus', $order->id) }}" method="POST" class="border border-gray-200 rounded-lg p-4">
                             @csrf
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div class="grid grid-cols-1 gap-4 mb-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Kurir</label>
                                     <input type="text" name="courier" value="{{ old('courier') }}" placeholder="Contoh: JNE, POS, TIKI"
                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" required>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Status Pengiriman (Opsional)</label>
-                                    <select name="shipping_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
-                                        <option value="">Otomatis: Dalam Perjalanan saat resi diisi</option>
-                                        <option value="out_for_delivery" @selected(old('shipping_status') === 'out_for_delivery')>Sedang Diantar</option>
-                                        <option value="delivered" @selected(old('shipping_status') === 'delivered')>Terkirim</option>
-                                        <option value="failed" @selected(old('shipping_status') === 'failed')>Gagal Dikirim</option>
-                                        <option value="returned" @selected(old('shipping_status') === 'returned')>Dikembalikan</option>
-                                    </select>
                                 </div>
                             </div>
 
@@ -268,7 +230,7 @@
                                 Simpan Data Pengiriman
                             </button>
 
-                            <p class="text-xs text-gray-500 mt-3">Saat resi disimpan, status pengiriman otomatis menjadi Dalam Perjalanan.</p>
+                            <p class="text-xs text-gray-500 mt-3">Saat resi disimpan, status pesanan otomatis menjadi Dikirim.</p>
                         </form>
                     @endif
                 </div>

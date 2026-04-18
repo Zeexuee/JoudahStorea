@@ -22,10 +22,13 @@ class Order extends Model
         'shipping_postal_code',
         'notes',
         'cancel_reason',
+        'delivered_confirmed_at',
+        'delivered_confirmed_by',
     ];
 
     protected $casts = [
         'total_price' => 'integer',
+        'delivered_confirmed_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -72,7 +75,7 @@ class Order extends Model
     {
         return match($this->status) {
             'pending' => 'Menunggu Pembayaran',
-            'processing' => 'Diproses',
+            'processing' => 'Sudah Dibayar',
             'shipped' => 'Dikirim',
             'delivered' => 'Terima',
             'cancelled' => 'Dibatalkan',

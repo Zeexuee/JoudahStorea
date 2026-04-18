@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Shipping;
+use App\Services\DeliveryReminderService;
 
 class OrderController extends Controller
 {
@@ -49,7 +50,7 @@ class OrderController extends Controller
         $orders = $query->paginate(20)->withQueryString();
         $statuses = [
             'pending' => 'Menunggu Pembayaran',
-            'processing' => 'Diproses',
+            'processing' => 'Sudah Dibayar',
             'shipped' => 'Dikirim',
             'delivered' => 'Terima',
             'cancelled' => 'Dibatalkan',
@@ -89,7 +90,7 @@ class OrderController extends Controller
 
         $statuses = [
             'pending' => 'Menunggu Pembayaran',
-            'processing' => 'Diproses',
+            'processing' => 'Sudah Dibayar',
             'shipped' => 'Dikirim',
             'delivered' => 'Terima',
             'cancelled' => 'Dibatalkan',
@@ -173,15 +174,14 @@ class OrderController extends Controller
         $validated = $request->validate([
             'tracking_number' => 'required|string|max:100',
             'courier' => 'required|string|max:100',
-            'shipping_status' => 'nullable|in:pending,picked_up,in_transit,out_for_delivery,delivered,failed,returned',
         ]);
 
         $trackingNumber = trim((string) $validated['tracking_number']);
         $courier = trim((string) $validated['courier']);
 
-        // Default flow: once tracking number is entered, shipment is considered in transit.
-        $resolvedShippingStatus = $validated['shipping_status']
-            ?? ($trackingNumber !== '' ? 'in_transit' : ($order->shipping?->status ?? 'pending'));
+        // Once tracking number is entered by admin, shipment is marked as sent.
+        // Shipping model will sync order status to "shipped" automatically.
+        $resolvedShippingStatus = 'in_transit';
 
         $payload = [
             'status' => $resolvedShippingStatus,
@@ -193,15 +193,70 @@ class OrderController extends Controller
         $shipping = $order->shipping;
 
         if (!$shipping) {
-            Shipping::create(array_merge($payload, [
+            $shipping = Shipping::create(array_merge($payload, [
                 'order_id' => $order->id,
             ]));
         } else {
             $shipping->update($payload);
         }
 
+        // Send immediate reminder once shipment data is available.
+        app(DeliveryReminderService::class)->sendReminder($order->fresh(['user', 'shipping']));
+
         return redirect()->route('admin.orders.show', $order)
-            ->with('success', 'Data pengiriman berhasil disimpan. Status otomatis diperbarui sesuai alur pengiriman.');
+            ->with('success', 'Data pengiriman berhasil disimpan. Status pesanan otomatis berubah menjadi Dikirim.');
+    }
+
+    /**
+     * Fallback: allow admin to confirm order delivered when user forgets.
+     */
+    public function confirmDelivered(Request $request, Order $order)
+    {
+        $shipping = $order->shipping;
+
+        if (!$shipping) {
+            return redirect()->route('admin.orders.show', $order)
+                ->with('error', 'Data pengiriman tidak ditemukan.');
+        }
+
+        $shipping->update([
+            'status' => 'delivered',
+            'actual_delivery' => $shipping->actual_delivery ?? now(),
+        ]);
+
+        $order->update([
+            'status' => 'delivered',
+            'delivered_confirmed_at' => now(),
+            'delivered_confirmed_by' => 'admin',
+        ]);
+
+        return redirect()->route('admin.orders.show', $order)
+            ->with('success', 'Pesanan dikonfirmasi sudah diterima oleh admin.');
+    }
+
+    /**
+     * Manually resend delivery reminder to user via WA/email.
+     */
+    public function sendDeliveryReminder(Request $request, Order $order)
+    {
+        $order = $order->fresh(['user', 'shipping']);
+
+        if (!$order->shipping) {
+            return redirect()->route('admin.orders.show', $order)
+                ->with('error', 'Data pengiriman tidak ditemukan.');
+        }
+
+        $result = app(DeliveryReminderService::class)->sendReminder($order, true);
+
+        if (!($result['success'] ?? false)) {
+            $message = $result['wa']['message'] ?? $result['email']['message'] ?? 'Gagal mengirim pengingat ke user.';
+
+            return redirect()->route('admin.orders.show', $order)
+                ->with('error', $message);
+        }
+
+        return redirect()->route('admin.orders.show', $order)
+            ->with('success', 'Pengingat WA/email berhasil dikirim ke user.');
     }
 
     /**
@@ -228,20 +283,6 @@ class OrderController extends Controller
             ->get();
 
         return view('admin.dashboard', compact('stats', 'recentOrders'));
-    }
-
-    /**
-     * Print/Export receipt (resi) for an order
-     */
-    public function printReceipt(Order $order)
-    {
-        // Check if order has shipping with tracking number
-        if (!$order->shipping || !$order->shipping->tracking_number) {
-            return redirect()->route('admin.orders.show', $order->id)
-                ->with('error', 'Belum ada nomor resi untuk order ini.');
-        }
-
-        return view('admin.orders.print-receipt', compact('order'));
     }
 
     /**

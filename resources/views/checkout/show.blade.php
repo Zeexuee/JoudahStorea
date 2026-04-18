@@ -226,6 +226,7 @@
                         <input type="hidden" id="courier" name="courier">
                         <input type="hidden" id="service" name="service">
                         <input type="hidden" id="shipping_cost" name="shipping_cost" value="">
+                        <input type="hidden" id="estimated_days" name="estimated_days" value="">
                         <input type="hidden" id="admin_fee" name="admin_fee" value="3000">
 
                         @error('courier')
@@ -401,6 +402,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!provinceId || !cityId) {
             shippingMethods.innerHTML = '<p class="text-gray-600">Pilih kota untuk melihat opsi pengiriman</p>';
             document.getElementById('shipping_cost').value = '0';
+            document.getElementById('estimated_days').value = '';
             updateTotal();
             return;
         }
@@ -436,6 +438,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         document.getElementById('courier').value = cost.courier_code;
                         document.getElementById('service').value = cost.courier_name;
                         document.getElementById('shipping_cost').value = cost.cost;
+                        const estimatedDays = parseInt(String(cost.estimated_days || '').split('-')[0], 10);
+                        document.getElementById('estimated_days').value = Number.isFinite(estimatedDays) && estimatedDays > 0 ? estimatedDays : '';
                         updateTotal();
                         submitBtn.disabled = false;
                     });

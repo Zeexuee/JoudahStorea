@@ -178,6 +178,7 @@ class CheckoutController extends Controller
             'courier' => 'required|string',
             'service' => 'required|string',
             'shipping_cost' => 'required|integer|min:0',
+            'estimated_days' => 'nullable|integer|min:1|max:30',
             'admin_fee' => 'nullable|integer|min:0',
             'notes' => 'nullable|string|max:500',
         ]);
@@ -260,6 +261,9 @@ class CheckoutController extends Controller
                 'origin_city_id' => config('rajaongkir.origin_city_id'),
                 'destination_city_id' => $validated['city_id'],
                 'status' => 'pending',
+                'estimated_delivery' => !empty($validated['estimated_days'])
+                    ? now()->addDays((int) $validated['estimated_days'])
+                    : null,
             ]);
 
             // Create payment record

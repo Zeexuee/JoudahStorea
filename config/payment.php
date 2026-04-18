@@ -29,6 +29,9 @@ return [
         'api_key' => env('MINDTRANS_API_KEY'), // Server Key from Dashboard
         'api_secret' => env('MINDTRANS_API_SECRET'), // Client Key from Dashboard (optional for backend)
         'mode' => env('MINDTRANS_MODE', 'sandbox'), // 'sandbox' or 'production'
+        // Testing override: Midtrans uses integer IDR, so minimum practical amount is 1 IDR.
+        'force_test_amount' => env('MINDTRANS_FORCE_TEST_AMOUNT', false),
+        'testing_amount_idr' => env('MINDTRANS_TESTING_AMOUNT_IDR', 1),
         'callback_url' => env('APP_URL') . '/payment/callback/mindtrans',
         'supported_payment_methods' => [
             'credit_card',

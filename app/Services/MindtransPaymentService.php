@@ -68,12 +68,14 @@ class MindtransPaymentService
 
         try {
             $externalId = $this->generateExternalId($payment->order_id);
-            $amount = (int)$payment->amount;
+            $amount = $this->resolveMidtransAmount($payment);
 
             // Prepare customer details with null checks
             $nameParts = explode(' ', $payment->order->shipping_name ?? 'Customer', 2);
             $firstName = $nameParts[0];
             $lastName = $nameParts[1] ?? '';
+
+            $resolvedItemDetails = $this->resolveItemDetailsForMidtrans($payment, $itemDetails, $amount);
 
             $payload = [
                 'transaction_details' => [
@@ -86,7 +88,7 @@ class MindtransPaymentService
                     'email' => $payment->order->user->email ?? 'customer@example.com',
                     'phone' => $payment->order->shipping_phone ?? '',
                 ],
-                'item_details' => $itemDetails ?: $this->getDefaultItemDetails($payment),
+                'item_details' => $resolvedItemDetails,
             ];
 
             // Add enabled payment methods based on user's choice
@@ -146,11 +148,13 @@ class MindtransPaymentService
                 $payment->update([
                     'external_id' => $externalId,
                     'payment_gateway' => 'midtrans',
-                    'metadata' => [
+                    'metadata' => array_merge($payment->metadata ?? [], [
                         'snap_token' => $snapToken,
                         'checkout_url' => $redirectUrl,
                         'order_id' => $externalId,
-                    ]
+                        'midtrans_gross_amount' => $amount,
+                        'midtrans_force_test_amount' => $this->isForceTestAmountEnabled(),
+                    ])
                 ]);
 
                 logger('Midtrans Payment Created', [
@@ -215,7 +219,7 @@ class MindtransPaymentService
 
         try {
             $externalId = $this->generateExternalId($payment->order_id);
-            $amount = (int) $payment->amount;
+            $amount = $this->resolveMidtransAmount($payment);
 
             $nameParts = explode(' ', $payment->order->shipping_name ?? 'Customer', 2);
             $firstName = $nameParts[0];
@@ -229,6 +233,8 @@ class MindtransPaymentService
                 default => $paymentMethod,
             };
 
+            $resolvedItemDetails = $this->resolveItemDetailsForMidtrans($payment, $itemDetails, $amount);
+
             $payload = [
                 'payment_type' => $midtransPaymentType,
                 'transaction_details' => [
@@ -241,7 +247,7 @@ class MindtransPaymentService
                     'email' => $payment->order->user->email ?? 'customer@example.com',
                     'phone' => $payment->order->shipping_phone ?? '',
                 ],
-                'item_details' => $itemDetails ?: $this->getDefaultItemDetails($payment),
+                'item_details' => $resolvedItemDetails,
             ];
 
             $callbackUrl = rtrim(config('app.url'), '/') . '/orders/' . $payment->order_id;
@@ -325,6 +331,8 @@ class MindtransPaymentService
                         'transaction_status' => $data['transaction_status'] ?? 'pending',
                         'transaction_id' => $data['transaction_id'] ?? null,
                         'expiry_time' => $data['expiry_time'] ?? null,
+                        'midtrans_gross_amount' => $amount,
+                        'midtrans_force_test_amount' => $this->isForceTestAmountEnabled(),
                     ]),
                 ]);
 
@@ -602,6 +610,41 @@ class MindtransPaymentService
         }
 
         return $items;
+    }
+
+    /**
+     * Midtrans only accepts integer IDR values. If testing override is enabled,
+     * force charge to configured test amount (minimum 1 IDR).
+     */
+    private function resolveMidtransAmount(Payment $payment): int
+    {
+        if (!$this->isForceTestAmountEnabled()) {
+            return max(1, (int) $payment->amount);
+        }
+
+        $configured = (int) config('payment.mindtrans.testing_amount_idr', 1);
+
+        return max(1, $configured);
+    }
+
+    private function resolveItemDetailsForMidtrans(Payment $payment, array $itemDetails, int $grossAmount): array
+    {
+        if (!$this->isForceTestAmountEnabled()) {
+            return $itemDetails ?: $this->getDefaultItemDetails($payment);
+        }
+
+        // Keep Midtrans payload totals valid in testing mode by sending a single synthetic item.
+        return [[
+            'id' => 'TEST-AMOUNT',
+            'name' => 'Testing Amount Override',
+            'price' => $grossAmount,
+            'quantity' => 1,
+        ]];
+    }
+
+    private function isForceTestAmountEnabled(): bool
+    {
+        return (bool) config('payment.mindtrans.force_test_amount', false);
     }
 
     /**

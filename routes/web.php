@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 
 Route::get('/', function () {
@@ -56,12 +57,20 @@ Route::get('/payment/verify-mock', [PaymentController::class, 'verifyMock'])->na
 // Payment callbacks (no auth required) - MUST BE BEFORE auth group
 Route::post('/payment/callback/mindtrans', [PaymentController::class, 'callback'])->name('payment.callback');
 
+// Public signed delivery confirmation link from WA/email reminders
+Route::get('/delivery/confirm/{order}', [ProfileController::class, 'confirmDeliveredFromLink'])
+    ->middleware('signed')
+    ->name('delivery.confirm');
+
 // Profile routes (protected with auth middleware)
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/orders', [ProfileController::class, 'orders'])->name('orders.index');
     Route::get('/orders/{order}', [ProfileController::class, 'orderDetail'])->name('orders.show');
+    Route::post('/orders/{order}/confirm-delivered', [ProfileController::class, 'confirmDelivered'])->name('orders.confirmDelivered');
+    Route::post('/verification/otp/send', [VerificationController::class, 'sendOtp'])->name('verification.otp.send');
+    Route::post('/verification/otp/verify', [VerificationController::class, 'verifyOtp'])->name('verification.otp.verify');
 
     // Checkout routes
     Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
@@ -87,10 +96,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Order management
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
-    Route::get('/orders/{order}/print-receipt', [AdminOrderController::class, 'printReceipt'])->name('orders.print-receipt');
     Route::post('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
     Route::post('/orders/{order}/payment-status', [AdminOrderController::class, 'updatePaymentStatus'])->name('orders.updatePaymentStatus');
     Route::post('/orders/{order}/shipping-status', [AdminOrderController::class, 'updateShippingStatus'])->name('orders.updateShippingStatus');
+    Route::post('/orders/{order}/confirm-delivered', [AdminOrderController::class, 'confirmDelivered'])->name('orders.confirmDelivered');
+    Route::post('/orders/{order}/send-delivery-reminder', [AdminOrderController::class, 'sendDeliveryReminder'])->name('orders.sendDeliveryReminder');
     Route::post('/orders/{order}/cancel', [AdminOrderController::class, 'cancelOrder'])->name('orders.cancel');
 });
 

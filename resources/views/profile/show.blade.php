@@ -23,6 +23,19 @@
             </div>
         @endif
 
+        @if (session('error'))
+            <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-4 rounded-lg">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-600 text-xl"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium">{{ session('error') }}</p>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <!-- Sidebar Navigation -->
             <div class="lg:col-span-1">
@@ -94,6 +107,36 @@
                                     @error('email')
                                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                                     @enderror
+
+                                    <div class="mt-3 border border-gray-200 rounded-lg p-3 bg-gray-50">
+                                        <div class="flex items-center justify-between gap-4">
+                                            <p class="text-sm text-gray-700">
+                                                Status Verifikasi Email:
+                                                @if($user->email_verified_at)
+                                                    <span class="font-semibold text-green-700">Terverifikasi</span>
+                                                @else
+                                                    <span class="font-semibold text-amber-700">Belum Terverifikasi</span>
+                                                @endif
+                                            </p>
+                                            <form method="POST" action="{{ route('verification.otp.send') }}">
+                                                @csrf
+                                                <input type="hidden" name="channel" value="email">
+                                                <button type="submit" class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md transition">
+                                                    Kirim OTP Email
+                                                </button>
+                                            </form>
+                                        </div>
+                                        <form method="POST" action="{{ route('verification.otp.verify') }}" class="mt-3 flex flex-col sm:flex-row gap-2">
+                                            @csrf
+                                            <input type="hidden" name="channel" value="email">
+                                            <input type="text" name="otp_code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6"
+                                                   class="w-full sm:w-56 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                                   placeholder="Masukkan 6 digit OTP" required>
+                                            <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-md transition">
+                                                Verifikasi Email
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
 
                                 <!-- Phone -->
@@ -107,6 +150,36 @@
                                     @error('phone')
                                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                                     @enderror
+
+                                    <div class="mt-3 border border-gray-200 rounded-lg p-3 bg-gray-50">
+                                        <div class="flex items-center justify-between gap-4">
+                                            <p class="text-sm text-gray-700">
+                                                Status Verifikasi Nomor:
+                                                @if($user->phone_verified_at)
+                                                    <span class="font-semibold text-green-700">Terverifikasi</span>
+                                                @else
+                                                    <span class="font-semibold text-amber-700">Belum Terverifikasi</span>
+                                                @endif
+                                            </p>
+                                            <form method="POST" action="{{ route('verification.otp.send') }}">
+                                                @csrf
+                                                <input type="hidden" name="channel" value="phone">
+                                                <button type="submit" class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md transition">
+                                                    Kirim OTP WA
+                                                </button>
+                                            </form>
+                                        </div>
+                                        <form method="POST" action="{{ route('verification.otp.verify') }}" class="mt-3 flex flex-col sm:flex-row gap-2">
+                                            @csrf
+                                            <input type="hidden" name="channel" value="phone">
+                                            <input type="text" name="otp_code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6"
+                                                   class="w-full sm:w-56 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                                                   placeholder="Masukkan 6 digit OTP" required>
+                                            <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-md transition">
+                                                Verifikasi Nomor
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
