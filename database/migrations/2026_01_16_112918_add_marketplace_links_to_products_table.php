@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->text('shopee_link')->nullable()->change();
-            $table->text('tokopedia_link')->nullable()->change();
+            $table->text('shopee_link')->nullable();
+            $table->text('tokopedia_link')->nullable();
         });
     }
 
