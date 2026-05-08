@@ -36,10 +36,6 @@ class ProfileController extends Controller
             'postal_code' => 'required|string|max:10',
         ]);
 
-        if ($user->email !== $validated['email']) {
-            $validated['email_verified_at'] = null;
-        }
-
         if ($user->phone !== $validated['phone']) {
             $validated['phone_verified_at'] = null;
         }

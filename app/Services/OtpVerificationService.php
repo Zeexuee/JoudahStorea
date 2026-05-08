@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\OtpVerification;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 
 class OtpVerificationService
 {
@@ -20,14 +19,19 @@ class OtpVerificationService
 
     public function sendOtp(User $user, string $channel): array
     {
+        if ($channel === 'phone' && $user->phone_verified_at) {
+            return [
+                'success' => false,
+                'message' => 'Nomor telepon sudah terverifikasi.',
+            ];
+        }
+
         $destination = $this->resolveDestination($user, $channel);
 
         if (!$destination) {
             return [
                 'success' => false,
-                'message' => $channel === 'email'
-                    ? 'Email belum tersedia pada akun.'
-                    : 'Nomor telepon belum tersedia pada akun.',
+                'message' => 'Nomor telepon belum tersedia pada akun.',
             ];
         }
 
@@ -59,9 +63,7 @@ class OtpVerificationService
             'sent_at' => now(),
         ]);
 
-        $deliveryResult = $channel === 'email'
-            ? $this->sendEmailOtp($user, $code)
-            : $this->fonte->sendOtpToPhone($destination, $code);
+        $deliveryResult = $this->fonte->sendOtpToPhone($destination, $code);
 
         if (!($deliveryResult['success'] ?? false)) {
             $otp->delete();
@@ -74,12 +76,19 @@ class OtpVerificationService
 
         return [
             'success' => true,
-            'message' => 'OTP berhasil dikirim ke ' . ($channel === 'email' ? 'email' : 'nomor WhatsApp') . '.',
+            'message' => 'OTP berhasil dikirim ke nomor WhatsApp.',
         ];
     }
 
     public function verifyOtp(User $user, string $channel, string $code): array
     {
+        if ($channel === 'phone' && $user->phone_verified_at) {
+            return [
+                'success' => true,
+                'message' => 'Nomor telepon sudah terverifikasi sebelumnya.',
+            ];
+        }
+
         $otp = OtpVerification::query()
             ->where('user_id', $user->id)
             ->where('channel', $channel)
@@ -121,66 +130,23 @@ class OtpVerificationService
             'verified_at' => now(),
         ]);
 
-        if ($channel === 'email') {
-            $user->update([
-                'email_verified_at' => now(),
-            ]);
-        } else {
-            $user->update([
-                'phone_verified_at' => now(),
-            ]);
-        }
+        $user->update([
+            'phone_verified_at' => now(),
+        ]);
 
         return [
             'success' => true,
-            'message' => ucfirst($channel) . ' berhasil diverifikasi.',
+            'message' => 'Nomor telepon berhasil diverifikasi.',
         ];
     }
 
     private function resolveDestination(User $user, string $channel): ?string
     {
-        if ($channel === 'email') {
-            return $user->email;
-        }
-
         if ($channel === 'phone') {
             return $user->phone;
         }
 
         return null;
-    }
-
-    private function sendEmailOtp(User $user, string $code): array
-    {
-        if (!$user->email) {
-            return [
-                'success' => false,
-                'message' => 'Email tidak ditemukan.',
-            ];
-        }
-
-        try {
-            $subject = 'Kode OTP Verifikasi Akun';
-            $lines = [
-                'Halo ' . ($user->name ?: 'Pelanggan') . ',',
-                '',
-                'Kode OTP verifikasi Anda adalah: ' . $code,
-                'Kode berlaku selama ' . self::OTP_EXPIRY_MINUTES . ' menit.',
-                '',
-                'Jangan bagikan kode ini ke siapa pun.',
-            ];
-
-            Mail::raw(implode("\n", $lines), function ($message) use ($user, $subject) {
-                $message->to($user->email)->subject($subject);
-            });
-
-            return ['success' => true];
-        } catch (\Throwable $e) {
-            return [
-                'success' => false,
-                'message' => $e->getMessage(),
-            ];
-        }
     }
 
     private function generateOtp(): string

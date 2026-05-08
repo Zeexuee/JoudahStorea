@@ -10,7 +10,7 @@ class VerificationController extends Controller
     public function sendOtp(Request $request, OtpVerificationService $otpService)
     {
         $validated = $request->validate([
-            'channel' => 'required|in:email,phone',
+            'channel' => 'required|in:phone',
         ]);
 
         $result = $otpService->sendOtp($request->user(), $validated['channel']);
@@ -22,7 +22,7 @@ class VerificationController extends Controller
     public function verifyOtp(Request $request, OtpVerificationService $otpService)
     {
         $validated = $request->validate([
-            'channel' => 'required|in:email,phone',
+            'channel' => 'required|in:phone',
             'otp_code' => 'required|digits:6',
         ]);
 
