@@ -307,6 +307,11 @@
                                         <span class="text-2xl font-bold text-amber-600">{{ Number::currency($product->price_after_discount, 'IDR') }}</span>
                                     </div>
                                     <div class="text-sm text-green-600 mt-1">Diskon {{ $product->discount_percent }}% off</div>
+                                    @if($product->discount_ends_at)
+                                        <div class="text-xs text-gray-600 mt-1">
+                                            Berlaku sampai {{ $product->discount_ends_at->format('d M Y H:i') }}
+                                        </div>
+                                    @endif
                                 @else
                                     <span class="block text-2xl font-bold text-gray-900">{{ Number::currency($product->price, 'IDR') }}</span>
                                 @endif

@@ -142,17 +142,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/orders/{order}/send-delivery-reminder', [AdminOrderController::class, 'sendDeliveryReminder'])->name('orders.sendDeliveryReminder');
     Route::post('/orders/{order}/cancel', [AdminOrderController::class, 'cancelOrder'])->name('orders.cancel');
 
-    // Product discount management
-    Route::get('/products/{product}/discount', [\App\Http\Controllers\Admin\ProductController::class, 'editDiscount'])->name('products.editDiscount');
-    Route::post('/products/{product}/discount', [\App\Http\Controllers\Admin\ProductController::class, 'updateDiscount'])->name('products.updateDiscount');
-    Route::get('/products', [\App\Http\Controllers\Admin\ProductController::class, 'index'])->name('products.index');
-    Route::post('/products/bulk-discount', [\App\Http\Controllers\Admin\ProductController::class, 'bulkDiscount'])->name('products.bulkDiscount');
 });
-
-// Compatibility route for Filament-generated links
-Route::get('/admin/filament-resources/products', function () {
-    return redirect()->route('admin.products.index');
-})->middleware(['auth', 'admin'])->name('filament.admin.resources.products.index');
 // Test routes (remove in production)
 Route::middleware(['auth', 'admin'])->prefix('test')->group(function () {
     Route::get('/auto-update/{orderId}', [\App\Http\Controllers\TestAutoUpdateController::class, 'testPaymentAutoUpdate'])->name('test.auto-update');

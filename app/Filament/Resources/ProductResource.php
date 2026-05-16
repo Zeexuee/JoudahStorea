@@ -8,10 +8,14 @@ use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Text;
 
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -65,16 +69,33 @@ class ProductResource extends Resource
                 ]),
 
                 Section::make('Settings')->schema([
-                    Toggle::make('is_featured')
-                        ->required(),
-                    TextInput::make('discount_percent')
-                        ->label('Discount Percent')
-                        ->numeric()
-                        ->minValue(0)
-                        ->maxValue(100)
-                        ->suffix('%')
-                        ->helperText('Masukkan persentase diskon (contoh: 10 untuk 10%).')
-                        ->default(0),
+                    Grid::make(2)->schema([
+                        Toggle::make('is_featured')
+                            ->required(),
+                        TextInput::make('discount_percent')
+                            ->label('Discount Percent')
+                            ->numeric()
+                            ->minValue(0)
+                            ->maxValue(100)
+                            ->suffix('%')
+                            ->helperText('Masukkan persentase diskon (contoh: 10 untuk 10%).')
+                            ->default(0),
+                    ]),
+                    Grid::make(2)->schema([
+                        DateTimePicker::make('discount_starts_at')
+                            ->label('Discount Starts At')
+                            ->native(false)
+                            ->seconds(false)
+                            ->placeholder('Opsional'),
+                        DateTimePicker::make('discount_ends_at')
+                            ->label('Discount Ends At')
+                            ->native(false)
+                            ->seconds(false)
+                            ->placeholder('Opsional'),
+                    ]),
+                    Placeholder::make('discount_note')
+                        ->label('Preview')
+                        ->content('Harga akhir akan dihitung otomatis dari harga dasar produk, persentase diskon, dan masa aktif diskon yang dipilih.'),
                 ]),
 
                 Section::make('Marketplace Links')->schema([

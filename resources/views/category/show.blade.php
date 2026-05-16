@@ -68,6 +68,11 @@
                 <!-- Product Card (Minimalist) -->
                 <a href="{{ route('product.detail', $product->slug) }}" class="group block cursor-pointer">
                     <div class="relative bg-gray-50 aspect-[4/5] overflow-hidden mb-6">
+                        @if($product->has_discount)
+                            <div class="absolute top-3 left-3 z-10 bg-amber-500 text-white text-[10px] font-bold uppercase tracking-[0.2em] px-2 py-1 shadow-md">
+                                Diskon {{ $product->discount_percent }}%
+                            </div>
+                        @endif
                         <img src="{{ asset('storage/' . ($product->images[0] ?? 'images/placeholder.png')) }}" alt="{{ $product->name }}" class="w-full h-full object-cover object-center transform group-hover:scale-105 transition duration-700 ease-out grayscale-[0.1] group-hover:grayscale-0">
                         
                         <!-- Quick Add Overlay (Optional) -->
@@ -76,7 +81,12 @@
                         </div>
                     </div>
                     <h3 class="font-serif text-xl text-gray-900 mb-1 group-hover:text-amber-700 transition">{{ $product->name }}</h3>
-                    <p class="font-medium text-gray-500 text-sm">{{ Number::currency($product->price, 'IDR') }}</p>
+                    @if($product->has_discount)
+                        <p class="font-medium text-gray-500 text-sm line-through">{{ Number::currency($product->price, 'IDR') }}</p>
+                        <p class="font-semibold text-amber-600 text-sm">{{ Number::currency($product->price_after_discount, 'IDR') }}</p>
+                    @else
+                        <p class="font-medium text-gray-500 text-sm">{{ Number::currency($product->price, 'IDR') }}</p>
+                    @endif
                 </a>
                 @endforeach
             </div>
