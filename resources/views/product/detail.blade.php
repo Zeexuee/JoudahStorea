@@ -295,13 +295,21 @@
                     </div>
 
                     <!-- THE GOLD CARD -->
-                    <div class="mb-8 bg-[#F3EAD8] p-5 rounded-none shadow-none relative overflow-hidden max-w-md">
+                        <div class="mb-8 bg-[#F3EAD8] p-5 rounded-none shadow-none relative overflow-hidden max-w-md">
 
                         <!-- Price Info Grid -->
-                        <div class="grid grid-cols-2 gap-6 mb-6">
+                            <div class="grid grid-cols-2 gap-6 mb-6">
                             <div>
                                 <span class="block text-gray-500 text-xs mb-1">Instant price</span>
-                                <span class="block text-2xl font-bold text-gray-900">{{ Number::currency($product->price, 'IDR') }}</span>
+                                @if($product->has_discount)
+                                    <div class="flex items-baseline gap-3">
+                                        <span class="text-sm text-gray-500 line-through">{{ Number::currency($product->price, 'IDR') }}</span>
+                                        <span class="text-2xl font-bold text-amber-600">{{ Number::currency($product->price_after_discount, 'IDR') }}</span>
+                                    </div>
+                                    <div class="text-sm text-green-600 mt-1">Diskon {{ $product->discount_percent }}% off</div>
+                                @else
+                                    <span class="block text-2xl font-bold text-gray-900">{{ Number::currency($product->price, 'IDR') }}</span>
+                                @endif
                             </div>
                             @if($product->shopee_link || $product->tokopedia_link)
                             <div>
@@ -358,18 +366,30 @@
                             <!-- Review Item -->
                             <div class="border-b border-gray-100 pb-8">
                                 <div class="flex items-center gap-4 mb-4">
-                                    <div class="flex text-amber-500 text-xs">
-                                        @for($i = 0; $i < $review->rating; $i++)
-                                            <i class="fas fa-star">★</i>
-                                        @endfor
-                                        @for($i = $review->rating; $i < 5; $i++)
-                                            <i class="far fa-star text-gray-300">★</i>
-                                        @endfor
-                                    </div>
+                                    @if(!is_null($review->rating))
+                                        <div class="flex text-xs items-center gap-1">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                <svg class="w-4 h-4 {{ $review->rating >= $i ? 'text-amber-500' : 'text-gray-300' }}" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.173c.969 0 1.371 1.24.588 1.81l-3.377 2.455a1 1 0 00-.364 1.118l1.286 3.966c.3.921-.755 1.688-1.54 1.118l-3.377-2.455a1 1 0 00-1.175 0L5.58 17.03c-.785.57-1.84-.197-1.54-1.118l1.286-3.966a1 1 0 00-.364-1.118L1.585 8.373c-.783-.57-.38-1.81.588-1.81h4.173a1 1 0 00.95-.69L9.049 2.927z"/>
+                                                </svg>
+                                            @endfor
+                                        </div>
+                                    @else
+                                        <div class="text-xs font-medium uppercase tracking-wider text-gray-400">Belum ada rating</div>
+                                    @endif
                                     <span class="text-xs font-bold uppercase tracking-wider text-gray-400">Pembeli Terpercaya</span>
+                                    @if($review->is_verified_purchase ?? false)
+                                        <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-green-700">
+                                            Pembelian Terverifikasi
+                                        </span>
+                                    @endif
                                 </div>
                                 <h4 class="text-lg font-bold text-gray-900 mb-2">{{ $review->name }}</h4>
-                                <p class="text-gray-500 font-light leading-relaxed">"{{ $review->comment }}"</p>
+                                @if(!is_null($review->rating))
+                                    <p class="text-gray-500 font-light leading-relaxed">"{{ $review->comment }}"</p>
+                                @else
+                                    <p class="text-gray-500 font-light leading-relaxed">{{ $review->comment }}</p>
+                                @endif
                                 <span class="block mt-4 text-xs font-serif italic text-gray-400">— {{ $review->created_at->format('F d, Y') }}</span>
                             </div>
                             @empty

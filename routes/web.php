@@ -7,6 +7,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\VerificationController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 
 Route::get('/', function () {
@@ -18,7 +19,39 @@ Route::get('/', function () {
 });
 
 Route::get('/product/{slug}', function ($slug) {
-    $product = \App\Models\Product::where('slug', $slug)->firstOrFail();
+    $product = \App\Models\Product::with([
+        'category',
+        'reviews' => function ($query) {
+            $query->where('is_approved', true)->latest();
+        },
+    ])->where('slug', $slug)->firstOrFail();
+
+    $verifiedCustomerReviews = \App\Models\Comment::query()
+        ->whereHas('order', function ($query) {
+            $query->where('status', 'delivered');
+        })
+        ->whereHas('order.items', function ($query) use ($product) {
+            $query->where('product_id', $product->id);
+        })
+        ->with('user')
+        ->latest()
+        ->get()
+        ->map(function ($comment) {
+            return (object) [
+                'name' => $comment->user?->name ?? 'Pelanggan',
+                'rating' => $comment->rating,
+                'comment' => $comment->content,
+                'created_at' => $comment->created_at,
+                'is_approved' => true,
+                'is_verified_purchase' => true,
+            ];
+        });
+
+    $product->setRelation(
+        'reviews',
+        $product->reviews->concat($verifiedCustomerReviews)
+    );
+
     $relatedProducts = \App\Models\Product::where('category_id', $product->category_id)
         ->where('id', '!=', $product->id)
         ->inRandomOrder()
@@ -69,6 +102,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders', [ProfileController::class, 'orders'])->name('orders.index');
     Route::get('/orders/{order}', [ProfileController::class, 'orderDetail'])->name('orders.show');
     Route::post('/orders/{order}/confirm-delivered', [ProfileController::class, 'confirmDelivered'])->name('orders.confirmDelivered');
+    
+    // Comment routes
+    Route::post('/orders/{order}/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::patch('/orders/{order}/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
+    Route::delete('/orders/{order}/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+    
     Route::post('/verification/otp/send', [VerificationController::class, 'sendOtp'])->name('verification.otp.send');
     Route::post('/verification/otp/verify', [VerificationController::class, 'verifyOtp'])->name('verification.otp.verify');
 
@@ -102,8 +141,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/orders/{order}/confirm-delivered', [AdminOrderController::class, 'confirmDelivered'])->name('orders.confirmDelivered');
     Route::post('/orders/{order}/send-delivery-reminder', [AdminOrderController::class, 'sendDeliveryReminder'])->name('orders.sendDeliveryReminder');
     Route::post('/orders/{order}/cancel', [AdminOrderController::class, 'cancelOrder'])->name('orders.cancel');
+
+    // Product discount management
+    Route::get('/products/{product}/discount', [\App\Http\Controllers\Admin\ProductController::class, 'editDiscount'])->name('products.editDiscount');
+    Route::post('/products/{product}/discount', [\App\Http\Controllers\Admin\ProductController::class, 'updateDiscount'])->name('products.updateDiscount');
+    Route::get('/products', [\App\Http\Controllers\Admin\ProductController::class, 'index'])->name('products.index');
+    Route::post('/products/bulk-discount', [\App\Http\Controllers\Admin\ProductController::class, 'bulkDiscount'])->name('products.bulkDiscount');
 });
 
+// Compatibility route for Filament-generated links
+Route::get('/admin/filament-resources/products', function () {
+    return redirect()->route('admin.products.index');
+})->middleware(['auth', 'admin'])->name('filament.admin.resources.products.index');
 // Test routes (remove in production)
 Route::middleware(['auth', 'admin'])->prefix('test')->group(function () {
     Route::get('/auto-update/{orderId}', [\App\Http\Controllers\TestAutoUpdateController::class, 'testPaymentAutoUpdate'])->name('test.auto-update');

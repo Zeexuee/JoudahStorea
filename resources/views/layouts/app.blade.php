@@ -37,6 +37,22 @@
     <div class="min-h-screen bg-white">
         <x-navbar />
         <main>
+            @if (session('success'))
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+                    <div class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-800">
+                        {{ session('success') }}
+                    </div>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+                    <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-800">
+                        {{ session('error') }}
+                    </div>
+                </div>
+            @endif
+
             @yield('content')
         </main>
     </div>

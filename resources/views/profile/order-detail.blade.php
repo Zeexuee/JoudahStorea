@@ -141,6 +141,133 @@
                 </div>
             </div>
 
+            @php
+                $userComment = $order->comments->firstWhere('user_id', auth()->id());
+            @endphp
+
+            <!-- Comment Section -->
+            <div class="lg:col-span-3">
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center justify-between gap-3">
+                        <h2 class="font-semibold text-gray-900">Komentar Pesanan</h2>
+                        @if($order->status === 'delivered')
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Bisa dikomentari
+                            </span>
+                        @else
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                                Tersedia setelah pesanan diterima
+                            </span>
+                        @endif
+                    </div>
+
+                    <div class="px-6 py-6 space-y-6">
+                        @if($order->status === 'delivered')
+                            <form method="POST" action="{{ route('comments.store', $order) }}" class="space-y-4">
+                                @csrf
+
+                                <div>
+                                    <span class="block text-sm font-medium text-gray-700 mb-2">Rating</span>
+                                    <div class="flex gap-1">
+                                        @for($rating = 1; $rating <= 5; $rating++)
+                                            <label class="cursor-pointer text-3xl leading-none transition {{ (string) old('rating', $userComment?->rating) === (string) $rating ? 'text-amber-500' : 'text-gray-300 hover:text-amber-300' }}">
+                                                <input
+                                                    type="radio"
+                                                    name="rating"
+                                                    value="{{ $rating }}"
+                                                    class="sr-only"
+                                                    {{ (string) old('rating', $userComment?->rating) === (string) $rating ? 'checked' : '' }}
+                                                    required>
+                                                <svg aria-hidden="true" class="w-6 h-6" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.173c.969 0 1.371 1.24.588 1.81l-3.377 2.455a1 1 0 00-.364 1.118l1.286 3.966c.3.921-.755 1.688-1.54 1.118l-3.377-2.455a1 1 0 00-1.175 0L5.58 17.03c-.785.57-1.84-.197-1.54-1.118l1.286-3.966a1 1 0 00-.364-1.118L1.585 8.373c-.783-.57-.38-1.81.588-1.81h4.173a1 1 0 00.95-.69L9.049 2.927z"/>
+                                                </svg>
+                                            </label>
+                                        @endfor
+                                    </div>
+                                    <p class="mt-2 text-xs text-gray-500">Klik bintang untuk memberi nilai dari 1 sampai 5.</p>
+                                    @error('rating')
+                                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label for="content" class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ $userComment ? 'Edit komentar Anda' : 'Tulis komentar Anda' }}
+                                    </label>
+                                    <textarea
+                                        id="content"
+                                        name="content"
+                                        rows="4"
+                                        class="w-full rounded-lg border-gray-300 focus:border-amber-500 focus:ring-amber-500"
+                                        placeholder="Bagikan pengalaman Anda setelah menerima pesanan ini"
+                                        required>{{ old('content', $userComment?->content) }}</textarea>
+                                    @error('content')
+                                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div class="flex flex-wrap items-center gap-3">
+                                    <button type="submit" class="inline-flex items-center justify-center px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-lg transition">
+                                        {{ $userComment ? 'Perbarui Komentar' : 'Kirim Komentar' }}
+                                    </button>
+                                </div>
+                            </form>
+
+                            @if($userComment)
+                                <div class="pt-1">
+                                    <form method="POST" action="{{ route('comments.destroy', [$order, $userComment]) }}" onsubmit="return confirm('Hapus komentar ini?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="inline-flex items-center justify-center px-5 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 font-medium rounded-lg transition">
+                                            Hapus Komentar
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
+                        @else
+                            <div class="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6 text-gray-600">
+                                Komentar baru bisa ditambahkan setelah status pesanan berubah menjadi <span class="font-semibold text-gray-900">delivered</span>.
+                            </div>
+                        @endif
+
+                        @if($order->comments->count() > 0)
+                            <div class="space-y-4 pt-2">
+                                <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500">Riwayat Komentar</h3>
+
+                                <div class="space-y-4">
+                                    @foreach($order->comments as $comment)
+                                        <div class="rounded-lg border border-gray-200 p-4 {{ $comment->user_id === auth()->id() ? 'bg-amber-50 border-amber-200' : 'bg-white' }}">
+                                            <div class="flex items-center justify-between gap-3 mb-2">
+                                                <div>
+                                                    <p class="font-medium text-gray-900">{{ $comment->user->name ?? 'User' }}</p>
+                                                    <p class="text-xs text-gray-500">{{ $comment->created_at->locale('id')->translatedFormat('d F Y H:i') }}</p>
+                                                </div>
+                                                @if($comment->user_id === auth()->id())
+                                                    <span class="text-xs font-medium text-amber-700">Komentar Anda</span>
+                                                @endif
+                                            </div>
+                                            <div class="flex items-center gap-1 mb-3 text-amber-500">
+                                                @if(!is_null($comment->rating))
+                                                    @for($rating = 1; $rating <= 5; $rating++)
+                                                        <svg class="w-4 h-4 inline-block {{ $comment->rating >= $rating ? 'text-amber-500' : 'text-gray-300' }}" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.966a1 1 0 00.95.69h4.173c.969 0 1.371 1.24.588 1.81l-3.377 2.455a1 1 0 00-.364 1.118l1.286 3.966c.3.921-.755 1.688-1.54 1.118l-3.377-2.455a1 1 0 00-1.175 0L5.58 17.03c-.785.57-1.84-.197-1.54-1.118l1.286-3.966a1 1 0 00-.364-1.118L1.585 8.373c-.783-.57-.38-1.81.588-1.81h4.173a1 1 0 00.95-.69L9.049 2.927z"/>
+                                                        </svg>
+                                                    @endfor
+                                                    <span class="ml-2 text-xs font-medium text-gray-500">{{ $comment->rating }}/5</span>
+                                                @else
+                                                    <span class="text-xs font-medium text-gray-500">Belum ada rating</span>
+                                                @endif
+                                            </div>
+                                            <p class="text-gray-700 leading-relaxed whitespace-pre-line">{{ $comment->content }}</p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
             <!-- Shipping and Payment Info -->
             <div class="lg:col-span-1 space-y-6">
                 <!-- Payment Status -->
@@ -409,3 +536,52 @@
 
 
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const ratingInputs = Array.from(document.querySelectorAll('input[name="rating"]'));
+    if (!ratingInputs.length) return;
+
+    const labels = ratingInputs.map(i => i.closest('label'));
+
+    function applyVisual(selected) {
+        labels.forEach(label => {
+            const input = label.querySelector('input[name="rating"]');
+            const val = Number(input.value);
+            if (!isNaN(selected) && val <= selected) {
+                label.classList.add('text-amber-500');
+                label.classList.remove('text-gray-300');
+            } else {
+                label.classList.remove('text-amber-500');
+                label.classList.add('text-gray-300');
+            }
+        });
+    }
+
+    // initialize from checked input
+    const checked = document.querySelector('input[name="rating"]:checked');
+    const current = checked ? Number(checked.value) : 0;
+    applyVisual(current);
+
+    labels.forEach(label => {
+        const input = label.querySelector('input[name="rating"]');
+        const val = Number(input.value);
+
+        label.addEventListener('click', function () {
+            input.checked = true;
+            applyVisual(val);
+        });
+
+        label.addEventListener('mouseenter', function () {
+            applyVisual(val);
+        });
+
+        label.addEventListener('mouseleave', function () {
+            const sel = Number(document.querySelector('input[name="rating"]:checked')?.value || 0);
+            applyVisual(sel);
+        });
+    });
+});
+</script>
+@endpush

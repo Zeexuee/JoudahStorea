@@ -75,7 +75,7 @@ class ProfileController extends Controller
 
         // Force fresh data from database (no caching)
         $order = $order->fresh();
-        $order->load('items.product', 'payment', 'shipping');
+        $order->load('items.product', 'payment', 'shipping', 'comments.user');
 
         return view('profile.order-detail', [
             'order' => $order,

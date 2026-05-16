@@ -67,6 +67,14 @@ class ProductResource extends Resource
                 Section::make('Settings')->schema([
                     Toggle::make('is_featured')
                         ->required(),
+                    TextInput::make('discount_percent')
+                        ->label('Discount Percent')
+                        ->numeric()
+                        ->minValue(0)
+                        ->maxValue(100)
+                        ->suffix('%')
+                        ->helperText('Masukkan persentase diskon (contoh: 10 untuk 10%).')
+                        ->default(0),
                 ]),
 
                 Section::make('Marketplace Links')->schema([
@@ -95,6 +103,15 @@ class ProductResource extends Resource
                 TextColumn::make('price')
                     ->money('IDR', locale: 'id')
                     ->sortable(),
+                TextColumn::make('discount_percent')
+                    ->label('Diskon')
+                    ->suffix('%')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('price_after_discount')
+                    ->label('Harga Setelah Diskon')
+                    ->money('IDR', locale: 'id')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_featured')
                     ->boolean(),
                 TextColumn::make('created_at')

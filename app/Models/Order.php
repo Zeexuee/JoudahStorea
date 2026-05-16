@@ -53,6 +53,11 @@ class Order extends Model
         return $this->hasOne(Shipping::class);
     }
 
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
     /**
      * Get status badge color
      */
