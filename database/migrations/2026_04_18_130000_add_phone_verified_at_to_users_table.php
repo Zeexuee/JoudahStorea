@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->timestamp('phone_verified_at')->nullable()->after('email_verified_at');
-        });
+        if (!Schema::hasColumn('users', 'phone_verified_at')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->timestamp('phone_verified_at')->nullable()->after('email_verified_at');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('phone_verified_at');
-        });
+        if (Schema::hasColumn('users', 'phone_verified_at')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->dropColumn('phone_verified_at');
+            });
+        }
     }
 };

@@ -12,11 +12,25 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('phone')->nullable()->after('email');
-            $table->string('address')->nullable()->after('phone');
-            $table->string('city')->nullable()->after('address');
-            $table->string('province')->nullable()->after('city');
-            $table->string('postal_code')->nullable()->after('province');
+            if (!Schema::hasColumn('users', 'phone')) {
+                $table->string('phone')->nullable()->after('email');
+            }
+
+            if (!Schema::hasColumn('users', 'address')) {
+                $table->string('address')->nullable()->after('phone');
+            }
+
+            if (!Schema::hasColumn('users', 'city')) {
+                $table->string('city')->nullable()->after('address');
+            }
+
+            if (!Schema::hasColumn('users', 'province')) {
+                $table->string('province')->nullable()->after('city');
+            }
+
+            if (!Schema::hasColumn('users', 'postal_code')) {
+                $table->string('postal_code')->nullable()->after('province');
+            }
         });
     }
 
@@ -26,7 +40,17 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['phone', 'address', 'city', 'province', 'postal_code']);
+            $columns = [];
+
+            foreach (['phone', 'address', 'city', 'province', 'postal_code'] as $column) {
+                if (Schema::hasColumn('users', $column)) {
+                    $columns[] = $column;
+                }
+            }
+
+            if (!empty($columns)) {
+                $table->dropColumn($columns);
+            }
         });
     }
 };

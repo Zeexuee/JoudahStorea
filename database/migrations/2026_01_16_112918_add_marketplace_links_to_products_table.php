@@ -12,8 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->text('shopee_link')->nullable();
-            $table->text('tokopedia_link')->nullable();
+            if (!Schema::hasColumn('products', 'shopee_link')) {
+                $table->text('shopee_link')->nullable();
+            }
+
+            if (!Schema::hasColumn('products', 'tokopedia_link')) {
+                $table->text('tokopedia_link')->nullable();
+            }
         });
     }
 
@@ -23,7 +28,17 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->dropColumn(['shopee_link', 'tokopedia_link']);
+            $columns = [];
+
+            foreach (['shopee_link', 'tokopedia_link'] as $column) {
+                if (Schema::hasColumn('products', $column)) {
+                    $columns[] = $column;
+                }
+            }
+
+            if (!empty($columns)) {
+                $table->dropColumn($columns);
+            }
         });
     }
 };

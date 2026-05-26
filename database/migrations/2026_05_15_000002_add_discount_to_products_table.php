@@ -8,15 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->unsignedTinyInteger('discount_percent')->nullable()->after('price');
-        });
+        if (!Schema::hasColumn('products', 'discount_percent')) {
+            Schema::table('products', function (Blueprint $table) {
+                $table->unsignedTinyInteger('discount_percent')->nullable()->after('price');
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->dropColumn('discount_percent');
-        });
+        if (Schema::hasColumn('products', 'discount_percent')) {
+            Schema::table('products', function (Blueprint $table) {
+                $table->dropColumn('discount_percent');
+            });
+        }
     }
 };

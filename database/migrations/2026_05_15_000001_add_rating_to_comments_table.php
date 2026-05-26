@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('comments', function (Blueprint $table) {
-            $table->unsignedTinyInteger('rating')->nullable()->after('user_id');
-        });
+        if (!Schema::hasColumn('comments', 'rating')) {
+            Schema::table('comments', function (Blueprint $table) {
+                $table->unsignedTinyInteger('rating')->nullable()->after('user_id');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('comments', function (Blueprint $table) {
-            $table->dropColumn('rating');
-        });
+        if (Schema::hasColumn('comments', 'rating')) {
+            Schema::table('comments', function (Blueprint $table) {
+                $table->dropColumn('rating');
+            });
+        }
     }
 };
