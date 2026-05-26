@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->text('cancel_reason')->nullable()->after('notes')->comment('Alasan pembatalan pesanan');
-        });
+        if (!Schema::hasColumn('orders', 'cancel_reason')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->text('cancel_reason')->nullable()->after('notes')->comment('Alasan pembatalan pesanan');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn('cancel_reason');
-        });
+        if (Schema::hasColumn('orders', 'cancel_reason')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->dropColumn('cancel_reason');
+            });
+        }
     }
 };
