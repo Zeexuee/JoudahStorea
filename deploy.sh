@@ -22,7 +22,7 @@ git pull origin F-/3/2/26/o/-No-Error
 echo ""
 
 echo "=== Running migrations ==="
-php artisan migrate
+php artisan migrate --force
 echo ""
 
 echo "=== Clearing cache ==="

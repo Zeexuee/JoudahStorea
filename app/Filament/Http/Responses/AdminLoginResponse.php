@@ -19,22 +19,15 @@ class AdminLoginResponse implements Responsable
      */
     public function toResponse($request): RedirectResponse | Redirector
     {
-        // Ambil login type dari session
         $loginType = Session::get('login_type', 'products');
+
+        $redirectUrl = match ($loginType) {
+            'orders' => route('admin.dashboard'),
+            default => route('filament.admin.resources.products.index'),
+        };
         
-        // Tentukan redirect URL berdasarkan login type
-        if ($loginType === 'orders') {
-            // Kelola Pesanan → /admin/dashboard
-            $redirectUrl = '/admin/dashboard';
-        } else {
-            // Kelola Barang → /admin
-            $redirectUrl = '/admin';
-        }
-        
-        // Clear session agar tidak mempengaruhi login berikutnya
         Session::forget('login_type');
         
-        // Return redirect ke URL yang sesuai
-        return redirect()->intended($redirectUrl);
+        return redirect()->to($redirectUrl);
     }
 }
