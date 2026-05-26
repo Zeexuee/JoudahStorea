@@ -11,16 +11,29 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->timestamp('delivered_confirmed_at')->nullable()->after('cancel_reason');
-            $table->string('delivered_confirmed_by', 10)->nullable()->after('delivered_confirmed_at'); // user|admin
-            $table->index('delivered_confirmed_at');
-        });
+        if (!Schema::hasColumn('orders', 'delivered_confirmed_at')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->timestamp('delivered_confirmed_at')->nullable()->after('cancel_reason');
+            });
+        }
 
-        Schema::table('shippings', function (Blueprint $table) {
-            $table->timestamp('reminder_last_sent_at')->nullable()->after('actual_delivery');
-            $table->unsignedInteger('reminder_sent_count')->default(0)->after('reminder_last_sent_at');
-        });
+        if (!Schema::hasColumn('orders', 'delivered_confirmed_by')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->string('delivered_confirmed_by', 10)->nullable()->after('delivered_confirmed_at'); // user|admin
+            });
+        }
+
+        if (!Schema::hasColumn('shippings', 'reminder_last_sent_at')) {
+            Schema::table('shippings', function (Blueprint $table) {
+                $table->timestamp('reminder_last_sent_at')->nullable()->after('actual_delivery');
+            });
+        }
+
+        if (!Schema::hasColumn('shippings', 'reminder_sent_count')) {
+            Schema::table('shippings', function (Blueprint $table) {
+                $table->unsignedInteger('reminder_sent_count')->default(0)->after('reminder_last_sent_at');
+            });
+        }
     }
 
     /**
@@ -28,13 +41,28 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->dropIndex(['delivered_confirmed_at']);
-            $table->dropColumn(['delivered_confirmed_at', 'delivered_confirmed_by']);
-        });
+        if (Schema::hasColumn('orders', 'delivered_confirmed_at') || Schema::hasColumn('orders', 'delivered_confirmed_by')) {
+            Schema::table('orders', function (Blueprint $table) {
+                if (Schema::hasColumn('orders', 'delivered_confirmed_at')) {
+                    $table->dropColumn('delivered_confirmed_at');
+                }
 
-        Schema::table('shippings', function (Blueprint $table) {
-            $table->dropColumn(['reminder_last_sent_at', 'reminder_sent_count']);
-        });
+                if (Schema::hasColumn('orders', 'delivered_confirmed_by')) {
+                    $table->dropColumn('delivered_confirmed_by');
+                }
+            });
+        }
+
+        if (Schema::hasColumn('shippings', 'reminder_last_sent_at') || Schema::hasColumn('shippings', 'reminder_sent_count')) {
+            Schema::table('shippings', function (Blueprint $table) {
+                if (Schema::hasColumn('shippings', 'reminder_last_sent_at')) {
+                    $table->dropColumn('reminder_last_sent_at');
+                }
+
+                if (Schema::hasColumn('shippings', 'reminder_sent_count')) {
+                    $table->dropColumn('reminder_sent_count');
+                }
+            });
+        }
     }
 };
