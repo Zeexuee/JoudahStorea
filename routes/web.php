@@ -9,6 +9,15 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Models\Category;
+
+$categorySlugMap = [
+    'perfume' => 'j-scent',
+    'deodorant' => 'j-skin',
+    'bukhur-gaharu' => 'bukhur',
+    'linen-spray' => 'linen',
+    'kayu-gaharu' => 'j-scent',
+];
 
 Route::get('/', function () {
     $categories = \App\Models\Category::with(['products' => function($query) {
@@ -61,10 +70,18 @@ Route::get('/product/{slug}', function ($slug) {
     return view('product.detail', ['product' => $product, 'relatedProducts' => $relatedProducts]);
 })->name('product.detail');
 
-Route::get('/category/{slug}', function ($slug) {
-    $category = \App\Models\Category::where('slug', $slug)->with('products')->firstOrFail();
+Route::get('/category/{slug}', function (string $slug) use ($categorySlugMap) {
+    $canonicalSlug = $categorySlugMap[$slug] ?? $slug;
+    $category = Category::where('slug', $canonicalSlug)->with('products')->firstOrFail();
+
+    if ($canonicalSlug !== $slug) {
+        return redirect()->route('category.show', $canonicalSlug, 301);
+    }
+
     return view('category.show', ['category' => $category]);
 })->name('category.show');
+
+Route::view('/distributors', 'distributors')->name('distributors.index');
 
 // Auth routes
 Route::post('/auth/login', [AuthController::class, 'login'])->name('auth.login');

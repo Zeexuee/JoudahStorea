@@ -147,6 +147,8 @@ php artisan tinker
 >>> \App\Models\User::where('email', 'admin@joudah.com')->first()
 ```
 
+> Untuk halaman distributor, gunakan slug kategori kanonik baru di navbar dan halaman distributor publik yang sekarang menampilkan peta, kontak, dan daftar toko mitra.
+
 ---
 
 ## ⚠️ Security Notes

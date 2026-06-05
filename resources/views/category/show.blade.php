@@ -1,4 +1,4 @@
-<x-layouts.app title="{{ $category['title'] }} - Joudah Store" description="{{ $category['description'] }}">
+<x-layouts.app title="{{ $category->name }} - Joudah Store" description="{{ $category->description }}">
     <style>
         /* Mobile responsive product grid */
         @media (max-width: 768px) {
@@ -38,15 +38,15 @@
         <!-- HERO SECTION -->
         <div class="relative w-full h-[40vh] min-h-[400px] flex items-center justify-center overflow-hidden bg-gray-100">
             <!-- Background Image -->
-            <img src="{{ asset('storage/' . $category['hero_image']) }}" alt="{{ $category['title'] }}" class="absolute inset-0 w-full h-full object-cover">
+            <img src="{{ $category->hero_image ? asset('storage/' . $category->hero_image) : asset('images/placeholder.png') }}" alt="{{ $category->name }}" class="absolute inset-0 w-full h-full object-cover">
             <div class="absolute inset-0 bg-black/30"></div>
 
             <!-- Content -->
             <div class="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
                 <span class="block text-sm font-bold tracking-[0.2em] uppercase mb-4 text-amber-200">The Collection</span>
-                <h1 class="text-5xl md:text-7xl font-serif font-thin mb-6 tracking-tight">{{ $category['title'] }}</h1>
+                <h1 class="text-5xl md:text-7xl font-serif font-thin mb-6 tracking-tight">{{ $category->name }}</h1>
                 <p class="text-lg md:text-xl font-light text-white/90 max-w-2xl mx-auto leading-relaxed">
-                    {{ $category['description'] }}
+                    {{ $category->description }}
                 </p>
             </div>
         </div>
@@ -56,7 +56,7 @@
             
             <!-- Optional Results Count / Filter Bar -->
             <div class="flex justify-between items-center mb-12 border-b border-gray-100 pb-4">
-                <span class="text-sm text-gray-400">{{ count($category['products']) }} Products Found</span>
+                <span class="text-sm text-gray-400">{{ $category->products->count() }} Products Found</span>
                 <div class="flex gap-4">
                     <button class="text-sm font-medium text-gray-500 hover:text-gray-900 transition">Sort by</button>
                     <button class="text-sm font-medium text-gray-500 hover:text-gray-900 transition">Filter</button>
@@ -92,7 +92,7 @@
             </div>
 
             <!-- Empty State -->
-            @if(count($category['products']) === 0)
+            @if($category->products->count() === 0)
             <div class="text-center py-24">
                 <p class="text-gray-400 font-light text-lg">No products found in this category yet.</p>
             </div>

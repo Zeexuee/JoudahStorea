@@ -113,7 +113,7 @@
                         if (fullHeight <= 200) {
                             toggleBtn.style.display = 'none';
                             overlay.style.display = 'none';
-                            container.classList.remove('max-h-[200px]', 'overflow-hidden');
+                            container.classList.remov00000000000000000000e('max-h-[200px]', 'overflow-hidden');
                         }
 
                         let isExpanded = false;

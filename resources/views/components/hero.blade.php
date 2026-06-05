@@ -15,10 +15,10 @@
     <div class="absolute bottom-0 left-0 right-0 p-8 pb-12 flex justify-center text-center">
         <div>
             <h2 class="hero-title text-white text-3xl md:text-4xl lg:text-5xl font-serif tracking-wide drop-shadow-lg mb-2">
-                Eksklusif: Koleksi Parfume
+                Eksklusif: Koleksi Joudah
             </h2>
             <p class="hero-subtitle text-gray-200 text-lg font-light tracking-wider uppercase">
-                Joudah Store
+                Fragrance & Lifestyle
             </p>
         </div>
     </div>

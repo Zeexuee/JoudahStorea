@@ -39,24 +39,24 @@
                 display: none;
             }
 
-            /* Perfume section responsive styles */
+            /* J Scent section responsive styles */
             @media (max-width: 768px) {
-                .perfume-section .slider-scroll {
+                .j-scent-section .slider-scroll {
                     padding: 0 16px;
                     gap: 12px;
                     margin: 0 -16px;
                 }
 
-                .perfume-section .slider-scroll a {
+                .j-scent-section .slider-scroll a {
                     width: 220px !important;
                 }
 
-                .perfume-section .slider-scroll a h4 {
+                .j-scent-section .slider-scroll a h4 {
                     font-size: 16px;
                 }
 
-                .perfume-section .slider-scroll a span,
-                .perfume-section .slider-scroll a p {
+                .j-scent-section .slider-scroll a span,
+                .j-scent-section .slider-scroll a p {
                     font-size: 12px;
                 }
             }
@@ -155,14 +155,14 @@
         </script>
 
         <!-- 1. FEATURED: Parfum Joudah (Grid Layout) -->
-        @if($category = $categories['perfume'] ?? null)
-        <div class="mb-40 perfume-section">
+        @if($category = $categories['j-scent'] ?? null)
+        <div class="mb-40 j-scent-section">
              <div class="flex flex-col items-center justify-center text-center md:flex-row md:items-end md:justify-between md:text-left mb-12 px-4 md:px-0">
                  <div class="max-w-xl">
                     <h3 class="text-3xl font-serif text-gray-900 mb-4">{{ $category->name }}</h3>
                     <p class="text-gray-500 font-light leading-relaxed">{{ $category->description }}</p>
                 </div>
-                <a href="{{ route('category.show', 'perfume') }}" class="hidden md:inline-block text-sm uppercase tracking-widest border-b border-gray-900 pb-1 hover:text-amber-600 hover:border-amber-600 transition">Lihat Semua Parfum</a>
+                <a href="{{ route('category.show', 'j-scent') }}" class="hidden md:inline-block text-sm uppercase tracking-widest border-b border-gray-900 pb-1 hover:text-amber-600 hover:border-amber-600 transition">Lihat Semua J Scent</a>
             </div>
             
             <div class="slider-scroll flex md:grid md:grid-cols-3 gap-y-16 gap-x-8 pb-8 scrollbar-hide md:pb-0 md:gap-8 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory">
@@ -190,7 +190,7 @@
         @endif
 
         <!-- 2. COLLECTION: Bukhur Box (Slider) -->
-        @if($category = $categories['bukhur-gaharu'] ?? null)
+        @if($category = $categories['j-skin'] ?? null)
         <div class="mb-40 slider-container relative group">
             <div class="border-t border-gray-100 pt-10 mb-12 flex justify-between items-center px-2">
                  <h3 class="text-2xl font-serif text-gray-900">{{ $category->name }}</h3>
@@ -223,7 +223,7 @@
         @endif
 
          <!-- 4. CATEGORY: Linen Spray (Slider) -->
-         @if($category = $categories['linen-spray'] ?? null)
+         @if($category = $categories['bukhur'] ?? null)
         <div class="mb-40 slider-container relative group">
             <div class="text-center mb-12">
                  <h3 class="text-3xl font-serif text-gray-900 mb-2">{{ $category->name }}</h3>

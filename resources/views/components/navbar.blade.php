@@ -1,4 +1,16 @@
 <nav id="main-navbar" class="fixed top-0 w-full z-50 transition-all duration-300 bg-white text-gray-900 shadow-sm">
+    @php
+        $shariItems = [
+            ['label' => 'Bukhur', 'slug' => 'bukhur'],
+            ['label' => 'Solid', 'slug' => 'solid'],
+            ['label' => 'Tasbih', 'slug' => 'tasbih'],
+        ];
+
+        $homItems = [
+            ['label' => 'Linen', 'slug' => 'linen'],
+            ['label' => 'Mobil', 'slug' => 'mobil'],
+        ];
+    @endphp
     <style>
         /* Desktop Navigation Styles */
         .nav-desktop {
@@ -240,29 +252,40 @@
                 <a href="/" class="nav-link font-bold text-sm border-b-2 border-transparent pb-1 hover:border-gray-300 transition">
                     Home
                 </a>
-                <a href="{{ route('category.show', 'kayu-gaharu') }}" class="nav-link font-medium text-sm transition pb-1 border-b-2 border-transparent hover:border-gray-300">
-                    Kayu Gaharu
+                <a href="{{ route('category.show', 'j-scent') }}" class="nav-link font-medium text-sm transition pb-1 border-b-2 border-transparent hover:border-gray-300">
+                    J Scent
                 </a>
-                <a href="{{ route('category.show', 'bukhur-gaharu') }}" class="nav-link font-medium text-sm transition pb-1 border-b-2 border-transparent hover:border-gray-300">
-                    Bukhur Gaharu
+                <a href="{{ route('category.show', 'j-skin') }}" class="nav-link font-medium text-sm transition pb-1 border-b-2 border-transparent hover:border-gray-300">
+                    J Skin
                 </a>
-                <a href="{{ route('category.show', 'perfume') }}" class="nav-link font-medium text-sm transition pb-1 border-b-2 border-transparent hover:border-gray-300">
-                    Perfume
-                </a>
-                <!-- Dropdown: Lainnya -->
+                <!-- Dropdown: J Shar'i -->
                 <div class="relative group">
                     <button class="nav-link font-medium text-sm transition pb-1 border-b-2 border-transparent hover:border-gray-300 flex items-center gap-1">
-                        Lainnya
+                        J Shar'i
                         <svg class="w-3 h-3 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
                     <!-- Dropdown Menu -->
                     <div class="absolute top-full left-0 w-56 bg-white shadow-xl rounded-lg py-3 mt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2">
-                        <a href="{{ route('category.show', 'linen-spray') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition">Linen Spray</a>
-                        <a href="{{ route('category.show', 'deodorant') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition">Deodorant</a>
-                        <a href="{{ route('category.show', 'premium-series') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition">Premium Series</a>
-                        <a href="{{ route('category.show', 'produk-lainnya') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition">Produk Lainnya</a>
+                        @foreach($shariItems as $item)
+                            <a href="{{ route('category.show', $item['slug']) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition">{{ $item['label'] }}</a>
+                        @endforeach
                     </div>
                 </div>
+                <!-- Dropdown: J Hom -->
+                <div class="relative group">
+                    <button class="nav-link font-medium text-sm transition pb-1 border-b-2 border-transparent hover:border-gray-300 flex items-center gap-1">
+                        J Hom
+                        <svg class="w-3 h-3 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="absolute top-full left-0 w-56 bg-white shadow-xl rounded-lg py-3 mt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2">
+                        @foreach($homItems as $item)
+                            <a href="{{ route('category.show', $item['slug']) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition">{{ $item['label'] }}</a>
+                        @endforeach
+                    </div>
+                </div>
+                <a href="{{ route('distributors.index') }}" class="nav-link font-medium text-sm transition pb-1 border-b-2 border-transparent hover:border-gray-300">
+                    Distributors
+                </a>
             </div>
 
             <!-- Right: Cart Icon + Auth Buttons (Desktop Only) -->
@@ -344,35 +367,48 @@
                 <a href="/">Home</a>
             </li>
             <li class="mobile-menu-item">
-                <a href="{{ route('category.show', 'kayu-gaharu') }}">Kayu Gaharu</a>
+                <a href="{{ route('category.show', 'j-scent') }}">J Scent</a>
             </li>
             <li class="mobile-menu-item">
-                <a href="{{ route('category.show', 'bukhur-gaharu') }}">Bukhur Gaharu</a>
+                <a href="{{ route('category.show', 'j-skin') }}">J Skin</a>
             </li>
             <li class="mobile-menu-item">
-                <a href="{{ route('category.show', 'perfume') }}">Perfume</a>
-            </li>
-            <li class="mobile-menu-item">
-                <button class="mobile-dropdown-toggle" data-submenu="lainnya">
-                    Lainnya
+                <button class="mobile-dropdown-toggle" data-submenu="shari">
+                    J Shar'i
                     <svg class="dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                 </button>
-                <div id="submenu-lainnya" class="mobile-submenu">
+                <div id="submenu-shari" class="mobile-submenu">
                     <div class="mobile-submenu-item">
-                        <a href="{{ route('category.show', 'linen-spray') }}">Linen Spray</a>
+                        <a href="{{ route('category.show', 'bukhur') }}">Bukhur</a>
                     </div>
                     <div class="mobile-submenu-item">
-                        <a href="{{ route('category.show', 'deodorant') }}">Deodorant</a>
+                        <a href="{{ route('category.show', 'solid') }}">Solid</a>
                     </div>
                     <div class="mobile-submenu-item">
-                        <a href="{{ route('category.show', 'premium-series') }}">Premium Series</a>
-                    </div>
-                    <div class="mobile-submenu-item">
-                        <a href="{{ route('category.show', 'produk-lainnya') }}">Produk Lainnya</a>
+                        <a href="{{ route('category.show', 'tasbih') }}">Tasbih</a>
                     </div>
                 </div>
+            </li>
+            <li class="mobile-menu-item">
+                <button class="mobile-dropdown-toggle" data-submenu="hom">
+                    J Hom
+                    <svg class="dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <div id="submenu-hom" class="mobile-submenu">
+                    <div class="mobile-submenu-item">
+                        <a href="{{ route('category.show', 'linen') }}">Linen</a>
+                    </div>
+                    <div class="mobile-submenu-item">
+                        <a href="{{ route('category.show', 'mobil') }}">Mobil</a>
+                    </div>
+                </div>
+            </li>
+            <li class="mobile-menu-item">
+                <a href="{{ route('distributors.index') }}">Distributors</a>
             </li>
             <li class="mobile-menu-item border-t border-gray-200">
                 @auth
