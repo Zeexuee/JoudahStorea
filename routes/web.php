@@ -24,7 +24,14 @@ Route::get('/', function () {
         $query->limit(6); // Limit products per category for the homepage
     }])->get()->keyBy('slug');
     
-    return view('welcome', ['categories' => $categories]);
+    $videos = \App\Models\HomeVideo::where('is_active', true)
+        ->orderBy('sort_order')
+        ->get();
+    
+    return view('welcome', [
+        'categories' => $categories,
+        'videos' => $videos,
+    ]);
 });
 
 Route::get('/product/{slug}', function ($slug) {

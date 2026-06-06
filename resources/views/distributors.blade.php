@@ -1,9 +1,9 @@
 @php
     $support = config('distributors.support', []);
-    $locations = config('distributors.locations', []);
-    $featuredLocations = collect($locations)->where('featured', true)->values();
-    $center = $featuredLocations->first() ?? collect($locations)->first();
-    $allLocations = collect($locations)->values();
+    $locations = \App\Models\Distributor::all();
+    $featuredLocations = $locations->where('featured', true)->values();
+    $center = $featuredLocations->first() ?? $locations->first();
+    $allLocations = $locations->values();
 @endphp
 
 <x-layouts.app title="Distributors - Joudah Store" description="Find nearby Joudah Store distributors, contacts, and store locations.">

@@ -141,5 +141,8 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
         }
+
+        $this->call(DistributorSeeder::class);
+        $this->call(HomeVideoSeeder::class);
     }
 }

@@ -2,6 +2,7 @@
     <x-hero />
 
     <x-catalog-section :categories="$categories" />
+    <x-shorts-section :videos="$videos" />
     <x-about-section />
     <x-footer />
 </x-layouts.app>
