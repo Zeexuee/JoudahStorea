@@ -133,9 +133,12 @@
             <div class="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none"></div>
 
             <!-- Left Details Overlay (Bottom Left) -->
-            <div class="absolute bottom-6 left-5 text-white flex flex-col pointer-events-auto" style="position: absolute; bottom: 24px; left: 20px; z-index: 30; display: flex; flex-direction: column; width: calc(100% - 80px);">
+            <div class="absolute bottom-6 left-5 text-white flex flex-col pointer-events-auto" style="position: absolute; bottom: 24px; left: 20px; z-index: 30; display: flex; flex-direction: column; width: calc(100% - 80px); max-height: 35vh;">
                 <h3 id="shorts-title" class="text-sm font-bold mb-1 drop-shadow-md"></h3>
-                <p id="shorts-desc" class="text-xs text-gray-200 leading-relaxed line-clamp-3 drop-shadow-sm font-light"></p>
+                <div id="shorts-desc-container" class="overflow-hidden scrollbar-hide max-h-[4.5em] transition-all duration-300 ease-in-out">
+                    <p id="shorts-desc" class="text-xs text-gray-200 leading-relaxed drop-shadow-sm font-light line-clamp-3"></p>
+                </div>
+                <button id="shorts-more-btn" class="text-left text-xs text-amber-400 font-semibold mt-1 hidden" onclick="toggleFullDescription(event)">selengkapnya</button>
             </div>
 
             <!-- Right Controls Panel Overlay (Floats on the Right) -->
@@ -224,7 +227,25 @@
             
             // Text Overlays
             titleEl.textContent = video.title;
+            
+            // Reset description collapse state
             descEl.textContent = video.description || '';
+            descEl.className = 'text-xs text-gray-200 leading-relaxed line-clamp-3 drop-shadow-sm font-light';
+            
+            const moreBtn = document.getElementById('shorts-more-btn');
+            moreBtn.textContent = 'selengkapnya';
+            moreBtn.classList.add('hidden');
+            
+            const descContainer = document.getElementById('shorts-desc-container');
+            descContainer.className = 'overflow-hidden scrollbar-hide max-h-[4.5em] transition-all duration-300 ease-in-out';
+            descContainer.scrollTop = 0;
+
+            // Wait a moment for rendering and check if the description height exceeds container/line-clamp
+            setTimeout(() => {
+                if (descEl.scrollHeight > descEl.clientHeight) {
+                    moreBtn.classList.remove('hidden');
+                }
+            }, 100);
 
             // Social Media Direct Link Button
             socialBtn.href = video.social_media_url;
@@ -267,6 +288,34 @@
             player.play().catch(err => {
                 console.log("Autoplay was prevented by browser security.", err);
             });
+        }
+
+        function toggleFullDescription(event) {
+            if (event) event.stopPropagation();
+            const descEl = document.getElementById('shorts-desc');
+            const moreBtn = document.getElementById('shorts-more-btn');
+            const descContainer = document.getElementById('shorts-desc-container');
+            
+            if (descEl.classList.contains('line-clamp-3')) {
+                // Expand
+                descEl.classList.remove('line-clamp-3');
+                descContainer.classList.remove('overflow-hidden', 'max-h-[4.5em]');
+                descContainer.classList.add('overflow-y-auto', 'max-h-[25vh]', 'bg-black/40', 'backdrop-blur-md', 'p-3', 'rounded-xl', 'border', 'border-white/10', 'mt-1');
+                moreBtn.textContent = 'sembunyikan';
+            } else {
+                // Collapse
+                descContainer.classList.remove('overflow-y-auto', 'max-h-[25vh]', 'bg-black/40', 'backdrop-blur-md', 'p-3', 'rounded-xl', 'border', 'border-white/10', 'mt-1');
+                descContainer.classList.add('overflow-hidden', 'max-h-[4.5em]');
+                moreBtn.textContent = 'selengkapnya';
+                descContainer.scrollTop = 0;
+                
+                // Delay setting line-clamp-3 until the height collapse transition completes
+                setTimeout(() => {
+                    if (moreBtn.textContent === 'selengkapnya') {
+                        descEl.classList.add('line-clamp-3');
+                    }
+                }, 300);
+            }
         }
 
         function togglePlayPause() {
@@ -351,6 +400,15 @@
             touchEndY = event.changedTouches[0].screenY;
             handleSwipeGesture();
         }, false);
+
+        // Prevent swipe gestures when interacting/scrolling within description
+        const descContainer = document.getElementById('shorts-desc-container');
+        descContainer.addEventListener('touchstart', function(event) {
+            event.stopPropagation();
+        }, { passive: true });
+        descContainer.addEventListener('touchend', function(event) {
+            event.stopPropagation();
+        }, { passive: true });
 
         function handleSwipeGesture() {
             const distance = touchStartY - touchEndY;
