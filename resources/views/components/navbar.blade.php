@@ -3,7 +3,7 @@
         $shariItems = [
             ['label' => 'Bukhur', 'slug' => 'bukhur'],
             ['label' => 'Solid', 'slug' => 'solid'],
-            ['label' => 'Tasbih', 'slug' => 'tasbih'],
+            ['label' => 'Lain-lain', 'slug' => 'lain-lain'],
         ];
 
         $homItems = [
