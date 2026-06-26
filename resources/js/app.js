@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Hero Animation
     const heroTitle = document.querySelector('.hero-title');
     const heroSubtitle = document.querySelector('.hero-subtitle');
-    const heroSlides = document.querySelectorAll('.hero-slide');
 
     // Initial Text Animation
     const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
@@ -30,41 +29,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }, "-=0.8");
     }
 
-    // Carousel Animation
-    if (heroSlides.length > 0) {
-        let currentSlide = 0;
-        const totalSlides = heroSlides.length;
-        const slideDuration = 5; // Seconds per slide
+    // Carousel Animation setup function
+    const setupCarousel = (selector) => {
+        const slides = document.querySelectorAll(selector);
+        if (slides.length > 0) {
+            let currentSlide = 0;
+            const totalSlides = slides.length;
+            const slideDuration = 5; // Seconds per slide
 
-        const nextSlide = () => {
-            const next = (currentSlide + 1) % totalSlides;
+            const nextSlide = () => {
+                const next = (currentSlide + 1) % totalSlides;
 
-            // Fade out current
-            gsap.to(heroSlides[currentSlide], {
-                duration: 1.5,
-                opacity: 0,
-                ease: 'power2.inOut'
-            });
+                // Fade out current
+                gsap.to(slides[currentSlide], {
+                    duration: 1.5,
+                    opacity: 0,
+                    ease: 'power2.inOut'
+                });
 
-            // Fade in next
-            gsap.to(heroSlides[next], {
-                duration: 1.5,
-                opacity: 1,
-                ease: 'power2.inOut'
-            });
+                // Fade in next
+                gsap.to(slides[next], {
+                    duration: 1.5,
+                    opacity: 1,
+                    ease: 'power2.inOut'
+                });
 
-            currentSlide = next;
-        };
+                currentSlide = next;
+            };
 
-        // Start the loop
-        setInterval(nextSlide, slideDuration * 1000);
+            // Start the loop
+            setInterval(nextSlide, slideDuration * 1000);
 
-        // Initial zoom effect for the first slide
-        gsap.fromTo(heroSlides[0],
-            { scale: 1.1 },
-            { scale: 1, duration: 10, ease: 'none', repeat: -1, yoyo: true } // Subtle continuous zoom
-        );
-    }
+            // Initial zoom effect for the first slide
+            gsap.fromTo(slides[0],
+                { scale: 1.1 },
+                { scale: 1, duration: 10, ease: 'none', repeat: -1, yoyo: true } // Subtle continuous zoom
+            );
+        }
+    };
+
+    // Initialize both carousels independently
+    setupCarousel('.hero-slide-desktop');
+    setupCarousel('.hero-slide-mobile');
 
     // Navbar - Already has solid background, no scroll effects needed
     // This ensures navbar is always visible and not transparent
