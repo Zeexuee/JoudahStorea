@@ -2,7 +2,7 @@
     <!-- Background Images (Desktop Carousel) - Only visible on md screens and up -->
     <div class="hidden md:block absolute inset-0 w-full h-full">
         <img src="{{ asset('images/pc.png') }}" alt="Exclusive Perfume 1" class="hero-slide-desktop absolute inset-0 w-full h-full object-cover opacity-100">
-        <img src="{{ asset('images/hero-1.jpg') }}" alt="Exclusive Perfume 2" class="hero-slide-desktop absolute inset-0 w-full h-full object-cover opacity-0">
+        <img src="{{ asset('images/mid1.png') }}" alt="Exclusive Perfume 2" class="hero-slide-desktop absolute inset-0 w-full h-full object-cover opacity-0">
         <img src="{{ asset('images/hero-2.jpg') }}" alt="Exclusive Perfume 3" class="hero-slide-desktop absolute inset-0 w-full h-full object-cover opacity-0">
         <img src="{{ asset('images/hero-3.jpg') }}" alt="Exclusive Perfume 4" class="hero-slide-desktop absolute inset-0 w-full h-full object-cover opacity-0">
         <img src="{{ asset('images/hero-4.jpg') }}" alt="Exclusive Perfume 5" class="hero-slide-desktop absolute inset-0 w-full h-full object-cover opacity-0">
@@ -12,7 +12,7 @@
     <!-- TIP: You can replace the src paths here with mobile-specific portrait images (e.g. mobile-hero-1.jpg) -->
     <div class="block md:hidden absolute inset-0 w-full h-full">
         <img src="{{ asset('images/phone.png') }}" alt="Exclusive Perfume 1" class="hero-slide-mobile absolute inset-0 w-full h-full object-cover opacity-100">
-        <img src="{{ asset('images/hero-1.jpg') }}" alt="Exclusive Perfume 2" class="hero-slide-mobile absolute inset-0 w-full h-full object-cover opacity-0">
+        <img src="{{ asset('images/mid1.png') }}" alt="Exclusive Perfume 2" class="hero-slide-mobile absolute inset-0 w-full h-full object-cover opacity-0">
         <img src="{{ asset('images/hero-2.jpg') }}" alt="Exclusive Perfume 3" class="hero-slide-mobile absolute inset-0 w-full h-full object-cover opacity-0">
         <img src="{{ asset('images/hero-3.jpg') }}" alt="Exclusive Perfume 4" class="hero-slide-mobile absolute inset-0 w-full h-full object-cover opacity-0">
         <img src="{{ asset('images/hero-4.jpg') }}" alt="Exclusive Perfume 5" class="hero-slide-mobile absolute inset-0 w-full h-full object-cover opacity-0">

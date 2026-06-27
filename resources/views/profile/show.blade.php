@@ -121,39 +121,7 @@
                                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                                     @enderror
 
-                                    <div class="mt-3 border border-gray-200 rounded-lg p-3 bg-gray-50">
-                                        <div class="flex items-center justify-between gap-4">
-                                            <p class="text-sm text-gray-700">
-                                                Status Verifikasi Nomor:
-                                                @if($user->phone_verified_at)
-                                                    <span class="font-semibold text-green-700">Terverifikasi</span>
-                                                @else
-                                                    <span class="font-semibold text-amber-700">Belum Terverifikasi</span>
-                                                @endif
-                                            </p>
-                                            @if(!$user->phone_verified_at)
-                                                <form method="POST" action="{{ route('verification.otp.send') }}">
-                                                    @csrf
-                                                    <input type="hidden" name="channel" value="phone">
-                                                    <button type="submit" class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md transition">
-                                                        Kirim OTP WA
-                                                    </button>
-                                                </form>
-                                            @endif
-                                        </div>
-                                        @if(!$user->phone_verified_at)
-                                            <form method="POST" action="{{ route('verification.otp.verify') }}" class="mt-3 flex flex-col sm:flex-row gap-2">
-                                                @csrf
-                                                <input type="hidden" name="channel" value="phone">
-                                                <input type="text" name="otp_code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6"
-                                                       class="w-full sm:w-56 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                                                       placeholder="Masukkan 6 digit OTP" required>
-                                                <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-md transition">
-                                                    Verifikasi Nomor
-                                                </button>
-                                            </form>
-                                        @endif
-                                    </div>
+
                                 </div>
                             </div>
                         </div>

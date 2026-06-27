@@ -26,6 +26,13 @@ class OtpVerificationService
             ];
         }
 
+        if ($channel === 'email' && $user->email_verified_at) {
+            return [
+                'success' => false,
+                'message' => 'Email sudah terverifikasi.',
+            ];
+        }
+
         $destination = $this->resolveDestination($user, $channel);
 
         if (!$destination) {
@@ -53,6 +60,11 @@ class OtpVerificationService
 
         $code = $this->generateOtp();
 
+        // Save code in session for local development so it can be displayed on screen
+        if (app()->environment('local')) {
+            session()->put('dev_otp_code', $code);
+        }
+
         $otp = OtpVerification::create([
             'user_id' => $user->id,
             'channel' => $channel,
@@ -63,7 +75,16 @@ class OtpVerificationService
             'sent_at' => now(),
         ]);
 
-        $deliveryResult = $this->fonte->sendOtpToPhone($destination, $code);
+        if ($channel === 'phone') {
+            $deliveryResult = $this->fonte->sendOtpToPhone($destination, $code);
+        } elseif ($channel === 'email') {
+            try {
+                \Illuminate\Support\Facades\Mail::to($destination)->send(new \App\Mail\SendOtpMail($user, $code));
+                $deliveryResult = ['success' => true];
+            } catch (\Exception $e) {
+                $deliveryResult = ['success' => false, 'message' => 'Gagal mengirim email: ' . $e->getMessage()];
+            }
+        }
 
         if (!($deliveryResult['success'] ?? false)) {
             $otp->delete();
@@ -76,7 +97,7 @@ class OtpVerificationService
 
         return [
             'success' => true,
-            'message' => 'OTP berhasil dikirim ke nomor WhatsApp.',
+            'message' => $channel === 'email' ? 'OTP berhasil dikirim ke email Anda.' : 'OTP berhasil dikirim ke nomor WhatsApp.',
         ];
     }
 
@@ -86,6 +107,13 @@ class OtpVerificationService
             return [
                 'success' => true,
                 'message' => 'Nomor telepon sudah terverifikasi sebelumnya.',
+            ];
+        }
+
+        if ($channel === 'email' && $user->email_verified_at) {
+            return [
+                'success' => true,
+                'message' => 'Email sudah terverifikasi sebelumnya.',
             ];
         }
 
@@ -130,13 +158,17 @@ class OtpVerificationService
             'verified_at' => now(),
         ]);
 
-        $user->update([
-            'phone_verified_at' => now(),
-        ]);
+        if ($channel === 'phone') {
+            $user->update([
+                'phone_verified_at' => now(),
+            ]);
+        } elseif ($channel === 'email') {
+            $user->markEmailAsVerified();
+        }
 
         return [
             'success' => true,
-            'message' => 'Nomor telepon berhasil diverifikasi.',
+            'message' => $channel === 'email' ? 'Email berhasil diverifikasi.' : 'Nomor telepon berhasil diverifikasi.',
         ];
     }
 
@@ -144,6 +176,10 @@ class OtpVerificationService
     {
         if ($channel === 'phone') {
             return $user->phone;
+        }
+
+        if ($channel === 'email') {
+            return $user->email;
         }
 
         return null;

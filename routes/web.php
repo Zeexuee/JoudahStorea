@@ -10,6 +10,8 @@ use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Models\Category;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 
 $categorySlugMap = [
     'perfume' => 'j-scent',
@@ -91,10 +93,46 @@ Route::get('/category/{slug}', function (string $slug) use ($categorySlugMap) {
 Route::view('/distributors', 'distributors')->name('distributors.index');
 
 // Auth routes
+Route::get('/login', function () {
+    return redirect('/');
+})->name('login');
 Route::post('/auth/login', [AuthController::class, 'login'])->name('auth.login');
 Route::post('/auth/register', [AuthController::class, 'register'])->name('auth.register');
 Route::match(['get', 'post'], '/auth/logout', [AuthController::class, 'logout'])->name('auth.logout')->middleware('auth');
 Route::get('/auth/user', [AuthController::class, 'getCurrentUser'])->name('auth.user');
+
+// Email Verification routes
+Route::get('/email/verify', function (Request $request) {
+    if ($request->user()->hasVerifiedEmail()) {
+        return redirect('/profile');
+    }
+    
+    // Automatically trigger OTP sending (handled with cooldown inside service)
+    $otpService = app(\App\Services\OtpVerificationService::class);
+    $otpService->sendOtp($request->user(), 'email');
+
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+Route::post('/email/verify', function (Request $request) {
+    $request->validate([
+        'code' => 'required|string|size:6',
+    ]);
+
+    $otpService = app(\App\Services\OtpVerificationService::class);
+    $result = $otpService->verifyOtp($request->user(), 'email', $request->code);
+
+    if ($result['success']) {
+        return redirect('/profile')->with('success', 'Email Anda berhasil diverifikasi!');
+    }
+
+    return back()->with('error', $result['message']);
+})->middleware('auth')->name('verification.verify');
+
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return back()->with('success', 'Kode OTP baru telah dikirim ke email Anda!');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
 // Cart routes
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
@@ -152,8 +190,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/payment/{order}/cancel', [PaymentController::class, 'cancel'])->where('order', '[0-9]+')->name('payment.cancel');
 });
 
-// Admin routes (protected with auth and admin middleware)
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+// Admin routes (protected with auth, admin, and verified middleware)
+Route::middleware(['auth', 'admin', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminOrderController::class, 'dashboard'])->name('dashboard');
     
     // Order management

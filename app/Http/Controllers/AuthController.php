@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Auth\Events\Registered;
 
 class AuthController extends Controller
 {
@@ -76,6 +77,9 @@ class AuthController extends Controller
                 'postal_code' => $validated['postal_code'],
                 'password' => Hash::make($validated['password']),
             ]);
+
+            // Dispatch Registered event to trigger email verification
+            event(new Registered($user));
 
             // Log the user in
             auth()->login($user);
