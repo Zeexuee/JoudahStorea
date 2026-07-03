@@ -1,9 +1,9 @@
 @props(['categories'])
 
-<section id="catalog" class="py-32 bg-white">
+<section id="catalog" class="pt-24 pb-8 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Section Header -->
-        <div class="text-center mb-24">
+        <div class="text-center mb-16">
             <span class="text-amber-600 uppercase tracking-[0.2em] text-xs font-bold mb-3 block">Discover Joudah</span>
             <h2 class="text-4xl md:text-6xl font-serif text-gray-900 mb-6 tracking-tight">The Collection</h2>
            <div class="w-12 h-0.5 bg-gray-900 mx-auto"></div>
@@ -224,7 +224,7 @@
 
          <!-- 4. CATEGORY: Linen Spray (Slider) -->
          @if($category = $categories['bukhur'] ?? null)
-        <div class="mb-40 slider-container relative group">
+        <div class="mb-10 slider-container relative group">
             <div class="text-center mb-12">
                  <h3 class="text-3xl font-serif text-gray-900 mb-2">{{ $category->name }}</h3>
                  <p class="text-gray-500 font-light">{{ $category->description }}</p>
