@@ -3,6 +3,6 @@
 
     <x-catalog-section :categories="$categories" />
     <x-shorts-section :videos="$videos" />
-    <x-about-section />
+    <x-event-section :events="$events" />
     <x-footer />
 </x-layouts.app>

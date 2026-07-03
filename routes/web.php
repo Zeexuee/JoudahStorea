@@ -8,6 +8,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Models\Category;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -29,10 +30,16 @@ Route::get('/', function () {
     $videos = \App\Models\HomeVideo::where('is_active', true)
         ->orderBy('sort_order')
         ->get();
+        
+    $events = \App\Models\Event::where('is_active', true)
+        ->orderBy('event_date', 'desc')
+        ->take(3)
+        ->get();
     
     return view('welcome', [
         'categories' => $categories,
         'videos' => $videos,
+        'events' => $events,
     ]);
 });
 
@@ -91,6 +98,8 @@ Route::get('/category/{slug}', function (string $slug) use ($categorySlugMap) {
 })->name('category.show');
 
 Route::view('/distributors', 'distributors')->name('distributors.index');
+
+Route::get('/event/{slug}', [EventController::class, 'show'])->name('event.detail');
 
 // Auth routes
 Route::get('/login', function () {
@@ -190,8 +199,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/payment/{order}/cancel', [PaymentController::class, 'cancel'])->where('order', '[0-9]+')->name('payment.cancel');
 });
 
-// Admin routes (protected with auth, admin, and verified middleware)
-Route::middleware(['auth', 'admin', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+// Admin routes (protected with auth and admin middleware)
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminOrderController::class, 'dashboard'])->name('dashboard');
     
     // Order management
