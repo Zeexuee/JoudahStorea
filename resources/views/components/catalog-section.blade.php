@@ -256,7 +256,7 @@
         @endif
 
         <!-- 5. FEATURED: Gifting & Hampers (Split Layout) -->
-        @if($category = $categories['premium-series'] ?? null)
+       <!-- @if($category = $categories['premium-series'] ?? null)
         <div class="mb-40 bg-warm-gray-50 rounded-2xl overflow-hidden shadow-sm border border-gray-100">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 <div class="relative bg-gray-100 flex items-center justify-center p-8 lg:p-0 min-h-[400px]">
@@ -289,7 +289,7 @@
                 </div>
             </div>
         </div>
-        @endif
+        @endif -->
 
     </div>
 </section>
