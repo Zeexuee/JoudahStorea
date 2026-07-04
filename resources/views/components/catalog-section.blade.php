@@ -74,24 +74,27 @@
                 let isDragging = false;
 
                 const startDrag = (e) => {
+                    if (e.pointerType && e.pointerType !== 'mouse') return;
                     isDown = true;
                     isDragging = false;
-                    startX = e.pageX || e.touches[0].pageX;
+                    startX = e.pageX;
                     scrollLeft = slider.scrollLeft;
                     slider.classList.add('dragging');
                 };
 
-                const endDrag = () => {
+                const endDrag = (e) => {
+                    if (e && e.pointerType && e.pointerType !== 'mouse') return;
                     isDown = false;
                     slider.classList.remove('dragging');
                 };
 
                 const drag = (e) => {
                     if (!isDown) return;
+                    if (e.pointerType && e.pointerType !== 'mouse') return;
                     e.preventDefault();
                     
-                    const x = e.pageX || e.touches[0].pageX;
-                    const walk = (x - startX) * 1;
+                    const x = e.pageX;
+                    const walk = (x - startX) * 1.5;
                     const newScrollLeft = scrollLeft - walk;
                     
                     if (Math.abs(walk) > 5) {
@@ -101,11 +104,12 @@
                     slider.scrollLeft = newScrollLeft;
                 };
 
-                // Mouse events
-                slider.addEventListener('mousedown', startDrag);
-                slider.addEventListener('mouseleave', endDrag);
-                slider.addEventListener('mouseup', endDrag);
-                slider.addEventListener('mousemove', drag);
+                // Pointer events (handles mouse cleanly without interfering with touch)
+                slider.addEventListener('pointerdown', startDrag);
+                slider.addEventListener('pointerleave', endDrag);
+                slider.addEventListener('pointerup', endDrag);
+                slider.addEventListener('pointercancel', endDrag);
+                slider.addEventListener('pointermove', drag);
 
                 // Prevent product link click when dragging
                 const links = slider.querySelectorAll('a');
