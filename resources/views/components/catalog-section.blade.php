@@ -39,6 +39,12 @@
                 display: none;
             }
 
+            /* Enable super smooth momentum scrolling on iOS */
+            .slider-scroll {
+                -webkit-overflow-scrolling: touch;
+                scroll-behavior: smooth;
+            }
+
             /* J Scent section responsive styles */
             @media (max-width: 768px) {
                 .j-scent-section .slider-scroll {
@@ -67,51 +73,8 @@
             // Get all slider scroll containers
             const sliderScrolls = document.querySelectorAll('.slider-scroll');
 
-            sliderScrolls.forEach(slider => {
-                let isDown = false;
-                let startX;
-                let scrollLeft;
-                let isDragging = false;
-
-                const startDrag = (e) => {
-                    if (e.pointerType && e.pointerType !== 'mouse') return;
-                    isDown = true;
-                    isDragging = false;
-                    startX = e.pageX;
-                    scrollLeft = slider.scrollLeft;
-                    slider.classList.add('dragging');
-                };
-
-                const endDrag = (e) => {
-                    if (e && e.pointerType && e.pointerType !== 'mouse') return;
-                    isDown = false;
-                    slider.classList.remove('dragging');
-                };
-
-                const drag = (e) => {
-                    if (!isDown) return;
-                    if (e.pointerType && e.pointerType !== 'mouse') return;
-                    e.preventDefault();
-                    
-                    const x = e.pageX;
-                    const walk = (x - startX) * 1.5;
-                    const newScrollLeft = scrollLeft - walk;
-                    
-                    if (Math.abs(walk) > 5) {
-                        isDragging = true;
-                    }
-                    
-                    slider.scrollLeft = newScrollLeft;
-                };
-
-                // Pointer events (handles mouse cleanly without interfering with touch)
-                slider.addEventListener('pointerdown', startDrag);
-                slider.addEventListener('pointerleave', endDrag);
-                slider.addEventListener('pointerup', endDrag);
-                slider.addEventListener('pointercancel', endDrag);
-                slider.addEventListener('pointermove', drag);
-
-                // Prevent product link click when dragging
+                // Prevent product link click when dragging (not needed anymore, but keeping basic setup)
+                // We've removed JS dragging to let native momentum scrolling handle mobile flawlessly.
                 const links = slider.querySelectorAll('a');
                 links.forEach(link => {
                     link.addEventListener('click', function(e) {
@@ -164,9 +127,9 @@
                 <a href="{{ route('category.show', 'j-scent') }}" class="hidden md:inline-block text-sm uppercase tracking-widest border-b border-gray-900 pb-1 hover:text-amber-600 hover:border-amber-600 transition">Lihat Semua J Scent</a>
             </div>
             
-            <div class="slider-scroll flex md:grid md:grid-cols-3 gap-y-16 gap-x-8 pb-8 scrollbar-hide md:pb-0 md:gap-8 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory">
+            <div class="slider-scroll flex md:grid md:grid-cols-3 gap-y-16 gap-x-8 pb-8 scrollbar-hide md:pb-0 md:gap-8 overflow-x-auto md:overflow-x-visible">
                 @foreach($category->products->take(3) as $product)
-                <a href="{{ route('product.detail', $product->slug) }}" class="group cursor-pointer block snap-start shrink-0 w-56 md:w-auto md:snap-start md:shrink-0">
+                <a href="{{ route('product.detail', $product->slug) }}" class="group cursor-pointer block shrink-0 w-56 md:w-auto md:shrink-0">
                     <div class="relative bg-gray-50 aspect-[4/5] overflow-hidden mb-6">
                          @php
                              $imagePath = $product->images[0] ?? null;
@@ -199,9 +162,9 @@
             <button class="slider-btn prev-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"></path></svg></button>
             <button class="slider-btn next-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"></path></svg></button>
 
-            <div class="slider-scroll flex overflow-x-auto snap-x snap-mandatory gap-8 pb-8 scrollbar-hide px-2">
+            <div class="slider-scroll flex overflow-x-auto gap-8 pb-8 scrollbar-hide px-2">
                 @foreach($category->products as $product)
-                <div class="snap-start shrink-0 w-72 group/card cursor-pointer">
+                <div class="shrink-0 w-72 group/card cursor-pointer">
                     <a href="{{ route('product.detail', $product->slug) }}" class="block">
                     <div class="relative aspect-square bg-gray-50 mb-6 overflow-hidden">
                             @php
@@ -232,9 +195,9 @@
             <button class="slider-btn prev-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"></path></svg></button>
             <button class="slider-btn next-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"></path></svg></button>
 
-            <div class="slider-scroll flex overflow-x-auto snap-x snap-mandatory gap-6 pb-8 scrollbar-hide px-4 md:px-0">
+            <div class="slider-scroll flex overflow-x-auto gap-6 pb-8 scrollbar-hide px-4 md:px-0">
                 @foreach($category->products as $product)
-                <div class="snap-center shrink-0 w-56 group/card cursor-pointer text-center">
+                <div class="shrink-0 w-56 group/card cursor-pointer text-center">
                     <a href="{{ route('product.detail', $product->slug) }}" class="block">
                         <div class="relative aspect-[3/4] bg-gray-50 mb-4 overflow-hidden rounded-lg">
                             @php
