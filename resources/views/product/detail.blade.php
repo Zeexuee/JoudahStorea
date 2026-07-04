@@ -69,7 +69,6 @@
                     overflow-y: hidden;
                     -webkit-overflow-scrolling: touch;
                     scroll-behavior: smooth;
-                    scroll-snap-type: x mandatory;
                     user-select: none;
                     min-height: auto;
                 }
@@ -78,7 +77,6 @@
                     flex-shrink: 0;
                     width: 280px;
                     height: 280px;
-                    scroll-snap-align: start;
                 }
 
                 #gallery-slider .w-full {
@@ -158,60 +156,14 @@
             const gallerySlider = document.getElementById('gallery-slider');
             if (!gallerySlider) return;
 
-            let isDown = false;
-            let startX;
-            let scrollLeft;
-            let isDragging = false;
+            // JS Dragging removed to allow flawless native scrolling on mobile
 
-            const startDrag = (e) => {
-                isDown = true;
-                isDragging = false;
-                startX = e.pageX || e.touches[0].pageX;
-                scrollLeft = gallerySlider.scrollLeft;
-                gallerySlider.style.cursor = 'grabbing';
-            };
-
-            const endDrag = () => {
-                isDown = false;
-                gallerySlider.style.cursor = 'grab';
-            };
-
-            const drag = (e) => {
-                if (!isDown) return;
-                e.preventDefault();
-                
-                const x = e.pageX || e.touches[0].pageX;
-                const walk = (x - startX) * 1;
-                const newScrollLeft = scrollLeft - walk;
-                
-                if (Math.abs(walk) > 5) {
-                    isDragging = true;
-                }
-                
-                gallerySlider.scrollLeft = newScrollLeft;
-            };
-
-            // Mouse events
-            gallerySlider.addEventListener('mousedown', startDrag);
-            gallerySlider.addEventListener('mouseleave', endDrag);
-            gallerySlider.addEventListener('mouseup', endDrag);
-            gallerySlider.addEventListener('mousemove', drag);
-
-            // Touch events
-            gallerySlider.addEventListener('touchstart', startDrag);
-            gallerySlider.addEventListener('touchend', endDrag);
-            gallerySlider.addEventListener('touchmove', drag);
-
-            // Prevent image drag
+            // Prevent image drag and handle modal opening
             const images = gallerySlider.querySelectorAll('img');
             images.forEach(img => {
                 img.addEventListener('dragstart', (e) => e.preventDefault());
                 img.addEventListener('click', function(e) {
-                    if (isDragging) {
-                        e.preventDefault();
-                        return false;
-                    }
-                    // Open image modal if not dragging
+                    // Open image modal
                     const modal = document.getElementById('gallery-modal');
                     const modalImg = document.getElementById('modal-gallery-image');
                     if (modal && modalImg) {
@@ -220,9 +172,6 @@
                     }
                 });
             });
-
-            // Set cursor style
-            gallerySlider.style.cursor = 'grab';
         });
         </script>        
         <div class="split-screen">

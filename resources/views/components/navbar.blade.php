@@ -52,29 +52,43 @@
             width: 24px;
             height: 18px;
             position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
         }
 
         .hamburger span {
+            position: absolute;
             width: 100%;
             height: 2px;
             background-color: #1a1a1a;
-            transition: all 0.3s ease;
-            display: block;
+            transition: all 0.3s ease-in-out;
+            left: 0;
+            border-radius: 2px;
+        }
+
+        .hamburger span:nth-child(1) {
+            top: 0px;
+        }
+
+        .hamburger span:nth-child(2) {
+            top: 8px;
+        }
+
+        .hamburger span:nth-child(3) {
+            top: 16px;
         }
 
         .hamburger.active span:nth-child(1) {
-            transform: rotate(45deg) translate(7px, 7px);
+            transform: rotate(45deg);
+            top: 8px;
         }
 
         .hamburger.active span:nth-child(2) {
             opacity: 0;
+            width: 0;
         }
 
         .hamburger.active span:nth-child(3) {
-            transform: rotate(-45deg) translate(8px, -8px);
+            transform: rotate(-45deg);
+            top: 8px;
         }
 
         /* Mobile Menu Overlay */
