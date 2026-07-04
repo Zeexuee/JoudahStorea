@@ -102,8 +102,8 @@
             top: 80px;
             right: 0;
             bottom: 0;
-            width: 100%;
-            max-width: 400px;
+            width: 85%;
+            max-width: 340px;
             background-color: #ffffff;
             transform: translateX(100%);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -114,7 +114,8 @@
 
         @media (max-width: 600px) {
             .mobile-menu {
-                max-width: 100%;
+                width: 75%;
+                max-width: 300px;
             }
         }
 
@@ -143,11 +144,11 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 14px 20px;
+            padding: 12px 16px;
             color: #1a1a1a;
             text-decoration: none;
             font-weight: 500;
-            font-size: 15px;
+            font-size: 14px;
             transition: all 0.2s ease;
             cursor: pointer;
             background: none;
@@ -166,8 +167,8 @@
         /* User menu items styling */
         .mobile-menu-item a.menu-content,
         .mobile-menu-item button.menu-content {
-            gap: 12px;
-            padding: 12px 16px;
+            gap: 10px;
+            padding: 10px 16px;
         }
         
         .mobile-menu-item a.menu-content span,
@@ -216,7 +217,7 @@
         }
 
         .mobile-submenu-item a {
-            padding: 12px 24px 12px 48px;
+            padding: 10px 16px 10px 40px;
             font-weight: 400;
             font-size: 13px;
         }
@@ -453,8 +454,8 @@
                     </button>
                 </li>
             @else
-                <li class="mobile-menu-item">
-                    <button onclick="openAuthModal(); closeMenu();" class="w-full text-left px-5 py-3.5 bg-amber-600 text-white font-medium rounded-md hover:bg-amber-700 transition">
+                <li class="mobile-menu-item p-4">
+                    <button onclick="openAuthModal(); closeMenu();" class="w-full text-center px-4 py-2.5 bg-amber-600 text-white font-medium rounded-md hover:bg-amber-700 transition text-sm">
                         <i class="fa-solid fa-sign-in-alt mr-2"></i>Login
                     </button>
                 </li>
