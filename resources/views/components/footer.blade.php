@@ -17,10 +17,10 @@
             <div>
                 <h4 class="font-serif text-gray-900 mb-6">Toko</h4>
                 <ul class="space-y-4 text-sm text-gray-500">
-                    <li><a href="#" class="hover:text-amber-600 transition">Semua Parfum</a></li>
-                    <li><a href="#" class="hover:text-amber-600 transition">Bukhur Terbaik</a></li>
-                    <li><a href="#" class="hover:text-amber-600 transition">Baru Datang</a></li>
-                    <li><a href="#" class="hover:text-amber-600 transition">Set Eksklusif</a></li>
+                    <li><a href="{{ route('category.show', 'j-scent') }}" class="hover:text-amber-600 transition">Semua Parfum</a></li>
+                    <li><a href="{{ route('category.show', 'bukhur') }}" class="hover:text-amber-600 transition">Bukhur Terbaik</a></li>
+                    <li><a href="{{ url('/#catalog') }}" class="hover:text-amber-600 transition">Baru Datang</a></li>
+                    <li><a href="{{ url('/#catalog') }}" class="hover:text-amber-600 transition">Set Eksklusif</a></li>
                 </ul>
             </div>
 
@@ -31,7 +31,7 @@
                     <li><a href="https://wa.me/087796715916?text=Halo kak, " class="hover:text-amber-600 transition">Hubungi Kami</a></li>
                     <li><a href="{{ route('shipping-policy') }}" class="hover:text-amber-600 transition">Kebijakan Pengiriman</a></li>
                     <li><a href="{{ route('returns-exchanges') }}" class="hover:text-amber-600 transition">Pengembalian & Tukar</a></li>
-                    <li><a href="#" class="hover:text-amber-600 transition">FAQ</a></li>
+                    <li><a href="{{ route('faq') }}" class="hover:text-amber-600 transition">FAQ</a></li>
                 </ul>
             </div>
 

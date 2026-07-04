@@ -265,5 +265,6 @@ Route::get('/test/cities/{provinceId}', function ($provinceId) {
 Route::view('/privacy-policy', 'privacy-policy')->name('privacy-policy');
 Route::view('/shipping-policy', 'shipping-policy')->name('shipping-policy');
 Route::view('/returns-exchanges', 'returns-exchanges')->name('returns-exchanges');
+Route::view('/faq', 'faq')->name('faq');
 
 
