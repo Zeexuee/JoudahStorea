@@ -66,10 +66,17 @@ class EventResource extends Resource
 
                 Section::make('Media & Status')->schema([
                     FileUpload::make('image')
-                        ->label('Gambar Banner')
+                        ->label('Gambar Banner Utama')
                         ->image()
                         ->disk('public')
                         ->directory('events'),
+                        
+                    FileUpload::make('detail_image')
+                        ->label('Gambar Detail Event (Opsional)')
+                        ->image()
+                        ->disk('public')
+                        ->directory('events/details')
+                        ->helperText('Gambar tambahan yang akan ditampilkan di dalam halaman detail acara.'),
                         
                     Toggle::make('is_active')
                         ->label('Aktif / Tampilkan')

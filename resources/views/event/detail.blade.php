@@ -37,9 +37,15 @@
 
                     <h1 class="text-3xl md:text-5xl font-serif text-gray-900 mb-8 leading-tight">{{ $event->title }}</h1>
 
-                    <div class="prose prose-lg prose-amber max-w-none text-gray-700">
+                    <div class="prose prose-lg prose-amber max-w-none text-gray-700 mb-8">
                         {!! $event->description !!}
                     </div>
+
+                    @if($event->detail_image)
+                    <div class="w-full mt-8 rounded-xl overflow-hidden shadow-md">
+                        <img src="{{ asset('storage/' . $event->detail_image) }}" alt="Detail {{ $event->title }}" class="w-full h-auto object-cover">
+                    </div>
+                    @endif
                 </div>
             </article>
         </div>

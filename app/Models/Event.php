@@ -14,6 +14,7 @@ class Event extends Model
         'slug',
         'description',
         'image',
+        'detail_image',
         'event_date',
         'external_url',
         'is_active',
