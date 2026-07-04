@@ -107,11 +107,6 @@
                 slider.addEventListener('mouseup', endDrag);
                 slider.addEventListener('mousemove', drag);
 
-                // Touch events
-                slider.addEventListener('touchstart', startDrag);
-                slider.addEventListener('touchend', endDrag);
-                slider.addEventListener('touchmove', drag);
-
                 // Prevent product link click when dragging
                 const links = slider.querySelectorAll('a');
                 links.forEach(link => {
