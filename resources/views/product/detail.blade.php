@@ -634,13 +634,8 @@
                             window.updateCartCount(data.cartCount);
                         }
 
-                        // Show success message and show maintenance modal
-                        showToast(`${data.productName} ditambahkan ke keranjang!`);
-                        
-                        // Show checkout maintenance modal after a short delay
-                        setTimeout(() => {
-                            window.showCheckoutMaintenanceModal();
-                        }, 500);
+                        // Redirect directly to checkout
+                        window.location.href = '/checkout';
                         
                     } catch (error) {
                         console.error('Error with Buy Now:', error);
