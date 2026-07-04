@@ -11,8 +11,8 @@
         @if($events->count() > 0)
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 @foreach($events as $event)
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col transition hover:shadow-lg hover:-translate-y-1 duration-300 w-full max-w-md mx-auto">
-                    <a href="{{ route('event.detail', $event->slug) }}" class="block aspect-[4/3] sm:aspect-video overflow-hidden relative group">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col transition hover:shadow-lg hover:-translate-y-1 duration-300">
+                    <a href="{{ route('event.detail', $event->slug) }}" class="block overflow-hidden relative group w-full" style="height: 280px;">
                         @if($event->image)
                             <img src="{{ asset('storage/' . $event->image) }}" alt="{{ $event->title }}" class="w-full h-full object-cover transition hover:scale-105 duration-500">
                         @else
