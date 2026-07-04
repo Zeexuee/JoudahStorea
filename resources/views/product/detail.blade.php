@@ -247,8 +247,8 @@
                         <div class="mb-8 bg-[#F3EAD8] p-5 rounded-none shadow-none relative overflow-hidden max-w-md">
 
                         <!-- Price Info Grid -->
-                            <div class="flex flex-wrap items-center gap-x-12 gap-y-4 mb-6">
-                            <div class="min-w-[140px]">
+                            <div class="grid grid-cols-2 gap-3 mb-6">
+                            <div class="flex flex-col justify-end">
                                 <span class="block text-gray-500 text-xs mb-1">Instant price</span>
                                 @if($product->has_discount)
                                     <div class="flex items-baseline gap-3">
@@ -266,9 +266,9 @@
                                 @endif
                             </div>
                             @if($product->shopee_link || $product->tokopedia_link)
-                            <div>
-                                <span class="block text-gray-500 text-xs mb-2">Available at</span>
-                                <div class="flex gap-6 items-center">
+                            <div class="flex flex-col items-center justify-end">
+                                <span class="block text-gray-500 text-xs mb-2 text-center">Available at</span>
+                                <div class="flex gap-4 items-center justify-center">
                                     <!-- Shopee -->
                                     @if($product->shopee_link)
                                     <a href="{{ $product->shopee_link }}" target="_blank" class="block hover:opacity-80 transition transform hover:scale-105">
@@ -283,6 +283,8 @@
                                     @endif
                                 </div>
                             </div>
+                            @else
+                            <div></div>
                             @endif
                         </div>
 
