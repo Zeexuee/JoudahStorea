@@ -247,8 +247,8 @@
                         <div class="mb-8 bg-[#F3EAD8] p-5 rounded-none shadow-none relative overflow-hidden max-w-md">
 
                         <!-- Price Info Grid -->
-                            <div class="grid grid-cols-2 gap-6 mb-6">
-                            <div>
+                            <div class="flex flex-wrap justify-between gap-x-6 gap-y-4 mb-6">
+                            <div class="flex-1 min-w-[140px]">
                                 <span class="block text-gray-500 text-xs mb-1">Instant price</span>
                                 @if($product->has_discount)
                                     <div class="flex items-baseline gap-3">
