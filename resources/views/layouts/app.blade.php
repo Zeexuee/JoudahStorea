@@ -35,7 +35,9 @@
 </head>
 <body class="font-sans antialiased">
     <div class="min-h-screen bg-white">
-        <x-navbar />
+        @if (!request()->is('email/verify'))
+            <x-navbar />
+        @endif
         <main>
             @if (session('success'))
                 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
