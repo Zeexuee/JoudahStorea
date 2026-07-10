@@ -11,7 +11,7 @@
         <tr>
             <td style="padding: 40px 32px 20px; text-align: center; border-bottom: 1px solid #f3f4f6;">
                 <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #111827; letter-spacing: -0.5px;">
-                    {{ config('app.name') }}
+                    Joudah Store
                 </h1>
             </td>
         </tr>
@@ -22,7 +22,7 @@
                     Verifikasi Email
                 </h2>
                 <p style="font-size: 15px; line-height: 24px; color: #4b5563; margin: 0 0 32px 0;">
-                    Halo <strong>{{ $user->name }}</strong>, terima kasih telah mendaftar di {{ config('app.name') }}. Silakan masukkan kode OTP di bawah ini untuk melanjutkan.
+                    Halo <strong>{{ $user->name }}</strong>, terima kasih telah mendaftar di Joudah Store. Silakan masukkan kode OTP di bawah ini untuk melanjutkan.
                 </p>
                 
                 <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; display: inline-block; margin-bottom: 32px; min-width: 250px;">
@@ -41,7 +41,7 @@
         <tr>
             <td style="background-color: #f9fafb; border-top: 1px solid #f3f4f6; padding: 24px 32px; text-align: center;">
                 <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                    &copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
+                    &copy; {{ date('Y') }} Joudah Store. All rights reserved.
                 </p>
             </td>
         </tr>
