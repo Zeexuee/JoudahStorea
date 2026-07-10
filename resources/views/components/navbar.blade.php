@@ -352,15 +352,6 @@
                         <i class="fa-solid fa-shopping-cart text-lg"></i>
                     </button>
                 @endauth
-                @if(auth()->check())
-                    <button onclick="toggleProfileMenu()" class="p-2 text-gray-900 hover:bg-gray-100 transition rounded-lg" title="Profil">
-                        <i class="fa-solid fa-circle-user text-2xl"></i>
-                    </button>
-                @else
-                    <button onclick="openAuthModal()" class="p-2 text-gray-900 hover:bg-gray-100 transition rounded-lg" title="Login">
-                        <i class="fa-solid fa-circle-user text-2xl"></i>
-                    </button>
-                @endif
                 <button id="nav-hamburger-btn" class="nav-mobile-btn" aria-label="Toggle menu" aria-expanded="false">
                     <div class="hamburger">
                         <span></span>

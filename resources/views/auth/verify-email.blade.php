@@ -1,77 +1,58 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-[70vh] flex items-center justify-center bg-gray-50/50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-md">
+<div class="min-h-[70vh] flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 bg-white/80 backdrop-blur-xl p-10 rounded-3xl border border-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-300">
         <div>
-            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-amber-50 text-amber-600">
-                <i class="fa-solid fa-envelope-open-text text-xl"></i>
-            </div>
-            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900 tracking-tight">
-                Verifikasi Email Anda
+            <h2 class="mt-2 text-center text-3xl font-bold text-gray-900 tracking-tight">
+                Verifikasi Email
             </h2>
-            <p class="mt-2 text-center text-sm text-gray-600">
-                Kami telah mengirimkan 6 digit kode OTP verifikasi ke email Anda. Silakan masukkan kode tersebut di bawah ini.
+            <p class="mt-3 text-center text-sm text-gray-500 leading-relaxed">
+                Kami telah mengirimkan 6 digit kode OTP verifikasi ke email Anda. Silakan masukkan kode tersebut di bawah ini untuk melanjutkan.
             </p>
         </div>
 
-
         @if (session('success'))
-            <div class="rounded-xl bg-emerald-50 border border-emerald-100 p-4 text-emerald-800 text-sm flex items-start gap-3">
-                <i class="fa-solid fa-circle-check mt-0.5 text-emerald-500"></i>
-                <span>{{ session('success') }}</span>
+            <div class="rounded-2xl bg-emerald-50/80 backdrop-blur-sm border border-emerald-100/50 p-4 text-emerald-700 text-sm font-medium text-center">
+                {{ session('success') }}
             </div>
         @endif
 
         @if (session('error'))
-            <div class="rounded-xl bg-rose-50 border border-rose-100 p-4 text-rose-800 text-sm flex items-start gap-3">
-                <i class="fa-solid fa-circle-xmark mt-0.5 text-rose-500"></i>
-                <span>{{ session('error') }}</span>
+            <div class="rounded-2xl bg-rose-50/80 backdrop-blur-sm border border-rose-100/50 p-4 text-rose-700 text-sm font-medium text-center">
+                {{ session('error') }}
             </div>
         @endif
 
-        <div class="mt-8 space-y-6">
+        <div class="mt-8 space-y-8">
             <!-- Form untuk Verifikasi Kode OTP -->
-            <form method="POST" action="{{ route('verification.verify') }}" class="space-y-4">
+            <form method="POST" action="{{ route('verification.verify') }}" class="space-y-6">
                 @csrf
                 <div>
-                    <label for="code" class="block text-sm font-medium text-gray-700 mb-2">Kode OTP (6 Digit)</label>
+                    <label for="code" class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-3 text-center">Kode OTP (6 Digit)</label>
                     <input type="text" name="code" id="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required 
-                           class="w-full text-center tracking-[0.75em] text-2xl font-bold py-3 px-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                           class="block w-full text-center tracking-[1em] text-3xl font-bold py-4 px-4 bg-gray-50/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all shadow-inner placeholder-gray-300"
                            placeholder="000000">
                 </div>
 
                 <button type="submit" 
-                        class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md">
+                        class="w-full flex justify-center py-4 px-4 text-sm font-semibold rounded-2xl text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-900/10 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-xl hover:-translate-y-0.5">
                     Verifikasi Kode
                 </button>
             </form>
 
-            <div class="text-sm text-gray-500 text-center font-normal">
-                Belum menerima kode OTP atau kode sudah kedaluwarsa? Klik tombol di bawah ini untuk mengirim ulang.
-            </div>
-
-            <!-- Form untuk Kirim Ulang OTP -->
-            <form method="POST" action="{{ route('verification.send') }}">
-                @csrf
-                <button type="submit" 
-                        class="group relative w-full flex justify-center py-2.5 px-4 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all duration-200 cursor-pointer">
-                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                        <i class="fa-solid fa-rotate text-gray-400 group-hover:text-gray-500 transition-colors duration-200"></i>
-                    </span>
-                    Kirim Ulang Kode OTP
-                </button>
-            </form>
-
-            <!-- Tombol Logout -->
-            <div class="flex items-center justify-center mt-4">
-                <a href="{{ route('auth.logout') }}" 
-                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                   class="text-sm font-medium text-amber-600 hover:text-amber-500 transition-colors">
-                    Keluar / Logout
-                </a>
-                <form id="logout-form" action="{{ route('auth.logout') }}" method="POST" class="hidden">
-                    &csrf
+            <div class="pt-6 border-t border-gray-100">
+                <div class="text-sm text-gray-500 text-center font-normal mb-4">
+                    Belum menerima kode OTP?
+                </div>
+                
+                <!-- Form untuk Kirim Ulang OTP -->
+                <form method="POST" action="{{ route('verification.send') }}">
+                    @csrf
+                    <button type="submit" 
+                            class="w-full flex justify-center py-3.5 px-4 border-2 border-gray-100 text-sm font-semibold rounded-2xl text-gray-700 bg-transparent hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-gray-100 transition-all duration-300 cursor-pointer">
+                        Kirim Ulang Kode
+                    </button>
                 </form>
             </div>
         </div>
