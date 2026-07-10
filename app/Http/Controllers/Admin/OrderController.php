@@ -265,6 +265,7 @@ class OrderController extends Controller
     public function dashboard()
     {
         $stats = [
+            'total_users' => \App\Models\User::count(),
             'total_orders' => Order::count(),
             'pending_orders' => Order::where('status', 'pending')->count(),
             'processing_orders' => Order::where('status', 'processing')->count(),
