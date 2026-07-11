@@ -159,7 +159,7 @@
                             <button type="button" id="shippingEditToggleButton" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-medium transition" onclick="toggleShippingEditForm()">
                                 Edit Data Pengiriman
                             </button>
-                            @if($order->status !== 'delivered')
+                            @if($order->status !== 'delivered' && !empty(trim($order->shipping->tracking_number, '- ')))
                                 <form method="POST" action="{{ route('admin.orders.confirmDelivered', $order) }}" onsubmit="return confirm('Konfirmasi pesanan sudah diterima?')">
                                     @csrf
                                     <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition">
