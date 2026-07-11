@@ -289,7 +289,7 @@
                 <!-- Dropdown: J Hom -->
                 <div class="relative group">
                     <button class="nav-link font-medium text-sm transition pb-1 border-b-2 border-transparent hover:border-gray-300 flex items-center gap-1">
-                        J Hom
+                        J Home
                         <svg class="w-3 h-3 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
                     <div class="absolute top-full left-0 w-56 bg-white shadow-xl rounded-lg py-3 mt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2">
