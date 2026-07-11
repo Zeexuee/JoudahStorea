@@ -399,7 +399,7 @@
             </li>
             <li class="mobile-menu-item">
                 <button class="mobile-dropdown-toggle" data-submenu="hom">
-                    J Hom
+                    J Home
                     <svg class="dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
