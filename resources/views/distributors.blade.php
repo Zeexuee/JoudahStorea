@@ -6,7 +6,7 @@
     $allLocations = $locations->values();
 @endphp
 
-<x-layouts.app title="Distributors - Joudah Store" description="Find nearby Joudah Store distributors, contacts, and store locations.">
+<x-layouts.app title="Partner - Joudah Store" description="Find nearby Joudah Store partners, contacts, and store locations.">
     <style>
         .leaflet-container {
             border-radius: 28px;
@@ -41,10 +41,10 @@
         <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10 pt-8">
             <div class="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-8 items-end">
                 <div>
-                    <span class="text-amber-600 uppercase tracking-[0.25em] text-xs font-bold mb-4 block">Distributors</span>
-                    <h1 class="text-4xl md:text-6xl font-serif text-gray-900 leading-tight mb-5">Temukan toko distributor, kontak, dan lokasi terdekat.</h1>
+                    <span class="text-amber-600 uppercase tracking-[0.25em] text-xs font-bold mb-4 block">Partner</span>
+                    <h1 class="text-4xl md:text-6xl font-serif text-gray-900 leading-tight mb-5">Temukan toko partner, kontak, dan lokasi terdekat.</h1>
                     <p class="text-gray-600 text-lg leading-relaxed max-w-3xl">
-                        Gunakan peta untuk melihat persebaran mitra, pilih toko di bawah untuk melihat detail kontak, dan buka rute langsung ke lokasi distributor.
+                        Gunakan peta untuk melihat persebaran mitra, pilih toko di bawah untuk melihat detail kontak, dan buka rute langsung ke lokasi partner.
                     </p>
                 </div>
 

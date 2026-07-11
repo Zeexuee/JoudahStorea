@@ -299,7 +299,7 @@
                     </div>
                 </div>
                 <a href="{{ route('distributors.index') }}" class="nav-link font-medium text-sm transition pb-1 border-b-2 border-transparent hover:border-gray-300">
-                    Distributors
+                    Temukan
                 </a>
             </div>
 
@@ -414,7 +414,7 @@
                 </div>
             </li>
             <li class="mobile-menu-item">
-                <a href="{{ route('distributors.index') }}">Distributors</a>
+                <a href="{{ route('distributors.index') }}">Temukan</a>
             </li>
             <li class="mobile-menu-item border-t border-gray-200">
                 @auth
