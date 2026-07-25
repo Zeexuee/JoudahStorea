@@ -40,7 +40,7 @@
                     </div>
                     <div class="px-4 border-t md:border-t-0 md:border-l border-amber-200/60 pt-4 md:pt-0">
                         <h4 class="font-serif text-lg font-semibold text-gray-900 mb-1">Karakter Karismatik</h4>
-                        <p class="text-xs text-gray-500 font-light">Wewangian khas dengan denga  keistimewaan </p>
+                        <p class="text-xs text-gray-500 font-light">Wewangian khas dengan keistimewaan tersendiri</p>
                     </div>
                 </div>
             </div>
