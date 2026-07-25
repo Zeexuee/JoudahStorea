@@ -26,6 +26,18 @@ class DatabaseSeeder extends Seeder
 
         // Categories & Products
         $categories = [
+            'oud' => [
+                'name' => 'Royal Oud',
+                'title' => 'Royal Oud Collection',
+                'description' => 'Kemewahan tiada tara dari kayu Oud pilihan terbaik. Koleksi mahakarya beraroma kayu gaharu yang murni, hangat, dan sangat berkelas.',
+                'banner' => 'images/catalog/oud_hero.png',
+                'products' => [
+                    ['name' => 'Royal Cambodian Oud', 'price' => 2500000, 'image' => 'images/catalog/parfum.png'],
+                    ['name' => 'Dehn Al Oud Hindi', 'price' => 3800000, 'image' => 'images/catalog/parfum.png'],
+                    ['name' => 'Pure Calambac Reserve', 'price' => 5200000, 'image' => 'images/catalog/parfum.png'],
+                    ['name' => 'Oud Imperial Supreme', 'price' => 1950000, 'image' => 'images/catalog/bukhur-box.png'],
+                ]
+            ],
             'j-scent' => [
                 'name' => 'J Scent',
                 'title' => 'J Scent',
@@ -122,23 +134,29 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($categories as $slug => $data) {
-            $category = \App\Models\Category::create([
-                'name' => $data['title'],
-                'slug' => $slug,
-                'description' => $data['description'],
-                'hero_image' => $data['banner'],
-            ]);
+            $category = \App\Models\Category::updateOrCreate(
+                ['slug' => $slug],
+                [
+                    'name' => $data['title'],
+                    'description' => $data['description'],
+                    'hero_image' => $data['banner'],
+                ]
+            );
 
             foreach ($data['products'] as $productData) {
-                \App\Models\Product::create([
-                    'category_id' => $category->id,
-                    'name' => $productData['name'],
-                    'slug' => \Illuminate\Support\Str::slug($productData['name']),
-                    'price' => $productData['price'],
-                    'description' => $data['description'], // Inherit for now
-                    'images' => [$productData['image']],
-                    'is_featured' => true,
-                ]);
+                \App\Models\Product::updateOrCreate(
+                    [
+                        'category_id' => $category->id,
+                        'slug' => \Illuminate\Support\Str::slug($productData['name']),
+                    ],
+                    [
+                        'name' => $productData['name'],
+                        'price' => $productData['price'],
+                        'description' => $data['description'],
+                        'images' => [$productData['image']],
+                        'is_featured' => true,
+                    ]
+                );
             }
         }
 

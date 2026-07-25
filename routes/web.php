@@ -88,7 +88,40 @@ Route::get('/product/{slug}', function ($slug) {
 
 Route::get('/category/{slug}', function (string $slug) use ($categorySlugMap) {
     $canonicalSlug = $categorySlugMap[$slug] ?? $slug;
-    $category = Category::where('slug', $canonicalSlug)->with('products')->firstOrFail();
+    $category = Category::where('slug', $canonicalSlug)->with('products')->first();
+
+    if ($canonicalSlug === 'oud') {
+        if (!$category || $category->products->isEmpty()) {
+            $products = \App\Models\Product::where('name', 'LIKE', '%Oud%')
+                ->orWhere('category_id', $category?->id)
+                ->get();
+            
+            if ($products->isEmpty()) {
+                $allProducts = \App\Models\Product::take(4)->get();
+                $products = $allProducts;
+            }
+
+            if ($category) {
+                $category->setRelation('products', $products);
+            } else {
+                $dummyCategory = new Category([
+                    'name' => 'Royal Oud Collection',
+                    'slug' => 'oud',
+                    'description' => 'Kemewahan tiada tara dari kayu Oud pilihan terbaik. Koleksi mahakarya beraroma kayu gaharu yang murni, hangat, dan sangat berkelas.',
+                    'hero_image' => 'images/catalog/oud_hero.png',
+                ]);
+                $dummyCategory->id = 999;
+                $dummyCategory->setRelation('products', $products);
+                $category = $dummyCategory;
+            }
+        }
+
+        return view('category.oud', ['category' => $category]);
+    }
+
+    if (!$category) {
+        abort(404);
+    }
 
     if ($canonicalSlug !== $slug) {
         return redirect()->route('category.show', $canonicalSlug, 301);

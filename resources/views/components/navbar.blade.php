@@ -267,6 +267,9 @@
                 <a href="/" class="nav-link font-bold text-sm border-b-2 border-transparent pb-1 hover:border-gray-300 transition">
                     Home
                 </a>
+                <a href="{{ route('category.show', 'oud') }}" class="nav-link font-medium text-sm transition pb-1 border-b-2 border-transparent hover:border-gray-300">
+                    Oud
+                </a>
                 <a href="{{ route('category.show', 'j-scent') }}" class="nav-link font-medium text-sm transition pb-1 border-b-2 border-transparent hover:border-gray-300">
                     J Scent
                 </a>
@@ -371,6 +374,9 @@
         <ul class="mobile-menu-items">
             <li class="mobile-menu-item">
                 <a href="/">Home</a>
+            </li>
+            <li class="mobile-menu-item">
+                <a href="{{ route('category.show', 'oud') }}">Oud</a>
             </li>
             <li class="mobile-menu-item">
                 <a href="{{ route('category.show', 'j-scent') }}">J Scent</a>
