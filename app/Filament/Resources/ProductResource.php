@@ -7,11 +7,15 @@ use App\Models\Product;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
-use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Text;
 
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -29,12 +33,18 @@ class ProductResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema
-            ->components([
+        return $schema->schema([
                 Section::make('Product Details')->schema([
                     Select::make('category_id')
                         ->relationship('category', 'name')
-                        ->required(),
+                        ->required()
+                        ->live()
+                        ->afterStateUpdated(function ($state, $set) {
+                            $category = \App\Models\Category::find($state);
+                            if ($category && $category->slug === 'oud') {
+                                $set('price_unit', 'gram');
+                            }
+                        }),
                     TextInput::make('name')
                         ->required()
                         ->live(onBlur: true)
@@ -43,9 +53,20 @@ class ProductResource extends Resource
                         ->required()
                         ->unique(ignoreRecord: true),
                     TextInput::make('price')
+                        ->label('Harga Produk')
                         ->required()
                         ->numeric()
-                        ->prefix('Rp'),
+                        ->prefix('Rp')
+                        ->helperText(fn ($get) => $get('price_unit') === 'gram' || \App\Models\Category::find($get('category_id'))?->slug === 'oud' ? 'Sistem Harga: Per Gram (Rp / gram)' : 'Sistem Harga: Per Produk (Rp / pcs)'),
+                    Select::make('price_unit')
+                        ->label('Satuan Harga')
+                        ->options([
+                            'pcs' => 'Per Produk (Pcs)',
+                            'gram' => 'Per Gram (Oud Category)',
+                        ])
+                        ->default('pcs')
+                        ->required()
+                        ->helperText('Pilih "Per Gram" untuk produk ber-kategori Oud.'),
                 ])->columns(2),
 
                 Section::make('Media')->schema([
@@ -66,8 +87,33 @@ class ProductResource extends Resource
                 ]),
 
                 Section::make('Settings')->schema([
-                    Toggle::make('is_featured')
-                        ->required(),
+                    Grid::make(2)->schema([
+                        Toggle::make('is_featured')
+                            ->required(),
+                        TextInput::make('discount_percent')
+                            ->label('Discount Percent')
+                            ->numeric()
+                            ->minValue(0)
+                            ->maxValue(100)
+                            ->suffix('%')
+                            ->helperText('Masukkan persentase diskon (contoh: 10 untuk 10%).')
+                            ->default(0),
+                    ]),
+                    Grid::make(2)->schema([
+                        DateTimePicker::make('discount_starts_at')
+                            ->label('Discount Starts At')
+                            ->native(false)
+                            ->seconds(false)
+                            ->placeholder('Opsional'),
+                        DateTimePicker::make('discount_ends_at')
+                            ->label('Discount Ends At')
+                            ->native(false)
+                            ->seconds(false)
+                            ->placeholder('Opsional'),
+                    ]),
+                    Placeholder::make('discount_note')
+                        ->label('Preview')
+                        ->content('Harga akhir akan dihitung otomatis dari harga dasar produk, persentase diskon, dan masa aktif diskon yang dipilih.'),
                 ]),
 
                 Section::make('Marketplace Links')->schema([
@@ -94,8 +140,25 @@ class ProductResource extends Resource
                 TextColumn::make('category.name')
                     ->sortable(),
                 TextColumn::make('price')
-                    ->money('IDR', locale: 'id')
+                    ->label('Harga Base')
+                    ->formatStateUsing(fn ($state, Product $record) => \Illuminate\Support\Number::currency($state, 'IDR') . ($record->is_per_gram ? ' / gram' : ''))
                     ->sortable(),
+                TextColumn::make('price_unit')
+                    ->label('Satuan')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'gram' => 'warning',
+                        default => 'gray',
+                    }),
+                TextColumn::make('discount_percent')
+                    ->label('Diskon')
+                    ->suffix('%')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('price_after_discount')
+                    ->label('Harga Setelah Diskon')
+                    ->formatStateUsing(fn ($state, Product $record) => \Illuminate\Support\Number::currency($state, 'IDR') . ($record->is_per_gram ? ' / gram' : ''))
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_featured')
                     ->boolean(),
                 TextColumn::make('created_at')

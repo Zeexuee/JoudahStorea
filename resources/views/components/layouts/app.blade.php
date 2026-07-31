@@ -7,6 +7,7 @@
 
     <title>{{ $title ?? config('app.name') }}</title>
     <meta name="description" content="{{ $description ?? 'Welcome to ' . config('app.name') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -24,6 +25,9 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -31,9 +35,14 @@
     <div class="min-h-screen bg-white">
         <x-navbar />
         <main>
-            {{ $slot }}
+            @isset($slot)
+                {{ $slot }}
+            @else
+                @yield('content')
+            @endisset
         </main>
     </div>
+    <x-auth-modal />
     @stack('scripts')
 </body>
 </html>
