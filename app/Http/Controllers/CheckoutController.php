@@ -62,7 +62,8 @@ class CheckoutController extends Controller
 
         // Calculate subtotal
         $subtotal = $cartItems->sum(function ($item) {
-            return $item->product->price * $item->quantity;
+            $unitPrice = $item->product->has_discount ? $item->product->price_after_discount : $item->product->price;
+            return $unitPrice * $item->quantity;
         });
 
         // Get provinces for dropdown
@@ -206,7 +207,8 @@ class CheckoutController extends Controller
 
             // Calculate subtotal
             $subtotal = $cartItems->sum(function ($item) {
-                return $item->product->price * $item->quantity;
+                $unitPrice = $item->product->has_discount ? $item->product->price_after_discount : $item->product->price;
+                return $unitPrice * $item->quantity;
             });
 
             // Calculate fees
@@ -237,10 +239,11 @@ class CheckoutController extends Controller
 
             // Create order items
             foreach ($cartItems as $cartItem) {
+                $itemPrice = $cartItem->product->has_discount ? $cartItem->product->price_after_discount : $cartItem->product->price;
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $cartItem->product_id,
-                    'price' => $cartItem->product->price,
+                    'price' => $itemPrice,
                     'quantity' => $cartItem->quantity,
                 ]);
             }

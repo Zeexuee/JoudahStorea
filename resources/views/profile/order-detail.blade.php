@@ -104,8 +104,8 @@
                                         </a>
                                     </h3>
                                     <div class="text-gray-600 text-sm space-y-1">
-                                        <p>Harga: <strong>Rp{{ number_format($item->price, 0, ',', '.') }}</strong></p>
-                                        <p>Jumlah: <strong>{{ $item->quantity }}</strong></p>
+                                        <p>Harga: <strong>Rp{{ number_format($item->price, 0, ',', '.') }}{{ $item->product->is_per_gram ? ' / gram' : '' }}</strong></p>
+                                        <p>Jumlah: <strong>{{ $item->quantity }} {{ $item->product->is_per_gram ? 'gram' : '' }}</strong></p>
                                         <p>Subtotal: <strong class="text-amber-600">Rp{{ number_format($item->quantity * $item->price, 0, ',', '.') }}</strong></p>
                                     </div>
                                 </div>

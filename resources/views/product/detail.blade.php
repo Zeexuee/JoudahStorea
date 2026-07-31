@@ -249,11 +249,11 @@
                         <!-- Price Info Grid -->
                             <div class="grid grid-cols-2 gap-3 mb-6">
                             <div class="flex flex-col justify-end">
-                                <span class="block text-gray-500 text-xs mb-1">Instant price</span>
+                                <span class="block text-gray-500 text-xs mb-1">{{ $product->is_per_gram ? 'Harga per Gram' : 'Instant price' }}</span>
                                 @if($product->has_discount)
                                     <div class="flex items-baseline gap-3">
-                                        <span class="text-sm text-gray-500 line-through">{{ Number::currency($product->price, 'IDR') }}</span>
-                                        <span class="text-2xl font-bold text-amber-600">{{ Number::currency($product->price_after_discount, 'IDR') }}</span>
+                                        <span class="text-sm text-gray-500 line-through">{{ Number::currency($product->price, 'IDR') }}{{ $product->is_per_gram ? ' / gram' : '' }}</span>
+                                        <span class="text-2xl font-bold text-amber-600">{{ Number::currency($product->price_after_discount, 'IDR') }}{{ $product->is_per_gram ? ' / gram' : '' }}</span>
                                     </div>
                                     <div class="text-sm text-green-600 mt-1">Diskon {{ $product->discount_percent }}% off</div>
                                     @if($product->discount_ends_at)
@@ -262,7 +262,7 @@
                                         </div>
                                     @endif
                                 @else
-                                    <span class="block text-2xl font-bold text-gray-900">{{ Number::currency($product->price, 'IDR') }}</span>
+                                    <span class="block text-2xl font-bold text-gray-900">{{ Number::currency($product->price, 'IDR') }}{{ $product->is_per_gram ? ' / gram' : '' }}</span>
                                 @endif
                             </div>
                             @if($product->shopee_link || $product->tokopedia_link)
@@ -288,16 +288,40 @@
                             @endif
                         </div>
 
+                        <!-- Quantity / Gram Selector -->
+                        <div class="mb-5 pt-3 border-t border-amber-300/60">
+                            <label class="block text-xs font-semibold text-gray-700 mb-2">
+                                {{ $product->is_per_gram ? 'Jumlah Berat (Gram):' : 'Jumlah Pesanan:' }}
+                            </label>
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center border border-gray-300 bg-white rounded-sm overflow-hidden">
+                                    <button type="button" id="qty-minus-btn" class="px-3 py-1 text-gray-700 hover:bg-gray-100 font-bold transition">-</button>
+                                    <input type="number" id="product-qty-input" value="1" min="1" class="w-16 text-center border-none focus:ring-0 py-1 font-bold text-gray-900 text-sm">
+                                    <button type="button" id="qty-plus-btn" class="px-3 py-1 text-gray-700 hover:bg-gray-100 font-bold transition">+</button>
+                                </div>
+                                <span class="text-sm font-semibold text-gray-700 uppercase">
+                                    {{ $product->is_per_gram ? 'gram' : 'pcs' }}
+                                </span>
+                            </div>
+                            @if($product->is_per_gram)
+                                <div class="mt-2 text-xs text-amber-900 font-medium">
+                                    Total Estimasi: <span id="gram-total-price" class="font-bold text-amber-700" data-unit-price="{{ $product->has_discount ? $product->price_after_discount : $product->price }}">{{ Number::currency($product->has_discount ? $product->price_after_discount : $product->price, 'IDR') }}</span>
+                                    (untuk <span id="gram-qty-label">1</span> gram)
+                                </div>
+                            @endif
+                        </div>
+
                         <!-- Buttons -->
                         <div class="grid grid-cols-2 gap-3">
                             <!-- Left Button: Add to Cart (Icon only) -->
                             <button class="bg-[#F3EAD8] text-gray-900 py-2 px-3 text-xs font-bold tracking-wide hover:bg-[#E8DCC8] transition text-center flex items-center justify-center gap-1 border border-gray-300 rounded-sm" title="Add to Cart">
                                 <i class="fa-solid fa-cart-plus text-lg"></i>
+                                <span class="text-xs ml-1 font-semibold">Tambah</span>
                             </button>
                             
                             <!-- Right Button: Buy Now -->
                             <button class="bg-[#1A1A1A] text-white py-3 px-4 text-sm font-bold tracking-wide hover:bg-black transition text-center flex items-center justify-center gap-2" title="Buy Now" id="buy-now-btn">
-                                <span>Buy Now</span>
+                                <span>Beli Sekarang</span>
                             </button>
                         </div>
                     </div>
@@ -540,6 +564,50 @@
                 }
             });
 
+            // Quantity / Gram Selector Handlers
+            const qtyInput = document.getElementById('product-qty-input');
+            const qtyMinusBtn = document.getElementById('qty-minus-btn');
+            const qtyPlusBtn = document.getElementById('qty-plus-btn');
+            const gramTotalPrice = document.getElementById('gram-total-price');
+            const gramQtyLabel = document.getElementById('gram-qty-label');
+
+            function getSelectedQuantity() {
+                return qtyInput ? Math.max(1, parseInt(qtyInput.value) || 1) : 1;
+            }
+
+            function updateQtyDisplay() {
+                const qty = getSelectedQuantity();
+                if (qtyInput) qtyInput.value = qty;
+                if (gramQtyLabel) gramQtyLabel.textContent = qty;
+                if (gramTotalPrice) {
+                    const unitPrice = parseFloat(gramTotalPrice.getAttribute('data-unit-price')) || 0;
+                    const total = unitPrice * qty;
+                    gramTotalPrice.textContent = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(total);
+                }
+            }
+
+            if (qtyMinusBtn) {
+                qtyMinusBtn.addEventListener('click', () => {
+                    const current = getSelectedQuantity();
+                    if (current > 1) {
+                        if (qtyInput) qtyInput.value = current - 1;
+                        updateQtyDisplay();
+                    }
+                });
+            }
+
+            if (qtyPlusBtn) {
+                qtyPlusBtn.addEventListener('click', () => {
+                    const current = getSelectedQuantity();
+                    if (qtyInput) qtyInput.value = current + 1;
+                    updateQtyDisplay();
+                });
+            }
+
+            if (qtyInput) {
+                qtyInput.addEventListener('input', updateQtyDisplay);
+            }
+
             // Add to Cart functionality
             const productId = {{ $product->id }};
             const addToCartButtons = document.querySelectorAll('button[title="Add to Cart"]');
@@ -560,6 +628,7 @@
                         }
                         
                         // User is authenticated, add to cart
+                        const selectedQuantity = getSelectedQuantity();
                         const response = await fetch('/cart/add', {
                             method: 'POST',
                             headers: {
@@ -568,7 +637,7 @@
                             },
                             body: JSON.stringify({
                                 product_id: productId,
-                                quantity: 1
+                                quantity: selectedQuantity
                             })
                         });
 
@@ -584,7 +653,7 @@
                         }
 
                         // Show success message
-                        showToast(`${data.productName} ditambahkan ke keranjang!`);
+                        showToast(`${data.productName} (${selectedQuantity} {{ $product->is_per_gram ? 'gram' : 'pcs' }}) ditambahkan ke keranjang!`);
                         
                     } catch (error) {
                         console.error('Error adding to cart:', error);
@@ -611,6 +680,7 @@
                         }
                         
                         // User is authenticated, add to cart
+                        const selectedQuantity = getSelectedQuantity();
                         const response = await fetch('/cart/add', {
                             method: 'POST',
                             headers: {
@@ -619,7 +689,7 @@
                             },
                             body: JSON.stringify({
                                 product_id: productId,
-                                quantity: 1
+                                quantity: selectedQuantity
                             })
                         });
 

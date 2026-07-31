@@ -37,7 +37,14 @@ class ProductResource extends Resource
                 Section::make('Product Details')->schema([
                     Select::make('category_id')
                         ->relationship('category', 'name')
-                        ->required(),
+                        ->required()
+                        ->live()
+                        ->afterStateUpdated(function ($state, $set) {
+                            $category = \App\Models\Category::find($state);
+                            if ($category && $category->slug === 'oud') {
+                                $set('price_unit', 'gram');
+                            }
+                        }),
                     TextInput::make('name')
                         ->required()
                         ->live(onBlur: true)
@@ -46,9 +53,20 @@ class ProductResource extends Resource
                         ->required()
                         ->unique(ignoreRecord: true),
                     TextInput::make('price')
+                        ->label('Harga Produk')
                         ->required()
                         ->numeric()
-                        ->prefix('Rp'),
+                        ->prefix('Rp')
+                        ->helperText(fn ($get) => $get('price_unit') === 'gram' || \App\Models\Category::find($get('category_id'))?->slug === 'oud' ? 'Sistem Harga: Per Gram (Rp / gram)' : 'Sistem Harga: Per Produk (Rp / pcs)'),
+                    Select::make('price_unit')
+                        ->label('Satuan Harga')
+                        ->options([
+                            'pcs' => 'Per Produk (Pcs)',
+                            'gram' => 'Per Gram (Oud Category)',
+                        ])
+                        ->default('pcs')
+                        ->required()
+                        ->helperText('Pilih "Per Gram" untuk produk ber-kategori Oud.'),
                 ])->columns(2),
 
                 Section::make('Media')->schema([
@@ -122,15 +140,23 @@ class ProductResource extends Resource
                 TextColumn::make('category.name')
                     ->sortable(),
                 TextColumn::make('price')
-                    ->money('IDR', locale: 'id')
+                    ->label('Harga Base')
+                    ->formatStateUsing(fn ($state, Product $record) => \Illuminate\Support\Number::currency($state, 'IDR') . ($record->is_per_gram ? ' / gram' : ''))
                     ->sortable(),
+                TextColumn::make('price_unit')
+                    ->label('Satuan')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'gram' => 'warning',
+                        default => 'gray',
+                    }),
                 TextColumn::make('discount_percent')
                     ->label('Diskon')
                     ->suffix('%')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('price_after_discount')
                     ->label('Harga Setelah Diskon')
-                    ->money('IDR', locale: 'id')
+                    ->formatStateUsing(fn ($state, Product $record) => \Illuminate\Support\Number::currency($state, 'IDR') . ($record->is_per_gram ? ' / gram' : ''))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_featured')

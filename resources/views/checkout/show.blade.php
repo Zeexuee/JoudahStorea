@@ -257,13 +257,16 @@
                     <!-- Items -->
                     <div class="space-y-3 mb-6 pb-6 border-b border-gray-200">
                         @foreach($cartItems as $item)
+                            @php
+                                $itemPrice = $item->product->has_discount ? $item->product->price_after_discount : $item->product->price;
+                            @endphp
                             <div class="flex justify-between text-sm">
                                 <span class="text-gray-700">
                                     {{ $item->product->name }}
-                                    <span class="text-gray-500">(x{{ $item->quantity }})</span>
+                                    <span class="text-gray-500">({{ $item->product->is_per_gram ? $item->quantity . ' gram' : 'x' . $item->quantity }})</span>
                                 </span>
                                 <span class="font-medium text-gray-900">
-                                    Rp{{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}
+                                    Rp{{ number_format($itemPrice * $item->quantity, 0, ',', '.') }}
                                 </span>
                             </div>
                         @endforeach

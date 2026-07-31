@@ -97,42 +97,42 @@
             <!-- Grid (2 Columns on Mobile, 3 Columns on Desktop) -->
             <div class="category-products grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-8">
                 @foreach($category->products as $product)
-                <a href="{{ route('product.detail', $product->slug) }}" class="group block cursor-pointer">
-                    <div class="product-img-wrapper relative bg-gray-50 aspect-[4/5] overflow-hidden mb-2 sm:mb-5 rounded-lg border border-gray-100 shadow-sm">
-                        @if($product->has_discount)
-                            <div class="absolute top-2 left-2 sm:top-3 sm:left-3 z-10 bg-amber-600 text-white text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 sm:px-2.5 sm:py-1 shadow-sm rounded">
-                                -{{ $product->discount_percent }}%
+                    <a href="{{ route('product.detail', $product->slug) }}" class="group block cursor-pointer">
+                        <div class="product-img-wrapper relative bg-gray-50 aspect-[4/5] overflow-hidden mb-2 sm:mb-5 rounded-lg border border-gray-100 shadow-sm">
+                            @if($product->has_discount)
+                                <div class="absolute top-2 left-2 sm:top-3 sm:left-3 z-10 bg-amber-600 text-white text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 sm:px-2.5 sm:py-1 shadow-sm rounded">
+                                    -{{ $product->discount_percent }}%
+                                </div>
+                            @endif
+                            @php
+                                $imagePath = $product->images[0] ?? null;
+                                $src = $imagePath
+                                    ? (Str::startsWith($imagePath, 'images/') ? asset($imagePath) : asset('storage/' . $imagePath))
+                                    : asset('images/placeholder.png');
+                            @endphp
+                            <img src="{{ $src }}" alt="{{ $product->name }}" class="w-full h-full object-cover object-center transform group-hover:scale-105 transition duration-700 ease-out">
+
+                            <div class="hidden sm:flex absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors duration-500 items-center justify-center opacity-0 group-hover:opacity-100">
+                                 <span class="bg-gray-900 text-white px-6 py-3 text-xs uppercase tracking-widest font-bold shadow-lg transform translate-y-4 group-hover:translate-y-0 transition duration-500 rounded">Lihat Detail</span>
                             </div>
-                        @endif
-                        @php
-                            $imagePath = $product->images[0] ?? null;
-                            $src = $imagePath 
-                                ? (Str::startsWith($imagePath, 'images/') ? asset($imagePath) : asset('storage/' . $imagePath))
-                                : asset('images/placeholder.png');
-                        @endphp
-                        <img src="{{ $src }}" alt="{{ $product->name }}" class="w-full h-full object-cover object-center transform group-hover:scale-105 transition duration-700 ease-out">
-                        
-                        <div class="hidden sm:flex absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors duration-500 items-center justify-center opacity-0 group-hover:opacity-100">
-                             <span class="bg-gray-900 text-white px-6 py-3 text-xs uppercase tracking-widest font-bold shadow-lg transform translate-y-4 group-hover:translate-y-0 transition duration-500 rounded">Lihat Detail</span>
                         </div>
-                    </div>
-                    <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-amber-700 mb-0.5 block">Oud Series</span>
-                    <h3 class="font-serif text-sm sm:text-xl text-gray-900 mb-0.5 group-hover:text-amber-700 transition line-clamp-1">{{ $product->name }}</h3>
-                    @if($product->has_discount)
-                        <p class="font-medium text-gray-400 text-[10px] sm:text-xs line-through">{{ Number::currency($product->price, 'IDR') }}</p>
-                        <p class="font-semibold text-amber-700 text-xs sm:text-base">{{ Number::currency($product->price_after_discount, 'IDR') }}</p>
-                    @else
-                        <p class="font-medium text-gray-900 text-xs sm:text-base">{{ Number::currency($product->price, 'IDR') }}</p>
-                    @endif
-                </a>
+                        <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-amber-700 mb-0.5 block">Oud Series</span>
+                        <h3 class="font-serif text-sm sm:text-xl text-gray-900 mb-0.5 group-hover:text-amber-700 transition line-clamp-1">{{ $product->name }}</h3>
+                        @if($product->has_discount)
+                            <p class="font-medium text-gray-400 text-[10px] sm:text-xs line-through">{{ Number::currency($product->price, 'IDR') }} / gram</p>
+                            <p class="font-semibold text-amber-700 text-xs sm:text-base">{{ Number::currency($product->price_after_discount, 'IDR') }} / gram</p>
+                        @else
+                            <p class="font-medium text-gray-900 text-xs sm:text-base">{{ Number::currency($product->price, 'IDR') }} / gram</p>
+                        @endif
+                    </a>
                 @endforeach
             </div>
 
             <!-- Empty State -->
             @if($category->products->count() === 0)
-            <div class="text-center py-16 sm:py-24 bg-gray-50 rounded-xl">
-                <p class="text-gray-400 font-light text-sm sm:text-lg">Koleksi Oud saat ini belum tersedia.</p>
-            </div>
+                <div class="text-center py-16 sm:py-24 bg-gray-50 rounded-xl">
+                    <p class="text-gray-400 font-light text-sm sm:text-lg">Koleksi Oud saat ini belum tersedia.</p>
+                </div>
             @endif
 
             <!-- HERITAGE BANNER -->

@@ -65,6 +65,20 @@ class Product extends Model
         return $this->isDiscountActive();
     }
 
+    public function getIsPerGramAttribute(): bool
+    {
+        if ($this->price_unit === 'gram') {
+            return true;
+        }
+
+        return $this->category && $this->category->slug === 'oud';
+    }
+
+    public function getUnitLabelAttribute(): string
+    {
+        return $this->is_per_gram ? 'gram' : 'pcs';
+    }
+
     protected function isDiscountActive(): bool
     {
         if (!is_null($this->discount_percent) && $this->discount_percent > 0) {

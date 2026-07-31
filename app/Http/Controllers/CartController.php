@@ -57,7 +57,8 @@ class CartController extends Controller
 
         // Calculate subtotal
         $subtotal = $cartItems->sum(function ($item) {
-            return $item->product->price * $item->quantity;
+            $unitPrice = $item->product->has_discount ? $item->product->price_after_discount : $item->product->price;
+            return $unitPrice * $item->quantity;
         });
 
         return view('cart.index', [

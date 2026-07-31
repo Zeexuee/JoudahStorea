@@ -45,18 +45,30 @@
                                         <a href="{{ route('product.detail', $cartItem->product->slug) }}" class="text-lg font-serif text-gray-900 hover:text-amber-600 transition">
                                             {{ $cartItem->product->name }}
                                         </a>
-                                        <p class="text-sm text-gray-500 mt-1">{{ $cartItem->product->category->name }}</p>
+                                        <p class="text-sm text-gray-500 mt-1">
+                                            {{ $cartItem->product->category->name }}
+                                            @if($cartItem->product->is_per_gram)
+                                                <span class="inline-block bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded ml-2">Harga Per Gram</span>
+                                            @endif
+                                        </p>
                                         
                                         <!-- Price -->
+                                        @php
+                                            $effectivePrice = $cartItem->product->has_discount ? $cartItem->product->price_after_discount : $cartItem->product->price;
+                                        @endphp
                                         <div class="mt-3 text-lg font-bold text-gray-900">
-                                            Rp {{ number_format($cartItem->product->price * $cartItem->quantity, 0, ',', '.') }}
+                                            Rp {{ number_format($effectivePrice * $cartItem->quantity, 0, ',', '.') }}
+                                            @if($cartItem->product->is_per_gram)
+                                                <span class="text-xs font-normal text-amber-700 block mt-0.5">({{ Number::currency($effectivePrice, 'IDR') }} / gram × {{ $cartItem->quantity }} gram)</span>
+                                            @endif
                                         </div>
                                         
                                         <!-- Quantity Controls -->
                                         <div class="mt-4 flex items-center gap-3">
                                             <button class="decrease-qty px-3 py-1 border border-gray-300 hover:bg-gray-100 transition" data-product-id="{{ $cartItem->product->id }}">-</button>
-                                            <input type="number" class="qty-input w-12 text-center border border-gray-300 py-1" value="{{ $cartItem->quantity }}" min="1" data-product-id="{{ $cartItem->product->id }}">
+                                            <input type="number" class="qty-input w-16 text-center border border-gray-300 py-1" value="{{ $cartItem->quantity }}" min="1" data-product-id="{{ $cartItem->product->id }}">
                                             <button class="increase-qty px-3 py-1 border border-gray-300 hover:bg-gray-100 transition" data-product-id="{{ $cartItem->product->id }}">+</button>
+                                            <span class="text-xs text-gray-600 font-medium">{{ $cartItem->product->is_per_gram ? 'gram' : 'pcs' }}</span>
                                             <button class="remove-item ml-auto text-red-600 hover:text-red-800 text-sm font-bold transition" data-product-id="{{ $cartItem->product->id }}">Hapus</button>
                                         </div>
                                     </div>
